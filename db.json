@@ -14,14 +14,14 @@
     {
       "id": "d728daa5-d822-42cd-b4f6-67abeb6b0fe2",
       "full_name": "Admin",
-      "email": "admin@mrp.local",
+      "email": "admin@mrp.localmed",
       "phone": null,
-      "password_hash": "$2a$10$QTARMtI8KuFHtrlaVrbmjO.rfYrXucgFoYEod3rGps4ZhByVpvG.y",
+      "password_hash": "$2a$10$u/rrHJQ5Jo29ez6fpYoFC.SVdnXtXQgBVkDRt0AwcZvNlh0T8eW52",
       "points_balance": 0,
       "is_admin": true,
       "status": "active",
       "created_at": "2026-02-27T15:33:49.221Z",
-      "last_login_at": "2026-02-28T15:43:51.691Z"
+      "last_login_at": "2026-02-28T16:28:19.553Z"
     },
     {
       "id": "87608041-b3f4-4f25-aaea-8d4b2dc399aa",
