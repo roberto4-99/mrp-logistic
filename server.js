@@ -4,7 +4,7 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const { v4: uuidv4 } = require("uuid");
-const db = require("./database");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, "db.json");
@@ -51,24 +51,29 @@ function ensureAdmin(db) {
   const exists = (db.users || []).some((u) => u.is_admin === true);
   if (exists) return;
 
+  const defaultAdminPassword = process.env.ADMIN_PASSWORD || "admin12345";
+
   db.users = db.users || [];
   db.users.push({
     id: uuidv4(),
     full_name: "Admin",
     email: "admin@mrp.local",
     phone: null,
-    password_hash: bcrypt.hashSync("admin12345", 10),
+    password_hash: bcrypt.hashSync(defaultAdminPassword, 10),
     points_balance: 0,
     is_admin: true,
     status: "active",
     created_at: nowISO(),
     last_login_at: null,
   });
+
+  console.log("✅ Admin created:", "admin@mrp.local /", defaultAdminPassword);
 }
 
 /* ---------- Init ---------- */
 (function init() {
   const db = readDb();
+
   db.settings = db.settings || {};
   db.users = db.users || [];
   db.wallet_transactions = db.wallet_transactions || [];
@@ -79,10 +84,12 @@ function ensureAdmin(db) {
   ensureAdmin(db);
   writeDb(db);
 
-  console.log("✅ Admin ensured: admin@mrp.local / admin12345");
+  console.log("✅ DB ready:", DB_FILE);
 })();
 
 /* ---------- Middleware ---------- */
+app.set("trust proxy", 1); // مهم فـ Railway/HTTPS
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -91,6 +98,11 @@ app.use(
     secret: process.env.SESSION_SECRET || "mrp_secret_change_me",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: !!process.env.RAILWAY_STATIC_URL || !!process.env.RAILWAY_PUBLIC_DOMAIN, // على Railway غالباً https
+    },
   })
 );
 
@@ -107,7 +119,7 @@ function requireAuth(req, res, next) {
 }
 
 function requireAdmin(req, res, next) {
-  if (!req.user?.is_admin) return res.status(403).send("Forbidden");
+  if (!req.user?.is_admin) return res.status(403).json({ ok: false, message: "Forbidden" });
   next();
 }
 
@@ -161,8 +173,8 @@ app.post("/api/register", (req, res) => {
 
   const exists = (db.users || []).find(
     (u) =>
-      (keyEmail && u.email && u.email.toLowerCase() === keyEmail.toLowerCase()) ||
-      (keyPhone && u.phone === keyPhone)
+      (keyEmail && u.email && String(u.email).toLowerCase() === keyEmail.toLowerCase()) ||
+      (keyPhone && u.phone && String(u.phone).trim() === keyPhone)
   );
 
   if (exists) {
@@ -197,7 +209,7 @@ app.post("/api/login", (req, res) => {
 
   const u = (db.users || []).find((x) => {
     const emailOk = x.email && String(x.email).toLowerCase() === keyLower;
-    const phoneOk = x.phone && String(x.phone).trim() === keyRaw; // الهاتف حساس للـ lower
+    const phoneOk = x.phone && String(x.phone).trim() === keyRaw;
     return emailOk || phoneOk;
   });
 
@@ -231,7 +243,20 @@ app.get("/api/me", requireAuth, (req, res) => {
   });
 });
 
-/* ---------- Debug (اختياري) ---------- */
+/* ---------- ADMIN APIs (باش admin ما يطيحش) ---------- */
+app.get("/api/admin/users", requireAuth, requireAdmin, (req, res) => {
+  const db = req._db;
+  const rows = (db.users || []).filter((u) => !u.is_admin).slice(-500).reverse();
+  res.json({ ok: true, rows });
+});
+
+app.get("/api/admin/requests", requireAuth, requireAdmin, (req, res) => {
+  const db = req._db;
+  const rows = (db.wallet_transactions || []).filter((x) => x.status === "pending").slice(-200).reverse();
+  res.json({ ok: true, rows });
+});
+
+/* ---------- Debug ---------- */
 app.get("/test", (req, res) => res.send("SERVER UPDATED ✅"));
 
 /* ---------- START ---------- */
