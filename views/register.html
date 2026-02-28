@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MRP Logistic | إنشاء حساب</title>
+
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:radial-gradient(1200px 600px at 10% 10%, #1e293b, #020617);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      padding:18px;
+    }
+
+    .toast{
+      position:fixed;
+      bottom:24px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#020617;
+      border:1px solid rgba(255,255,255,.15);
+      padding:12px 18px;
+      border-radius:999px;
+      display:none;
+      z-index:9999;
+      max-width:min(520px, calc(100% - 40px));
+      text-align:center;
+    }
+    .toast.show{display:block}
+
+    .card{
+      width:100%;
+      max-width:420px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:26px;
+      padding:22px;
+      box-shadow:0 30px 80px rgba(0,0,0,.6);
+      backdrop-filter:blur(14px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    /* ✅ LOGO IMAGE (نفس login) */
+    .logo{
+      width:52px;height:52px;
+      border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      box-shadow:0 14px 35px rgba(0,0,0,.35);
+      flex:0 0 auto;
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:18px;
+      font-weight:900;
+    }
+    .brand span{
+      font-size:12px;
+      opacity:.8;
+    }
+
+    label{
+      font-size:13px;
+      opacity:.9;
+    }
+
+    .input{
+      width:100%;
+      margin-top:6px;
+      margin-bottom:14px;
+      padding:13px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(0,0,0,.4);
+      color:#fff;
+      outline:none;
+      font-size:14px;
+    }
+    .input:focus{
+      border-color: rgba(147,197,253,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+    }
+
+    .hint{
+      margin-top:-10px;
+      margin-bottom:14px;
+      font-size:12px;
+      opacity:.75;
+      line-height:1.4;
+    }
+
+    .btn{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:999px;
+      font-weight:900;
+      cursor:pointer;
+      background:linear-gradient(135deg,#22c55e,#3b82f6);
+      color:#020617;
+      margin-top:6px;
+    }
+    .btn:active{transform:translateY(1px)}
+
+    .btn.secondary{
+      background:transparent;
+      border:1px solid rgba(255,255,255,.25);
+      color:#fff;
+      margin-top:10px;
+    }
+
+    .rowLink{
+      margin-top:12px;
+      font-size:12px;
+      opacity:.9;
+      text-align:center;
+    }
+    .rowLink a{
+      color:#93c5fd;
+      text-decoration:none;
+      font-weight:900;
+    }
+    .rowLink a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="card">
+  <div class="brand">
+    <div class="logo">
+      <img
+        src="https://reduced-maroon-xf3kajtb8g.edgeone.app/WhatsApp%20Image%202026-02-28%20at%2012.54.14.jpeg"
+        alt="MRP Logo"
+      />
+    </div>
+    <div>
+      <h1>MRP Logistic</h1>
+      <span>إنشاء حساب جديد</span>
+    </div>
+  </div>
+
+  <label>الاسم الكامل</label>
+  <input class="input" id="name" placeholder="مثال: محمد أحمد"/>
+
+  <label>البريد أو الهاتف</label>
+  <input class="input" id="key" placeholder="example@email.com أو 06xxxxxx"/>
+  <div class="hint">يمكنك التسجيل بالبريد أو رقم الهاتف (واحد منهم يكفي).</div>
+
+  <label>كلمة المرور</label>
+  <input class="input" id="pw" type="password" placeholder="6 أحرف أو أكثر"/>
+
+  <button class="btn" onclick="doRegister()">إنشاء الحساب</button>
+  <button class="btn secondary" onclick="location.href='/login'">رجوع للدخول</button>
+
+  <div class="rowLink">
+    لديك حساب؟ <a href="/login">تسجيل الدخول</a>
+  </div>
+</div>
+
+<script>
+  function toast(msg){
+    const t=document.getElementById("toast");
+    t.textContent=msg;
+    t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),2600);
+  }
+
+  function isPhone(v){
+    const s=(v||"").trim();
+    return /^[0-9+\s()-]{6,}$/.test(s) && /[0-9]/.test(s) && !s.includes("@");
+  }
+
+  async function doRegister(){
+    try{
+      const full_name = document.getElementById("name").value.trim();
+      const key = document.getElementById("key").value.trim();
+      const password = document.getElementById("pw").value;
+
+      if(!full_name || !key || !password){
+        toast("عافاك عمر البيانات");
+        return;
+      }
+      if(password.trim().length < 6){
+        toast("كلمة المرور خاصها تكون 6 أحرف على الأقل");
+        return;
+      }
+
+      // السيرفر كيتسنى email و phone
+      let email = null, phone = null;
+      if(isPhone(key)) phone = key;
+      else email = key;
+
+      const r = await fetch("/api/register",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ full_name, email, phone, password })
+      });
+
+      const data = await r.json().catch(()=>({}));
+      if(!r.ok){
+        toast(data.message || "تعذر التسجيل");
+        return;
+      }
+
+      toast("تم إنشاء الحساب ✅");
+      setTimeout(()=>location.href="/login", 900);
+
+    }catch(e){
+      toast("وقع خطأ، حاول مرة أخرى");
+    }
+  }
+
+  // ✅ Enter = تسجيل
+  document.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter") doRegister();
+  });
+</script>
+
+</body>
+</html>

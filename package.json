@@ -1,0 +1,18 @@
+{
+  "name": "mrp-logistic",
+  "version": "1.0.0",
+  "description": "MRP Logistic Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "MRP Logistic",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "express-session": "^1.17.3",
+    "uuid": "^9.0.1"
+  }
+}

@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MRP Logistic | Admin</title>
+  <link rel="stylesheet" href="/public/app.css"/>
+
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:#fff;
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(99,102,241,.22), transparent 55%),
+        radial-gradient(900px 500px at 90% 15%, rgba(59,130,246,.16), transparent 60%),
+        radial-gradient(900px 500px at 70% 90%, rgba(34,197,94,.10), transparent 55%),
+        linear-gradient(180deg,#071026,#040816);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    :root{
+      --glass: rgba(255,255,255,.07);
+      --glass2: rgba(255,255,255,.10);
+      --border: rgba(255,255,255,.14);
+      --border2: rgba(255,255,255,.20);
+      --muted: rgba(255,255,255,.72);
+      --muted2: rgba(255,255,255,.60);
+      --shadow: 0 26px 80px rgba(0,0,0,.55);
+      --shadow2: 0 18px 50px rgba(0,0,0,.38);
+      --grad: linear-gradient(135deg,#8b5cf6,#3b82f6);
+      --grad2: linear-gradient(135deg,#22c55e,#3b82f6);
+      --danger: rgba(239,68,68,.22);
+      --dangerb: rgba(239,68,68,.38);
+    }
+
+    .toast{
+      position:fixed;
+      bottom:22px;
+      left:50%;
+      transform:translateX(-50%);
+      background:rgba(2,6,23,.92);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:0 18px 60px rgba(0,0,0,.55);
+      padding:12px 16px;
+      border-radius:999px;
+      display:none;
+      z-index:9999;
+      max-width:92vw;
+      text-align:center;
+      backdrop-filter: blur(12px);
+    }
+    .toast.show{display:block}
+
+    /* Layout */
+    .page{
+      max-width:1280px;
+      margin:auto;
+      padding:18px;
+      padding-bottom:110px;
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap:14px;
+    }
+    @media(max-width:980px){
+      .page{grid-template-columns:1fr}
+    }
+
+    .panel{
+      background:var(--glass);
+      border:1px solid var(--border);
+      border-radius:26px;
+      padding:16px;
+      box-shadow:var(--shadow2);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    /* Sidebar */
+    .sideHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .brand{
+      display:flex;align-items:center;gap:10px;
+      min-width:0;
+    }
+    .logo{
+      width:44px;height:44px;border-radius:16px;
+      background:var(--grad2);
+      color:#020617;
+      font-weight:1000;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 14px 40px rgba(0,0,0,.35);
+      flex:0 0 auto;
+      overflow:hidden;
+    }
+    .btxt{min-width:0}
+    .btxt .t{font-weight:1000;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .btxt .s{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .chip{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .navTabs{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+    }
+    .tabBtn{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:10px;
+      width:100%;
+      padding:12px 12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      cursor:pointer;
+      font-weight:1000;
+      transition:transform .12s ease, background .2s ease, border-color .2s ease;
+    }
+    .tabBtn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
+    .tabBtn:active{transform:translateY(1px)}
+    .tabBtn.active{
+      background:var(--grad);
+      border-color:transparent;
+      color:#020617;
+      box-shadow:0 14px 38px rgba(59,130,246,.20);
+    }
+    .tabBtn .left{
+      display:flex;align-items:center;gap:10px;min-width:0;
+    }
+    .tabIco{
+      width:38px;height:38px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.14);
+      font-size:18px;
+      flex:0 0 auto;
+    }
+    .tabBtn.active .tabIco{background:rgba(2,6,23,.12);border-color:rgba(2,6,23,.10)}
+    .tabTxt{min-width:0}
+    .tabTxt b{display:block}
+    .tabTxt span{display:block;font-size:12px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+    .countPill{
+      padding:8px 10px;border-radius:999px;
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.18);
+      font-size:12px;font-weight:1000;
+      white-space:nowrap;
+    }
+    .tabBtn.active .countPill{background:rgba(2,6,23,.10);border-color:rgba(2,6,23,.10)}
+    .sideActions{
+      display:grid;gap:10px;margin-top:12px
+    }
+    .linkBtn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:12px 14px;border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;text-decoration:none;
+      font-weight:1000;
+      transition:transform .12s ease, background .2s ease, border-color .2s ease;
+    }
+    .linkBtn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
+    .linkBtn:active{transform:translateY(1px)}
+    .dangerBtn{
+      background:var(--danger);
+      border-color:var(--dangerb);
+    }
+    .dangerBtn:hover{background:rgba(239,68,68,.28);border-color:rgba(239,68,68,.55)}
+    .searchBox{
+      margin-top:12px;
+      padding:12px;
+      border-radius:20px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .searchBox label{font-size:12px;color:var(--muted);font-weight:900}
+    .searchBox input{
+      width:100%;
+      margin-top:8px;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.35);
+      color:#fff;
+      outline:none;
+      font-size:13px;
+    }
+
+    /* Main */
+    .mainTop{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin-bottom:12px;
+    }
+    .mainTop h1{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+      letter-spacing:.2px;
+    }
+    .mainTop .small{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+    }
+
+    .section{
+      display:none;
+    }
+    .section.active{display:block}
+
+    .secHeader{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      margin-bottom:12px;
+    }
+    .secHeader .title{
+      font-size:16px;
+      font-weight:1000;
+      margin:0;
+    }
+    .secHeader .desc{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+      line-height:1.6;
+    }
+    .secTools{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btnX{
+      border:none;cursor:pointer;
+      border-radius:999px;
+      padding:12px 14px;
+      font-weight:1000;
+      background:var(--grad);
+      color:#020617;
+      box-shadow:0 16px 45px rgba(59,130,246,.18);
+      transition:transform .12s ease, filter .2s ease;
+      white-space:nowrap;
+    }
+    .btnX:hover{filter:brightness(1.04)}
+    .btnX:active{transform:translateY(1px) scale(.99)}
+    .btnX.ghost{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+      box-shadow:none;
+    }
+    .btnX.danger{
+      background:rgba(239,68,68,.22);
+      border:1px solid rgba(239,68,68,.40);
+      color:#fff;
+      box-shadow:none;
+    }
+
+    /* Forms */
+    .formGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    @media(max-width:700px){
+      .formGrid{grid-template-columns:1fr}
+    }
+    .field label{font-size:12px;color:var(--muted);font-weight:900}
+    .field input, .field select{
+      width:100%;
+      margin-top:8px;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.35);
+      color:#fff;
+      outline:none;
+      font-size:13px;
+    }
+
+    /* Tables */
+    .tableWrap{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:22px;
+      overflow:auto;
+      box-shadow:0 18px 55px rgba(0,0,0,.22);
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:860px;
+    }
+    th, td{
+      padding:12px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      vertical-align:top;
+      text-align:right;
+      font-size:13px;
+    }
+    thead th{
+      position:sticky;
+      top:0;
+      background:rgba(2,6,23,.88);
+      backdrop-filter: blur(10px);
+      font-weight:1000;
+      z-index:2;
+    }
+    tbody tr:hover{background:rgba(255,255,255,.04)}
+    .muted{color:var(--muted);font-size:12px}
+    .tag{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:8px 10px;border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      font-weight:1000;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .tag.ok{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.30)}
+    .tag.warn{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.30)}
+    .tag.bad{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.30)}
+
+    .miniInput{
+      width:100%;
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.35);
+      color:#fff;
+      outline:none;
+      font-size:13px;
+    }
+    .rowBtns{
+      display:flex;gap:8px;flex-wrap:wrap;
+      justify-content:flex-start;
+    }
+
+    /* Bottom nav (keep like your app) */
+    .nav{
+      position:fixed;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,.65);
+      border-top:1px solid rgba(255,255,255,.14);
+      backdrop-filter:blur(12px);
+      z-index:999;
+    }
+    .nav .inner{
+      max-width:1280px;margin:auto;
+      display:flex;justify-content:space-around;align-items:center;
+      padding:10px;
+      gap:10px;
+    }
+    .nav a, .nav button{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:4px;min-width:90px;
+      padding:10px 12px;border-radius:16px;
+      color:#fff;text-decoration:none;font-weight:1000;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+      user-select:none;
+    }
+    .nav .ico{font-size:20px;line-height:1}
+    .nav .txt{font-size:11px;opacity:.9}
+    .nav form{margin:0}
+
+    /* mobile: show sidebar tabs horizontal */
+    @media(max-width:980px){
+      .sideHeader{margin-bottom:10px}
+      .navTabs{
+        display:flex;
+        overflow:auto;
+        gap:10px;
+        padding-bottom:6px;
+      }
+      .tabBtn{min-width:250px}
+      .searchBox{display:none}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="page">
+
+    <!-- SIDEBAR -->
+    <aside class="panel">
+      <div class="sideHeader">
+        <div class="brand">
+          <div class="logo">A</div>
+          <div class="btxt">
+            <div class="t">MRP Logistic</div>
+            <div class="s">لوحة المدير — تحكم شامل</div>
+          </div>
+        </div>
+        <div class="chip">🛡️ Admin</div>
+      </div>
+
+      <div class="navTabs">
+        <button class="tabBtn active" id="tab_settings" onclick="openTab('settings')">
+          <div class="left">
+            <div class="tabIco">⚙️</div>
+            <div class="tabTxt">
+              <b>الإعدادات</b>
+              <span>تحويل + حد أدنى + تواصل</span>
+            </div>
+          </div>
+          <div class="countPill">Config</div>
+        </button>
+
+        <button class="tabBtn" id="tab_requests" onclick="openTab('requests')">
+          <div class="left">
+            <div class="tabIco">⏳</div>
+            <div class="tabTxt">
+              <b>طلبات Pending</b>
+              <span>موافقة/رفض بسرعة</span>
+            </div>
+          </div>
+          <div class="countPill" id="rqCount">0</div>
+        </button>
+
+        <button class="tabBtn" id="tab_tasks" onclick="openTab('tasks')">
+          <div class="left">
+            <div class="tabIco">✅</div>
+            <div class="tabTxt">
+              <b>المهام</b>
+              <span>تعديل/إضافة/تعطيل</span>
+            </div>
+          </div>
+          <div class="countPill" id="taskCount">—</div>
+        </button>
+
+        <button class="tabBtn" id="tab_users" onclick="openTab('users')">
+          <div class="left">
+            <div class="tabIco">👤</div>
+            <div class="tabTxt">
+              <b>المستخدمون</b>
+              <span>نقاط + كلمة سر</span>
+            </div>
+          </div>
+          <div class="countPill" id="userCount">—</div>
+        </button>
+      </div>
+
+      <div class="searchBox">
+        <label>بحث سريع (المستخدمون/المهام)</label>
+        <input id="globalSearch" placeholder="اكتب اسم/ID/بريد/عنوان مهمة..." oninput="applySearch()"/>
+      </div>
+
+      <div class="sideActions">
+        <a class="linkBtn" href="/home">🏠 رجوع للرئيسية</a>
+        <a class="linkBtn" href="/tasks">✅ صفحة المهام</a>
+        <form method="post" action="/logout">
+          <button type="submit" class="linkBtn dangerBtn" style="width:100%">🚪 تسجيل الخروج</button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="panel">
+      <div class="mainTop">
+        <div>
+          <h1 id="mainTitle">الإعدادات</h1>
+          <div class="small" id="mainDesc">تحكم في الحد الأدنى للإيداع/السحب + تحويل الدولار إلى نقاط + وسائل التواصل.</div>
+        </div>
+        <div class="chip" id="lastSync">🔄 جاهز</div>
+      </div>
+
+      <!-- SETTINGS -->
+      <section class="section active" id="sec_settings">
+        <div class="secHeader">
+          <div>
+            <div class="title">⚙️ الإعدادات</div>
+            <div class="desc">غير القيم ثم اضغط حفظ. كلشي كيمشي لنفس Endpoints ديال السيرفر.</div>
+          </div>
+          <div class="secTools">
+            <button class="btnX ghost" onclick="loadSettings(); toast('تم تحديث البيانات');">🔄 تحديث</button>
+            <button class="btnX" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+          </div>
+        </div>
+
+        <div class="formGrid">
+          <div class="field">
+            <label>USD → Points</label>
+            <input id="usd_to_points" type="number" min="1" placeholder="مثال: 10"/>
+          </div>
+          <div class="field">
+            <label>Min Deposit ($)</label>
+            <input id="min_deposit_usd" type="number" min="1" placeholder="مثال: 5"/>
+          </div>
+          <div class="field">
+            <label>Min Withdraw ($)</label>
+            <input id="min_withdraw_usd" type="number" min="1" placeholder="مثال: 10"/>
+          </div>
+          <div class="field">
+            <label>WhatsApp</label>
+            <input id="whatsapp" placeholder="+2126xxxxxx"/>
+          </div>
+          <div class="field">
+            <label>Telegram</label>
+            <input id="telegram" placeholder="@username"/>
+          </div>
+          <div class="field">
+            <label>ملاحظة</label>
+            <input value="التغييرات تطبق مباشرة في المنصة" disabled/>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;color:var(--muted);font-size:12px;line-height:1.7">
+          ✅ نصيحة: إلا بدلتي USD→Points خليه مطابق للقانون اللي عندك (مثلاً 10 نقاط = 1$).
+        </div>
+      </section>
+
+      <!-- REQUESTS -->
+      <section class="section" id="sec_requests">
+        <div class="secHeader">
+          <div>
+            <div class="title">⏳ طلبات الإيداع/السحب (Pending)</div>
+            <div class="desc">العميل كيدير الطلب، وانت كتوافق ولا كترفض. استعمل Refresh باش تشوف الجديد.</div>
+          </div>
+          <div class="secTools">
+            <button class="btnX ghost" onclick="loadRequests()">🔄 تحديث</button>
+            <button class="btnX danger" onclick="loadRequests(); toast('تمت إعادة تحميل الطلبات');">⚡ Refresh سريع</button>
+          </div>
+        </div>
+
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>المستخدم</th><th>النوع</th><th>$</th><th>النقاط</th><th>الحالة</th><th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="rq"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TASKS -->
+      <section class="section" id="sec_tasks">
+        <div class="secHeader">
+          <div>
+            <div class="title">✅ التحكم في المهام</div>
+            <div class="desc">تغيير اسم المهمة + المكافأة + مدة الانتظار + تفعيل/إيقاف. ثم حفظ لكل سطر.</div>
+          </div>
+          <div class="secTools">
+            <button class="btnX ghost" onclick="loadTasks()">🔄 تحديث</button>
+          </div>
+        </div>
+
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>العنوان</th><th>Reward</th><th>Wait(s)</th><th>Active</th><th>حفظ</th>
+              </tr>
+            </thead>
+            <tbody id="tasks"></tbody>
+          </table>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="secHeader" style="margin-top:10px">
+          <div>
+            <div class="title">➕ إضافة مهمة جديدة</div>
+            <div class="desc">عبّي البيانات و ضغط إضافة.</div>
+          </div>
+        </div>
+
+        <div class="formGrid" style="grid-template-columns:2fr 1fr 1fr 1fr">
+          <div class="field" style="grid-column:1/2">
+            <label>عنوان المهمة</label>
+            <input id="new_title" placeholder="عنوان مهمة جديدة"/>
+          </div>
+          <div class="field">
+            <label>Reward</label>
+            <input id="new_reward" type="number" min="0" value="15"/>
+          </div>
+          <div class="field">
+            <label>Wait(s)</label>
+            <input id="new_wait" type="number" min="1" value="10"/>
+          </div>
+          <div class="field" style="display:flex;align-items:end">
+            <button class="btnX" style="width:100%" onclick="createTask()">إضافة</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- USERS -->
+      <section class="section" id="sec_users">
+        <div class="secHeader">
+          <div>
+            <div class="title">👤 المستخدمون</div>
+            <div class="desc">تغيير النقاط + إعادة تعيين كلمة السر. يمكنك تستعمل بحث سريع من اليسار.</div>
+          </div>
+          <div class="secTools">
+            <button class="btnX ghost" onclick="loadUsers()">🔄 تحديث</button>
+          </div>
+        </div>
+
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>الاسم</th>
+                <th>تواصل</th>
+                <th>نقاط</th>
+                <th>كلمة سر جديدة</th>
+                <th>حفظ</th>
+              </tr>
+            </thead>
+            <tbody id="us"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- bottom nav -->
+  <div class="nav">
+    <div class="inner">
+      <a href="/home"><span class="ico">🏠</span><span class="txt">الرئيسية</span></a>
+      <a href="/tasks"><span class="ico">✅</span><span class="txt">المهام</span></a>
+      <a href="/profile"><span class="ico">👤</span><span class="txt">بروفايل</span></a>
+      <form method="post" action="/logout">
+        <button type="submit"><span class="ico">🚪</span><span class="txt">خروج</span></button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/public/app.js"></script>
+  <script>
+    function setSync(txt){ const el=document.getElementById("lastSync"); if(el) el.textContent=txt; }
+
+    function toast(msg){
+      const t=document.getElementById("toast");
+      t.textContent=msg;
+      t.classList.add("show");
+      setTimeout(()=>t.classList.remove("show"),2600);
+    }
+
+    function typeLabel(t){ return t==="deposit" ? "إيداع" : "سحب"; }
+    function statusTag(s){
+      const v = String(s||"").toLowerCase();
+      if(v.includes("approved")) return '<span class="tag ok">Approved</span>';
+      if(v.includes("rejected")) return '<span class="tag bad">Rejected</span>';
+      return '<span class="tag warn">Pending</span>';
+    }
+
+    function openTab(key){
+      // buttons
+      const keys=["settings","requests","tasks","users"];
+      for(const k of keys){
+        document.getElementById("tab_"+k)?.classList.remove("active");
+        document.getElementById("sec_"+k)?.classList.remove("active");
+      }
+      document.getElementById("tab_"+key)?.classList.add("active");
+      document.getElementById("sec_"+key)?.classList.add("active");
+
+      // title/desc
+      const mainTitle = document.getElementById("mainTitle");
+      const mainDesc  = document.getElementById("mainDesc");
+      const map = {
+        settings:{t:"الإعدادات", d:"تحكم في التحويل + الحد الأدنى + وسائل التواصل."},
+        requests:{t:"طلبات Pending", d:"موافقة أو رفض الطلبات بسرعة."},
+        tasks:{t:"التحكم في المهام", d:"تعديل/إضافة/تعطيل المهام بدون تغيير السيرفر."},
+        users:{t:"المستخدمون", d:"تغيير النقاط وإعادة تعيين كلمة السر."},
+      };
+      if(mainTitle) mainTitle.textContent = map[key].t;
+      if(mainDesc)  mainDesc.textContent  = map[key].d;
+    }
+
+    // -------- SETTINGS ----------
+    async function loadSettings(){
+      setSync("🔄 تحميل...");
+      const r = await api("/api/admin/settings");
+      const s = r.settings;
+      document.getElementById("usd_to_points").value = s.usd_to_points;
+      document.getElementById("min_deposit_usd").value = s.min_deposit_usd;
+      document.getElementById("min_withdraw_usd").value = s.min_withdraw_usd;
+      document.getElementById("whatsapp").value = s.manager_contact?.whatsapp || "";
+      document.getElementById("telegram").value = s.manager_contact?.telegram || "";
+      setSync("✅ تم التحديث");
+    }
+
+    async function saveSettings(){
+      try{
+        setSync("💾 حفظ...");
+        await api("/api/admin/settings","POST",{
+          usd_to_points: document.getElementById("usd_to_points").value,
+          min_deposit_usd: document.getElementById("min_deposit_usd").value,
+          min_withdraw_usd: document.getElementById("min_withdraw_usd").value,
+          whatsapp: document.getElementById("whatsapp").value,
+          telegram: document.getElementById("telegram").value
+        });
+        toast("تم حفظ الإعدادات ✅");
+        setSync("✅ محفوظ");
+      }catch(e){
+        toast(e.message);
+        setSync("⚠️ خطأ");
+      }
+    }
+
+    // -------- REQUESTS ----------
+    async function loadRequests(){
+      setSync("🔄 تحميل الطلبات...");
+      const reqs = await api("/api/admin/requests");
+      const rq = document.getElementById("rq");
+      rq.innerHTML = "";
+
+      document.getElementById("rqCount").textContent = (reqs.rows||[]).length;
+
+      for(const r of (reqs.rows||[])){
+        rq.innerHTML += `
+          <tr data-row="rq">
+            <td>${r.id}</td>
+            <td>
+              <b>${r.full_name || "-"}</b>
+              <div class="muted">${(r.email || r.phone || "")}</div>
+            </td>
+            <td><span class="tag">${typeLabel(r.type)}</span></td>
+            <td>${formatUsd(r.amount_usd)}</td>
+            <td><b>${r.points_delta}</b></td>
+            <td>${statusTag(r.status || "pending")}</td>
+            <td>
+              <div class="rowBtns">
+                <button class="btnX ghost" onclick="approve('${r.id}')">✅ موافقة</button>
+                <button class="btnX danger" onclick="reject('${r.id}')">⛔ رفض</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+      if((reqs.rows||[]).length===0){
+        rq.innerHTML = `<tr><td colspan="7" class="muted" style="padding:16px">لا توجد طلبات Pending.</td></tr>`;
+      }
+      setSync("✅ تم التحديث");
+    }
+
+    async function approve(id){
+      try{
+        await api(`/api/admin/requests/${id}/approve`,"POST",{});
+        toast("تمت الموافقة ✅");
+        loadRequests();
+      }catch(e){ toast(e.message); }
+    }
+    async function reject(id){
+      try{
+        await api(`/api/admin/requests/${id}/reject`,"POST",{});
+        toast("تم الرفض ✅");
+        loadRequests();
+      }catch(e){ toast(e.message); }
+    }
+
+    // -------- TASKS ----------
+    let CACHE_TASKS = [];
+    async function loadTasks(){
+      setSync("🔄 تحميل المهام...");
+      const r = await api("/api/admin/tasks");
+      CACHE_TASKS = r.rows || [];
+      document.getElementById("taskCount").textContent = CACHE_TASKS.length || 0;
+
+      const tb = document.getElementById("tasks");
+      tb.innerHTML = "";
+      for(const t of CACHE_TASKS){
+        tb.innerHTML += `
+          <tr data-row="task" data-search="${escapeHtml((t.title||"")+" "+t.id+" "+t.order_index)}">
+            <td><b>${t.order_index}</b></td>
+            <td><input class="miniInput" id="t_title_${t.id}" value="${escapeAttr(t.title)}"/></td>
+            <td><input class="miniInput" type="number" min="0" id="t_reward_${t.id}" value="${t.reward_points}"/></td>
+            <td><input class="miniInput" type="number" min="1" id="t_wait_${t.id}" value="${t.wait_seconds}"/></td>
+            <td>
+              <select class="miniInput" id="t_active_${t.id}">
+                <option value="true" ${t.is_active ? "selected":""}>Yes</option>
+                <option value="false" ${!t.is_active ? "selected":""}>No</option>
+              </select>
+            </td>
+            <td>
+              <button class="btnX ghost" onclick="saveTask(${t.id})">💾 حفظ</button>
+            </td>
+          </tr>
+        `;
+      }
+      setSync("✅ تم التحديث");
+      applySearch();
+    }
+
+    async function saveTask(id){
+      try{
+        await api(`/api/admin/tasks/${id}/update`,"POST",{
+          title: document.getElementById(`t_title_${id}`).value,
+          reward_points: document.getElementById(`t_reward_${id}`).value,
+          wait_seconds: document.getElementById(`t_wait_${id}`).value,
+          is_active: document.getElementById(`t_active_${id}`).value === "true"
+        });
+        toast("تم تحديث المهمة ✅");
+        loadTasks();
+      }catch(e){ toast(e.message); }
+    }
+
+    async function createTask(){
+      try{
+        await api("/api/admin/tasks/create","POST",{
+          title: document.getElementById("new_title").value,
+          reward_points: document.getElementById("new_reward").value,
+          wait_seconds: document.getElementById("new_wait").value
+        });
+        toast("تمت إضافة مهمة ✅");
+        document.getElementById("new_title").value = "";
+        loadTasks();
+      }catch(e){ toast(e.message); }
+    }
+
+    // -------- USERS ----------
+    let CACHE_USERS = [];
+    async function loadUsers(){
+      setSync("🔄 تحميل المستخدمين...");
+      const users = await api("/api/admin/users");
+      CACHE_USERS = users.rows || [];
+      document.getElementById("userCount").textContent = CACHE_USERS.length || 0;
+
+      const us = document.getElementById("us");
+      us.innerHTML = "";
+      for(const u of CACHE_USERS){
+        const contact = u.email || u.phone || "-";
+        us.innerHTML += `
+          <tr data-row="user" data-search="${escapeHtml((u.full_name||"")+" "+(u.id||"")+" "+contact)}">
+            <td><b>${u.id}</b></td>
+            <td>${escapeHtml(u.full_name || "-")}</td>
+            <td class="muted">${escapeHtml(contact)}</td>
+            <td><input class="miniInput" style="max-width:140px" id="p_${u.id}" value="${u.points_balance}"/></td>
+            <td><input class="miniInput" style="max-width:180px" id="pw_${u.id}" type="password" placeholder="كلمة سر جديدة"/></td>
+            <td>
+              <div class="rowBtns">
+                <button class="btnX ghost" onclick="setPoints('${u.id}')">💠 نقاط</button>
+                <button class="btnX" onclick="setPassword('${u.id}')">🔒 كلمة السر</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+      setSync("✅ تم التحديث");
+      applySearch();
+    }
+
+    async function setPoints(userId){
+      try{
+        await api(`/api/admin/users/${userId}/points`,"POST",{
+          points: document.getElementById(`p_${userId}`).value
+        });
+        toast("تم تحديث النقاط ✅");
+        loadUsers();
+      }catch(e){ toast(e.message); }
+    }
+
+    async function setPassword(userId){
+      try{
+        const new_password = document.getElementById(`pw_${userId}`).value;
+        if(!new_password || new_password.length < 6){
+          toast("كلمة السر يجب أن تكون 6 أحرف على الأقل");
+          return;
+        }
+        await api(`/api/admin/users/${userId}/password`,"POST",{ new_password });
+        document.getElementById(`pw_${userId}`).value = "";
+        toast("تم تحديث كلمة السر ✅");
+      }catch(e){ toast(e.message); }
+    }
+
+    // -------- SEARCH (front-end only) ----------
+    function applySearch(){
+      const q = (document.getElementById("globalSearch")?.value || "").trim().toLowerCase();
+      const rows = document.querySelectorAll('tr[data-search]');
+      for(const r of rows){
+        const hay = (r.getAttribute("data-search")||"").toLowerCase();
+        r.style.display = (!q || hay.includes(q)) ? "" : "none";
+      }
+    }
+
+    // -------- Helpers ----------
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[m]));
+    }
+    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+
+    // -------- INIT ----------
+    async function init(){
+      openTab("settings");
+      await loadSettings();
+      await loadRequests();
+      await loadTasks();
+      await loadUsers();
+    }
+    init().catch(e=>toast(e.message));
+  </script>
+</body>
+</html>

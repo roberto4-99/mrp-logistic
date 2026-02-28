@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MRP Logistic | Login</title>
+
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:radial-gradient(1200px 600px at 10% 10%, #1e293b, #020617);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      padding:18px;
+    }
+
+    .toast{
+      position:fixed;
+      bottom:24px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#020617;
+      border:1px solid rgba(255,255,255,.15);
+      padding:12px 18px;
+      border-radius:999px;
+      display:none;
+      z-index:9999;
+      max-width:min(520px, calc(100% - 40px));
+      text-align:center;
+    }
+    .toast.show{display:block}
+
+    .card{
+      width:100%;
+      max-width:420px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:26px;
+      padding:22px;
+      box-shadow:0 30px 80px rgba(0,0,0,.6);
+      backdrop-filter:blur(14px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    /* ✅ LOGO IMAGE */
+    .logo{
+      width:52px;height:52px;
+      border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      box-shadow:0 14px 35px rgba(0,0,0,.35);
+      flex:0 0 auto;
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:18px;
+      font-weight:900;
+    }
+    .brand span{
+      font-size:12px;
+      opacity:.8;
+    }
+
+    label{
+      font-size:13px;
+      opacity:.9;
+    }
+
+    .input{
+      width:100%;
+      margin-top:6px;
+      margin-bottom:14px;
+      padding:13px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(0,0,0,.4);
+      color:#fff;
+      outline:none;
+      font-size:14px;
+    }
+    .input:focus{
+      border-color: rgba(147,197,253,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+    }
+
+    .btn{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:999px;
+      font-weight:900;
+      cursor:pointer;
+      background:linear-gradient(135deg,#22c55e,#3b82f6);
+      color:#020617;
+      margin-top:6px;
+    }
+    .btn:active{transform:translateY(1px)}
+
+    .btn.secondary{
+      background:transparent;
+      border:1px solid rgba(255,255,255,.25);
+      color:#fff;
+      margin-top:10px;
+    }
+
+    .forgot{
+      margin-top:6px;
+      font-size:12px;
+    }
+    .forgot a{
+      color:#93c5fd;
+      text-decoration:none;
+      font-weight:900;
+    }
+    .forgot a:hover{text-decoration:underline}
+
+    /* Modal */
+    #contactModal{display:none; position:fixed; inset:0; z-index:2000;}
+    #contactBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.7);}
+    .modalBox{position:relative; max-width:420px; margin:15vh auto; padding:16px;}
+    .modalCard{
+      background:#020617;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:22px;
+      padding:18px;
+      box-shadow:0 25px 70px rgba(0,0,0,.55);
+    }
+    .modalTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .xbtn{
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.2);
+      color:#fff;
+      border-radius:12px;
+      padding:6px 10px;
+      cursor:pointer;
+      font-weight:900;
+    }
+    .modalBtn{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      border-radius:16px;
+      text-decoration:none;
+      font-weight:900;
+      margin-top:10px;
+      color:#fff;
+    }
+    .wa{background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4)}
+    .tg{background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4)}
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="card">
+  <div class="brand">
+    <div class="logo">
+      <!-- ✅ اللوغو من الرابط ديالك -->
+      <img
+        src="https://reduced-maroon-xf3kajtb8g.edgeone.app/WhatsApp%20Image%202026-02-28%20at%2012.54.14.jpeg"
+        alt="MRP Logo"
+      />
+    </div>
+    <div>
+      <h1>MRP Logistic</h1>
+      <span>تسجيل الدخول</span>
+    </div>
+  </div>
+
+  <label>البريد أو الهاتف</label>
+  <input class="input" id="key" placeholder="example@email.com أو 06xxxxxx"/>
+
+  <label>كلمة المرور</label>
+  <input class="input" id="pw" type="password" placeholder="••••••••"/>
+
+  <div class="forgot">
+    نسيت كلمة السر؟
+    <a href="#" onclick="openForgot();return false;">تواصل مع الإدارة</a>
+  </div>
+
+  <button class="btn" onclick="doLogin()">تسجيل الدخول</button>
+  <button class="btn secondary" onclick="location.href='/register'">إنشاء حساب</button>
+</div>
+
+<!-- Modal -->
+<div id="contactModal">
+  <div id="contactBackdrop" onclick="closeContact()"></div>
+  <div class="modalBox">
+    <div class="modalCard">
+      <div class="modalTop">
+        <b>نسيت كلمة السر؟</b>
+        <button class="xbtn" onclick="closeContact()">✕</button>
+      </div>
+
+      <div style="font-size:13px;opacity:.9">
+        تواصل مع الإدارة (الاسم + البريد/الهاتف)
+      </div>
+
+      <a id="waLink" class="modalBtn wa" target="_blank" rel="noreferrer">
+        <span>📱 WhatsApp</span><span>فتح →</span>
+      </a>
+
+      <a id="tgLink" class="modalBtn tg" target="_blank" rel="noreferrer">
+        <span>✈️ Telegram</span><span>فتح →</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="/public/app.js"></script>
+<script>
+  const MANAGER_WHATSAPP = "+212619692685";
+  const MANAGER_TELEGRAM = "@Mrp_logistic";
+
+  function toast(msg){
+    const t=document.getElementById("toast");
+    t.textContent=msg;
+    t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),2600);
+  }
+
+  async function doLogin(){
+    try{
+      const emailOrPhone = key.value.trim();
+      const password = pw.value;
+      const r = await api("/api/login","POST",{emailOrPhone,password});
+      location.href = r.is_admin ? "/admin" : "/home";
+    }catch(e){toast(e.message)}
+  }
+
+  function openForgot(){
+    const msg = encodeURIComponent("السلام عليكم، نسيت كلمة السر. اسمي: ____ ، البريد/الهاتف: ____");
+    waLink.href = "https://wa.me/212619692685?text="+msg;
+    tgLink.href = "https://t.me/Mrp_logistic";
+    contactModal.style.display="block";
+  }
+  function closeContact(){contactModal.style.display="none"}
+
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Enter") doLogin();
+  });
+</script>
+
+</body>
+</html>

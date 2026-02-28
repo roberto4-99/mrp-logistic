@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MRP Logistic | Home</title>
+
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:linear-gradient(180deg,#0f172a,#111827);
+      color:#fff;
+      min-height:100vh;
+    }
+
+    :root{
+      --glass: rgba(255,255,255,.06);
+      --glass2: rgba(255,255,255,.08);
+      --border: rgba(255,255,255,.12);
+      --border2: rgba(255,255,255,.18);
+    }
+
+    .toast{
+      position:fixed;left:16px;bottom:90px;
+      background:#020617;
+      border:1px solid rgba(255,255,255,.14);
+      padding:12px 14px;border-radius:14px;
+      display:none;z-index:9999;
+      max-width:360px;
+      box-shadow:0 18px 50px rgba(0,0,0,.45);
+    }
+    .toast.show{display:block}
+
+    .wrap{max-width:1100px;margin:auto;padding:20px;padding-bottom:120px}
+
+    .header{
+      display:flex;justify-content:space-between;align-items:center;
+      margin-bottom:18px;
+      gap:12px;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:54px;height:54px;border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      overflow:hidden;
+      box-shadow:0 16px 40px rgba(0,0,0,.35);
+      flex:0 0 auto;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .logo img{width:100%;height:100%;object-fit:cover;display:block}
+    .title{font-size:18px;font-weight:900}
+    .sub{font-size:12px;opacity:.82}
+
+    .btn-link{
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.2);
+      padding:10px 14px;border-radius:999px;
+      color:#fff;text-decoration:none;font-weight:800;
+      white-space:nowrap;
+      transition:transform .12s ease, background .2s ease, border-color .2s ease;
+    }
+    .btn-link:hover{
+      background:rgba(255,255,255,.16);
+      border-color:rgba(255,255,255,.28);
+      transform:translateY(-1px);
+    }
+    .btn-link:active{transform:translateY(1px) scale(.99)}
+
+    .grid{display:grid;gap:16px}
+    .grid.two{grid-template-columns:1.4fr .6fr}
+    @media(max-width:900px){.grid.two{grid-template-columns:1fr}}
+
+    .card{
+      background:var(--glass);
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:16px;
+      backdrop-filter: blur(10px);
+      box-shadow:0 18px 55px rgba(0,0,0,.25);
+    }
+
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media(max-width:700px){.kpis{grid-template-columns:1fr}}
+
+    .kpi{
+      background:var(--glass2);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      padding:14px;text-align:center;
+    }
+    .kpi .n{font-size:26px;font-weight:900}
+    .kpi .t{font-size:12px;opacity:.85}
+
+    .boxes{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-top:16px;
+    }
+    @media(max-width:700px){.boxes{grid-template-columns:1fr}}
+
+    .box{
+      background:#fff;color:#111;
+      border-radius:20px;padding:14px;
+      box-shadow:0 12px 40px rgba(0,0,0,.18);
+    }
+    .input{
+      width:100%;border:none;outline:none;
+      background:#f3f3f3;border-radius:14px;
+      padding:12px;font-size:14px;
+    }
+
+    .btn{
+      width:100%;border:none;
+      padding:12px;border-radius:999px;
+      font-weight:900;cursor:pointer;
+      background:#111;color:#fff;
+      margin-top:8px;
+      transition:transform .12s ease, filter .2s ease;
+    }
+    .btn:active{transform:translateY(1px) scale(.99)}
+    .btn.secondary{background:#e5e7eb;color:#111}
+    .muted{font-size:12px;opacity:.75;margin-top:6px;line-height:1.5}
+
+    /* Operations */
+    .ops{display:grid;gap:10px;margin-top:10px}
+    .op{
+      display:flex;align-items:center;gap:12px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      padding:12px;border-radius:16px;
+    }
+    .ico{
+      width:44px;height:44px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;font-weight:900;
+      box-shadow:0 10px 25px rgba(0,0,0,.25);
+    }
+    .dep{background:#16a34a}
+    .wd{background:#ef4444}
+    .info{flex:1;display:flex;flex-direction:column;gap:2px}
+    .info span{font-size:12px;opacity:.85}
+    .st{font-size:12px;opacity:.9}
+
+    .more{
+      background:none;border:none;
+      color:#93c5fd;
+      cursor:pointer;
+      font-weight:900;
+      margin:auto;
+      display:none;
+      padding:8px 10px;
+    }
+
+    /* Interactive NAV */
+    .nav{
+      position:fixed;left:0;right:0;bottom:0;
+      background:rgba(0,0,0,.65);
+      border-top:1px solid rgba(255,255,255,.14);
+      backdrop-filter:blur(12px);
+      z-index:999;
+    }
+    .nav .inner{
+      max-width:1100px;margin:auto;
+      display:flex;justify-content:space-around;align-items:center;
+      padding:10px;
+      gap:10px;
+    }
+    .navbtn{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      gap:4px;
+      min-width:90px;
+      padding:10px 12px;
+      border-radius:16px;
+      color:#fff;
+      text-decoration:none;
+      font-weight:900;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+      transition:transform .12s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    .navbtn .icoNav{font-size:20px;line-height:1}
+    .navbtn .txtNav{font-size:11px;opacity:.9}
+    .navbtn:hover{
+      background:rgba(255,255,255,.16);
+      border-color:rgba(255,255,255,.28);
+      transform:translateY(-1px);
+    }
+    .navbtn:active{transform:translateY(1px) scale(.98)}
+    .navbtn.active{
+      background:linear-gradient(135deg,#22c55e,#3b82f6);
+      border-color:transparent;
+      box-shadow:0 10px 26px rgba(0,0,0,.25);
+      color:#020617;
+    }
+    .navbtn.active .txtNav{opacity:1}
+    .navbtn.danger{
+      background:rgba(239,68,68,.20);
+      border-color:rgba(239,68,68,.35);
+    }
+    .navbtn.danger:hover{
+      background:rgba(239,68,68,.28);
+      border-color:rgba(239,68,68,.5);
+    }
+    .nav form{margin:0}
+
+    /* Contact Modal */
+    #contactModal{display:none; position:fixed; inset:0; z-index:2000;}
+    #contactBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.6);}
+    .modalBox{position:relative; max-width:520px; margin:12vh auto; padding:16px;}
+    .modalCard{
+      background:rgba(2,6,23,.96);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:22px;
+      padding:16px;
+      backdrop-filter:blur(12px);
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+    }
+    .modalTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .xbtn{
+      border:none; cursor:pointer;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.18);
+      color:#fff; border-radius:12px;
+      padding:8px 10px; font-weight:900;
+    }
+    .modalBtn{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:12px 14px;border-radius:18px;
+      font-weight:900;text-decoration:none;color:#fff;
+      margin-top:10px;
+    }
+    .wa{background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.35)}
+    .tg{background:rgba(59,130,246,.18);border:1px solid rgba(59,130,246,.35)}
+    .copyBtn{
+      width:100%;
+      border:none; cursor:pointer;
+      padding:12px 14px;border-radius:18px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      color:#fff; font-weight:900;
+      margin-top:10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="wrap">
+  <div class="header">
+    <div class="brand">
+      <div class="logo">
+        <img
+          src="https://reduced-maroon-xf3kajtb8g.edgeone.app/WhatsApp%20Image%202026-02-28%20at%2012.54.14.jpeg"
+          alt="MRP Logo"
+        />
+      </div>
+      <div>
+        <div class="title">MRP Logistic</div>
+        <div class="sub" id="hello">مرحباً</div>
+      </div>
+    </div>
+    <a class="btn-link" href="/tasks">الذهاب للمهام</a>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <div class="kpis">
+        <div class="kpi"><div class="n" id="points">0</div><div class="t">النقاط</div></div>
+        <div class="kpi"><div class="n" id="done">0</div><div class="t">المهام</div></div>
+        <div class="kpi"><div class="n" id="total">5</div><div class="t">الكل</div></div>
+      </div>
+
+      <div class="boxes">
+        <div class="box">
+          <div class="sub" id="minDep">أقل إيداع: 5$</div>
+          <input class="input" id="dep" placeholder="10$">
+          <button class="btn" onclick="wallet('deposit')">إيداع</button>
+          <div class="muted">الإيداع يتم عبر التواصل مع المدير (بدون طلب Pending).</div>
+        </div>
+
+        <div class="box">
+          <div class="sub" id="minWd">أقل سحب: 10$</div>
+          <input class="input" id="wd" placeholder="10$">
+          <button class="btn secondary" onclick="wallet('withdraw')">سحب</button>
+          <div class="muted">السحب يتم بشكل تلقائي.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="title">آخر العمليات</div>
+      <div class="ops" id="rows"></div>
+      <button class="more" id="moreBtn" onclick="toggleMore()">+ إظهار المزيد</button>
+      <div class="sub" id="mgr" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Navigation -->
+<div class="nav">
+  <div class="inner">
+    <a href="/home" class="navbtn" id="navHome">
+      <span class="icoNav">🏠</span>
+      <span class="txtNav">الرئيسية</span>
+    </a>
+
+    <a href="/tasks" class="navbtn" id="navTasks">
+      <span class="icoNav">✅</span>
+      <span class="txtNav">المهام</span>
+    </a>
+
+    <!-- ✅ NEW: PROFILE -->
+    <a href="/profile" class="navbtn" id="navProfile">
+      <span class="icoNav">👤</span>
+      <span class="txtNav">بروفايل</span>
+    </a>
+
+    <form method="post" action="/logout">
+      <button type="submit" class="navbtn danger">
+        <span class="icoNav">🚪</span>
+        <span class="txtNav">خروج</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Contact Modal -->
+<div id="contactModal">
+  <div id="contactBackdrop" onclick="closeContact()"></div>
+  <div class="modalBox">
+    <div class="modalCard">
+      <div class="modalTop">
+        <div style="font-weight:900;font-size:16px;">تواصل مع المدير</div>
+        <button class="xbtn" onclick="closeContact()">✕</button>
+      </div>
+
+      <div style="margin-top:10px; font-size:13px; opacity:.92;">
+        <span id="contactMsg">...</span>
+      </div>
+
+      <a id="waLink" class="modalBtn wa" target="_blank" rel="noreferrer">
+        <span>📱 WhatsApp</span>
+        <span style="opacity:.9">فتح →</span>
+      </a>
+
+      <a id="tgLink" class="modalBtn tg" target="_blank" rel="noreferrer">
+        <span>✈️ Telegram</span>
+        <span style="opacity:.9">فتح →</span>
+      </a>
+
+      <button class="copyBtn" onclick="copyContact()">📋 نسخ وسائل التواصل</button>
+
+      <div style="margin-top:10px; font-size:12px; opacity:.75;">
+        WhatsApp: <b id="waTxt"></b> — Telegram: <b id="tgTxt"></b>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/public/app.js"></script>
+<script>
+  // ✅ بيانات المدير
+  const MANAGER_WHATSAPP = "+212619692685";
+  const MANAGER_TELEGRAM = "@Mrp_logistic";
+
+  // ✅ Settings من السيرفر
+  let SETTINGS = { min_deposit_usd: 5, min_withdraw_usd: 10 };
+
+  // ✅ history
+  let allOps = [];
+  let showAll = false;
+
+  function toast(msg){
+    const t=document.getElementById("toast");
+    t.textContent=msg;
+    t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),2600);
+  }
+
+  function normalizeWa(p){ return (p||"").replace(/\D/g,""); }
+  function tgUrl(u){
+    if(!u) return "https://t.me/";
+    if(u.startsWith("http")) return u;
+    return "https://t.me/" + u.replace("@","");
+  }
+
+  function openContact(type, amount, htmlMsg){
+    const modal = document.getElementById("contactModal");
+    const wa = document.getElementById("waLink");
+    const tg = document.getElementById("tgLink");
+
+    document.getElementById("waTxt").textContent = MANAGER_WHATSAPP;
+    document.getElementById("tgTxt").textContent = MANAGER_TELEGRAM;
+
+    const msg = encodeURIComponent(
+      `السلام عليكم، أريد ${type==="deposit"?"إيداع":"سحب"} بقيمة $${amount} في منصة MRP Logistic.`
+    );
+
+    wa.href = `https://wa.me/${normalizeWa(MANAGER_WHATSAPP)}?text=${msg}`;
+    tg.href = tgUrl(MANAGER_TELEGRAM);
+
+    document.getElementById("contactMsg").innerHTML = htmlMsg;
+    modal.style.display = "block";
+  }
+
+  function closeContact(){
+    document.getElementById("contactModal").style.display = "none";
+  }
+
+  function copyContact(){
+    const text = `WhatsApp: ${MANAGER_WHATSAPP}\nTelegram: ${MANAGER_TELEGRAM}`;
+    navigator.clipboard?.writeText(text);
+    toast("تم النسخ ✅");
+  }
+
+  async function wallet(type){
+    try{
+      const amountStr = type==="deposit" ? dep.value : wd.value;
+      const amount = Number(String(amountStr).replace(",", ".").trim());
+
+      if(!amountStr || !Number.isFinite(amount) || amount <= 0){
+        toast("دخل مبلغ صحيح");
+        return;
+      }
+
+      const minDep = Number(SETTINGS.min_deposit_usd || 5);
+      const minWd = Number(SETTINGS.min_withdraw_usd || 10);
+
+      if(type==="deposit" && amount < minDep){
+        toast(`أقل إيداع هو ${minDep}$`);
+        return;
+      }
+      if(type==="withdraw" && amount < minWd){
+        toast(`أقل سحب هو ${minWd}$`);
+        return;
+      }
+
+      if(type==="deposit"){
+        openContact(
+          "deposit",
+          amount,
+          `لإتمام <b>الإيداع</b> بقيمة <b>$${amount}</b> تواصل مع المدير وأرسل دليل الدفع، وسيتم إضافة النقاط لحسابك.`
+        );
+        return;
+      }
+
+      const r = await api("/api/wallet/request","POST",{ type:"withdraw", amount_usd: amount });
+      toast(r.message || "تم إرسال طلب السحب ✅");
+
+      openContact(
+        "withdraw",
+        amount,
+        `تم إرسال <b>طلب السحب</b> بقيمة <b>$${amount}</b> إلى لوحة المدير. يمكنك التواصل مع المدير لتأكيد الطلب.`
+      );
+
+      await loadWalletHistory();
+    }catch(e){
+      toast(e.message || "وقع خطأ");
+    }
+  }
+
+  function renderOps(){
+    rows.innerHTML="";
+    const list = showAll ? allOps : allOps.slice(0,5);
+
+    for(const x of list){
+      rows.innerHTML+=`
+        <div class="op">
+          <div class="ico ${x.type==='deposit'?'dep':'wd'}">
+            ${x.type==='deposit'?'⬇':'⬆'}
+          </div>
+          <div class="info">
+            <b>${x.type==='deposit'?'إيداع':'سحب'} $${x.amount_usd}</b>
+            <span>النقاط: ${x.points_delta}</span>
+          </div>
+          <div class="st">${x.status}</div>
+        </div>`;
+    }
+
+    if(allOps.length>5){
+      moreBtn.style.display="block";
+      moreBtn.textContent = showAll ? "− إظهار أقل" : "+ إظهار المزيد";
+    }else{
+      moreBtn.style.display="none";
+    }
+  }
+
+  function toggleMore(){
+    showAll=!showAll;
+    renderOps();
+  }
+
+  async function loadWalletHistory(){
+    const h = await api("/api/wallet/my");
+    allOps = h.rows || [];
+    renderOps();
+  }
+
+  // ✅ Active nav highlight (UPDATED)
+  (function setActiveNav(){
+    const p = location.pathname;
+    const home = document.getElementById("navHome");
+    const tasks = document.getElementById("navTasks");
+    const profile = document.getElementById("navProfile");
+    if(home && (p==="/home" || p==="/")) home.classList.add("active");
+    if(tasks && p==="/tasks") tasks.classList.add("active");
+    if(profile && p==="/profile") profile.classList.add("active");
+  })();
+
+  async function load(){
+    const me = await api("/api/me");
+
+    hello.textContent=`مرحباً ${me.user.full_name||""}`;
+    points.textContent=me.user.points_balance;
+    done.textContent=me.tasks.done;
+    total.textContent=me.tasks.total;
+
+    SETTINGS = me.settings || SETTINGS;
+    minDep.textContent=`أقل إيداع: ${SETTINGS.min_deposit_usd}$`;
+    minWd.textContent=`أقل سحب: ${SETTINGS.min_withdraw_usd}$`;
+
+    const m = me.settings.manager_contact;
+    mgr.innerHTML = `📩 ${m.title} — ${m.whatsapp} | ${m.telegram}`;
+
+    await loadWalletHistory();
+  }
+
+  load().catch(e=>toast(e.message));
+</script>
+</body>
+</html>
