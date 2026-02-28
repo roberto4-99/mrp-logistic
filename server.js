@@ -183,6 +183,7 @@ function requireAdmin(req, res, next) {
   if (!req.user?.is_admin) return res.status(403).send("Forbidden");
   next();
 }
+
 // ---------- Pages ----------
 app.get("/", (req, res) => res.redirect("/home"));
 app.get("/login", (req, res) => res.sendFile(path.join(__dirname, "views/login.html")));
@@ -237,18 +238,47 @@ app.post("/api/register", (req, res) => {
   res.json({ ok: true });
 });
 
+/**
+ * ✅ FIXED LOGIN
+ * - case-insensitive email matching
+ * - supports multiple possible field names from frontend
+ * - keeps phone matching exact
+ */
 app.post("/api/login", (req, res) => {
   const db = readDb();
-  const { emailOrPhone, password } = req.body;
 
-  const key = String(emailOrPhone || "").trim();
-  const u = db.users.find(x => x.email === key || x.phone === key);
+  // دعم أكثر من اسم للـ field (باش ما نطيحوش فمشكل front)
+  const emailOrPhone =
+    req.body.emailOrPhone ??
+    req.body.emailOrPhoneInput ??
+    req.body.identifier ??
+    req.body.email ??
+    req.body.phone;
+
+  const password = req.body.password;
+
+  const keyRaw = String(emailOrPhone || "").trim();
+  const pw = String(password || "");
+
+  if (!keyRaw || !pw) {
+    return res.status(400).json({ ok: false, message: "أدخل البريد/الهاتف وكلمة المرور." });
+  }
+
+  const keyLower = keyRaw.toLowerCase();
+
+  const u = db.users.find(x =>
+    (x.email && String(x.email).trim().toLowerCase() === keyLower) ||
+    (x.phone && String(x.phone).trim() === keyRaw)
+  );
+
   if (!u) return res.status(400).json({ ok: false, message: "بيانات غير صحيحة." });
 
-  const ok = bcrypt.compareSync(String(password || ""), u.password_hash);
-  if (!ok) return res.status(400).json({ ok: false, message: "بيانات غير صحيحة." });
+  if (u.status !== "active") {
+    return res.status(403).json({ ok: false, message: "الحساب غير نشط." });
+  }
 
-  if (u.status !== "active") return res.status(403).json({ ok: false, message: "الحساب غير نشط." });
+  const ok = bcrypt.compareSync(pw, u.password_hash);
+  if (!ok) return res.status(400).json({ ok: false, message: "بيانات غير صحيحة." });
 
   u.last_login_at = nowISO();
   writeDb(db);
