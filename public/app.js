@@ -1,36 +1,57 @@
-function $(id){ return document.getElementById(id); }
+// public/app.js
 
-function toast(msg){
-  const el = $("toast");
-  if(!el) return alert(msg);
-  el.textContent = msg;
-  el.classList.add("show");
-  setTimeout(()=>el.classList.remove("show"), 2800);
-}
+async function api(url, opts = {}) {
+  const isBodyObject =
+    opts.body &&
+    typeof opts.body === "object" &&
+    !(opts.body instanceof FormData) &&
+    !(opts.body instanceof URLSearchParams);
 
-async function api(url, method="GET", body=null){
-  const opt = { method, headers: {} };
-  if(body){
-    opt.headers["Content-Type"]="application/json";
-    opt.body = JSON.stringify(body);
+  const headers = Object.assign(
+    { Accept: "application/json" },
+    isBodyObject ? { "Content-Type": "application/json" } : {},
+    opts.headers || {}
+  );
+
+  const res = await fetch(url, {
+    method: opts.method || "GET",
+    headers,
+    body: isBodyObject ? JSON.stringify(opts.body) : (opts.body || undefined),
+
+    // ✅ أهم سطر: باش session cookie تمشي مع الطلب
+    // إذا نفس الدومين: same-origin (أفضل)
+    // إذا front فـ دومين مختلف: بدّلها لـ "include"
+    credentials: "same-origin"
+  });
+
+  const ct = (res.headers.get("content-type") || "").toLowerCase();
+
+  // حاول نقرا JSON إلا كان
+  let data = null;
+  if (ct.includes("application/json")) {
+    data = await res.json().catch(() => null);
+  } else {
+    // إلا رجع HTML (مثلا redirect/login) كنقرّاه نص باش نعرفو شنو وقع
+    const txt = await res.text().catch(() => "");
+    data = { ok: false, message: "Unexpected response (not JSON)", _text: txt };
   }
-  const r = await fetch(url, opt);
-  const data = await r.json().catch(()=>({}));
-  if(!r.ok){
-    const m = data?.message || `Error ${r.status}`;
-    throw new Error(m);
+
+  if (!res.ok || (data && data.ok === false)) {
+    // إذا API رجع 401 => رجّع المستخدم للـ login
+    if (res.status === 401) {
+      // من الأفضل نرجعو للـ login مباشرة
+      window.location.href = "/login";
+      throw new Error("UNAUTH");
+    }
+
+    const msg = (data && data.message) ? data.message : `HTTP ${res.status}`;
+    throw new Error(msg);
   }
+
   return data;
 }
 
-function formatUsd(n){
-  const x = Number(n);
-  if(!Number.isFinite(x)) return "$0.00";
-  return "$" + x.toFixed(2);
-}
-
-function statusLabel(s){
-  if(s==="completed") return { text:"مكتملة", cls:"good" };
-  if(s==="available") return { text:"جاهزة", cls:"warn" };
-  return { text:"مقفلة", cls:"bad" };
+// Helpers
+async function apiPost(url, body) {
+  return api(url, { method: "POST", body });
 }
