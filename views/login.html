@@ -53,7 +53,6 @@
       margin-bottom:18px;
     }
 
-    /* ✅ LOGO IMAGE */
     .logo{
       width:52px;height:52px;
       border-radius:18px;
@@ -136,7 +135,6 @@
     }
     .forgot a:hover{text-decoration:underline}
 
-    /* Modal */
     #contactModal{display:none; position:fixed; inset:0; z-index:2000;}
     #contactBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.7);}
     .modalBox{position:relative; max-width:420px; margin:15vh auto; padding:16px;}
@@ -184,11 +182,8 @@
 <div class="card">
   <div class="brand">
     <div class="logo">
-      <!-- ✅ اللوغو من الرابط ديالك -->
-      <img
-        src="/public/logo.png" alt="MRP Logo">"
-        alt="MRP Logo"
-      />
+      <!-- ✅ fixed logo -->
+      <img src="/public/logo.png" alt="MRP Logo" />
     </div>
     <div>
       <h1>MRP Logistic</h1>
@@ -207,7 +202,7 @@
     <a href="#" onclick="openForgot();return false;">تواصل مع الإدارة</a>
   </div>
 
-  <button class="btn" onclick="doLogin()">تسجيل الدخول</button>
+  <button class="btn" id="loginBtn" onclick="doLogin()">تسجيل الدخول</button>
   <button class="btn secondary" onclick="location.href='/register'">إنشاء حساب</button>
 </div>
 
@@ -236,7 +231,9 @@
   </div>
 </div>
 
+<!-- ✅ لازم يكون عندك public/app.js وفيه api() مع credentials: "include" -->
 <script src="/public/app.js"></script>
+
 <script>
   const MANAGER_WHATSAPP = "+212619692685";
   const MANAGER_TELEGRAM = "@Mrp_logistic";
@@ -250,20 +247,37 @@
 
   async function doLogin(){
     try{
-      const emailOrPhone = key.value.trim();
-      const password = pw.value;
-      const r = await api("/api/login","POST",{emailOrPhone,password});
+      const emailOrPhone = document.getElementById("key").value.trim();
+      const password = document.getElementById("pw").value;
+
+      if(!emailOrPhone) return toast("أدخل البريد أو الهاتف.");
+      if(!password) return toast("أدخل كلمة المرور.");
+
+      const btn = document.getElementById("loginBtn");
+      btn.disabled = true;
+      btn.textContent = "جاري الدخول...";
+
+      // ✅ API login
+      const r = await api("/api/login","POST",{ emailOrPhone, password });
+
+      // ✅ go to correct page
       location.href = r.is_admin ? "/admin" : "/home";
-    }catch(e){toast(e.message)}
+    }catch(e){
+      toast(e.message || "حدث خطأ.");
+    }finally{
+      const btn = document.getElementById("loginBtn");
+      btn.disabled = false;
+      btn.textContent = "تسجيل الدخول";
+    }
   }
 
   function openForgot(){
     const msg = encodeURIComponent("السلام عليكم، نسيت كلمة السر. اسمي: ____ ، البريد/الهاتف: ____");
-    waLink.href = "https://wa.me/212619692685?text="+msg;
-    tgLink.href = "https://t.me/Mrp_logistic";
-    contactModal.style.display="block";
+    document.getElementById("waLink").href = "https://wa.me/212619692685?text="+msg;
+    document.getElementById("tgLink").href = "https://t.me/Mrp_logistic";
+    document.getElementById("contactModal").style.display="block";
   }
-  function closeContact(){contactModal.style.display="none"}
+  function closeContact(){ document.getElementById("contactModal").style.display="none"; }
 
   document.addEventListener("keydown",e=>{
     if(e.key==="Enter") doLogin();

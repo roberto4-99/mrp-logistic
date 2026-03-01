@@ -21,11 +21,11 @@
       "email": "admin@mrp.local",
       "phone": null,
       "password_hash": "$2a$10$fenwFbVcQtVOKnKs7hei5.xHdHG/tHz5BckYRzo0rxU55NBi4Obi2",
-      "points_balance": 0,
+      "points_balance": 15,
       "is_admin": true,
       "status": "active",
       "created_at": "2026-02-27T15:33:49.221Z",
-      "last_login_at": "2026-03-01T21:09:33.647Z",
+      "last_login_at": "2026-03-01T21:29:27.704Z",
       "referral_code": "Ud728daa5-d822-42cd-b4f6-67abeb6b0fe2"
     },
     {
@@ -1570,16 +1570,16 @@
       "id": "20e75a5c-2392-45c0-ad4a-a8125fa7d38b",
       "user_id": "d728daa5-d822-42cd-b4f6-67abeb6b0fe2",
       "task_id": 1,
-      "status": "available",
+      "status": "completed",
       "started_at": null,
-      "completed_at": null,
-      "earned_points": 0
+      "completed_at": "2026-03-01T21:29:44.256Z",
+      "earned_points": 15
     },
     {
       "id": "bb23c195-fd8f-4101-9a0a-b67e296a189c",
       "user_id": "d728daa5-d822-42cd-b4f6-67abeb6b0fe2",
       "task_id": 2,
-      "status": "locked",
+      "status": "available",
       "started_at": null,
       "completed_at": null,
       "earned_points": 0
@@ -1861,6 +1861,16 @@
       "started_at": "2026-03-01T17:51:18.433Z",
       "expected_finish_ms": 1772387488433,
       "finished_at": "2026-03-01T17:51:28.499Z",
+      "status": "completed"
+    },
+    {
+      "id": "1772400574177-43335",
+      "user_id": "d728daa5-d822-42cd-b4f6-67abeb6b0fe2",
+      "task_id": 1,
+      "run_token": "1772400574177-43335",
+      "started_at": "2026-03-01T21:29:34.177Z",
+      "expected_finish_ms": 1772400584177,
+      "finished_at": "2026-03-01T21:29:44.257Z",
       "status": "completed"
     }
   ],
