@@ -265,6 +265,8 @@ app.get("/tasks", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "
 app.get("/profile", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/profile.html")));
 app.get("/admin", requireAuth, requireAdmin, (req, res) => res.sendFile(path.join(__dirname, "views/admin.html")));
 app.post("/logout", (req, res) => req.session.destroy(() => res.redirect("/login")));
+app.get("/withdraw", requireAuth, (req, res) =>res.sendFile(path.join(__dirname, "views/withdraw.html")));
+app.get("/deposit", requireAuth, (req, res) =>res.sendFile(path.join(__dirname, "views/deposit.html")));
 
 /* ---------------- Referral API ---------------- */
 app.get("/api/referral/me", requireAuth, (req, res) => {
