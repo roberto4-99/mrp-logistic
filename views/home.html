@@ -138,14 +138,13 @@
     .pill:hover{background: rgba(255,255,255,.12);border-color: rgba(255,255,255,.22);transform: translateY(-1px);}
     .pill:active{transform: translateY(1px) scale(.99)}
     .pill .ic{width:16px;height:16px;display:inline-block}
-    .pillSmallTxt{font-size:12px;opacity:.9}
 
     /* ---------- Layout ---------- */
     .grid{
       display:grid;
       gap:12px;
       margin-top: 12px;
-      grid-template-columns: 1fr; /* ✅ صافي عمود واحد */
+      grid-template-columns: 1fr;
       align-items:start;
     }
 
@@ -231,7 +230,7 @@
       gap:7px;
       transition: transform .12s ease, background .2s ease, border-color .2s ease;
       text-align:center;
-      min-height: 82px; /* ✅ أصغر */
+      min-height: 82px;
     }
     .sc:hover{background: rgba(255,255,255,.10);border-color: rgba(255,255,255,.22);transform: translateY(-1px);}
     .sc:active{transform: translateY(1px) scale(.99)}
@@ -246,6 +245,7 @@
     .sc.deposit .scIcon{background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.28)}
     .sc.withdraw .scIcon{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.28)}
     .sc.ops .scIcon{background: rgba(59,130,246,.14); border-color: rgba(59,130,246,.28)}
+    .sc.invite .scIcon{background: rgba(139,92,246,.14); border-color: rgba(139,92,246,.28)}
     .scLabel{font-size: 12px;font-weight: 950;opacity: .95;line-height: 1.2;}
     .scSub{font-size: 11px;color: var(--muted2);line-height: 1.2;}
 
@@ -308,6 +308,7 @@
       padding: 7px 9px;font-weight: 950;
     }
     .modalMsg{font-size: 13px;color: rgba(255,255,255,.88);line-height: 1.6;margin-top: 6px;}
+
     .modalBtn{
       display:flex;align-items:center;justify-content:space-between;
       gap:10px;padding: 11px 12px;border-radius: 16px;
@@ -318,6 +319,7 @@
     }
     .modalBtn.wa{border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.14)}
     .modalBtn.tg{border-color: rgba(59,130,246,.35); background: rgba(59,130,246,.14)}
+
     .copyBtn{
       width:100%;border:none;cursor:pointer;margin-top: 9px;
       padding: 11px 12px;border-radius: 16px;
@@ -327,7 +329,7 @@
       font-size:13px;
     }
 
-    /* ---------- Ops Modal (NEW) ---------- */
+    /* ---------- Ops Modal ---------- */
     #opsModal{display:none; position:fixed; inset:0; z-index:6500;}
     #opsBackdrop{position:absolute; inset:0; background: rgba(0,0,0,.6);}
     .opsBox{position:relative; max-width:560px; margin: 12vh auto; padding: 14px;}
@@ -365,6 +367,48 @@
       color: var(--muted);
       font-size: 12px;line-height: 1.6;
       margin-top: 10px;
+    }
+
+    /* ---------- Invite Modal (NEW) ---------- */
+    #inviteModal{display:none; position:fixed; inset:0; z-index:6600;}
+    #inviteBackdrop{position:absolute; inset:0; background: rgba(0,0,0,.6);}
+    .inviteBox{position:relative; max-width:560px; margin: 12vh auto; padding: 14px;}
+    .inviteCard{
+      background: rgba(2,6,23,.95);
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 22px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .inviteHint{font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px}
+    .inviteInput{
+      width:100%;
+      margin-top:10px;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.35);
+      color:#fff;
+      outline:none;
+      font-size:13px;
+      direction:ltr;
+      text-align:left;
+    }
+    .inviteBtns{display:grid;gap:10px;margin-top:10px;grid-template-columns:1fr 1fr}
+    @media(max-width:520px){ .inviteBtns{grid-template-columns:1fr} }
+    .btnMini{
+      border:none;cursor:pointer;
+      padding:11px 12px;border-radius:16px;
+      font-weight:950;font-size:13px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      color:#fff;
+    }
+    .btnMini.primary{
+      background: linear-gradient(135deg, var(--good), var(--blue));
+      border-color: transparent;
+      color:#020617;
     }
 
     .hide{display:none !important}
@@ -479,7 +523,6 @@
               <div class="scSub" id="scMinWd">أقل: 10$</div>
             </div>
 
-            <!-- ✅ آخر العمليات داخل الأيقونة (مودال صغير) -->
             <div class="sc ops" onclick="openOps()">
               <div class="scIcon">
                 <svg viewBox="0 0 24 24" fill="none">
@@ -492,6 +535,21 @@
               <div class="scLabel">آخر العمليات</div>
               <div class="scSub" id="scOpsCount">0 عملية</div>
             </div>
+
+            <!-- ✅ زر الدعوة (واجهة فقط) -->
+            <div class="sc invite" onclick="openInvite()">
+              <div class="scIcon">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path d="M16 11a4 4 0 1 0-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M19 8v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M21 10h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="scLabel">دعوة</div>
+              <div class="scSub" id="scInviteCode">رابط خاص</div>
+            </div>
+
           </div>
         </div>
 
@@ -539,7 +597,7 @@
     </div>
   </div>
 
-  <!-- Contact Modal (باقي يمكن نحتاجوه لصفحات الإيداع/السحب) -->
+  <!-- Contact Modal -->
   <div id="contactModal">
     <div id="contactBackdrop" onclick="closeContact()"></div>
     <div class="modalBox">
@@ -568,7 +626,7 @@
     </div>
   </div>
 
-  <!-- ✅ Ops Modal -->
+  <!-- Ops Modal -->
   <div id="opsModal">
     <div id="opsBackdrop" onclick="closeOps()"></div>
     <div class="opsBox">
@@ -588,6 +646,32 @@
     </div>
   </div>
 
+  <!-- ✅ Invite Modal -->
+  <div id="inviteModal">
+    <div id="inviteBackdrop" onclick="closeInvite()"></div>
+    <div class="inviteBox">
+      <div class="inviteCard">
+        <div class="modalTop">
+          <b>دعوة الأصدقاء</b>
+          <button class="xbtn" onclick="closeInvite()">✕</button>
+        </div>
+
+        <div class="inviteHint">
+          هذا غير <b>واجهة</b> (A) — ما كاين حتى تغيير فالسيرفر. الرابط غادي يخدم كمشاركة فقط.
+        </div>
+
+        <input class="inviteInput" id="inviteLink" readonly value=""/>
+
+        <div class="inviteBtns">
+          <button class="btnMini" onclick="copyInvite()">📋 نسخ الرابط</button>
+          <button class="btnMini primary" onclick="shareInvite()">📤 مشاركة</button>
+        </div>
+
+        <div class="inviteHint" id="inviteNote"></div>
+      </div>
+    </div>
+  </div>
+
   <script src="/public/app.js"></script>
   <script>
     const MANAGER_WHATSAPP = "+212619692685";
@@ -596,8 +680,11 @@
     let MIN_DEP = 5;
     let MIN_WD  = 10;
 
-    // cache ديال العمليات باش الأيقونة تخدم بلا ما نعاودو fetch كل مرة
     let OPS_CACHE = [];
+
+    // Invite (واجهة فقط)
+    let INVITE_CODE = "";
+    let INVITE_URL  = "";
 
     function toast(msg){
       const t = document.getElementById("toast");
@@ -674,7 +761,6 @@
     }
 
     function openOps(){
-      // عرض المودال
       const modal = document.getElementById("opsModal");
       const list  = document.getElementById("opsModalList");
       const empty = document.getElementById("opsModalEmpty");
@@ -711,6 +797,68 @@
       }
     }
 
+    // ---------- Invite (واجهة فقط) ----------
+    function makeInviteCodeFromMe(me){
+      // نولد Code ثابت نسبيا من id/name (بدون سيرفر)
+      const id = (me?.user?.id ?? "").toString();
+      const name = (me?.user?.full_name ?? "").toString();
+      const base = (id ? ("U"+id) : (name ? name : "MRP")) + "-" + Date.now().toString(36).slice(-4);
+      return base.replace(/\s+/g,"").slice(0,18);
+    }
+
+    function buildInviteUrl(){
+      // رابط share: نفس الدومين + /register?ref=CODE
+      // إلى ماعندكش /register فالسيرفر ماشي مشكل: غير مشاركة
+      const origin = location.origin;
+      return `${origin}/register?ref=${encodeURIComponent(INVITE_CODE)}`;
+    }
+
+    function openInvite(){
+      const modal = document.getElementById("inviteModal");
+      const input = document.getElementById("inviteLink");
+      const note  = document.getElementById("inviteNote");
+
+      if(!INVITE_CODE){
+        INVITE_CODE = "MRP-" + Math.random().toString(36).slice(2,8).toUpperCase();
+      }
+      INVITE_URL = buildInviteUrl();
+
+      input.value = INVITE_URL;
+      note.innerHTML = `الكود ديالك: <b>${INVITE_CODE}</b>`;
+
+      modal.style.display = "block";
+    }
+
+    function closeInvite(){
+      document.getElementById("inviteModal").style.display = "none";
+    }
+
+    async function copyInvite(){
+      const input = document.getElementById("inviteLink");
+      try{
+        await navigator.clipboard.writeText(input.value);
+        toast("تم نسخ رابط الدعوة ✅");
+      }catch(e){
+        toast("ماقدرناش ننسخو ❗");
+      }
+    }
+
+    async function shareInvite(){
+      const url = document.getElementById("inviteLink").value;
+      const text = "انضم ليا فـ MRP Logistic عبر رابط الدعوة:";
+      try{
+        if(navigator.share){
+          await navigator.share({ title:"MRP Logistic", text, url });
+          toast("تم فتح المشاركة ✅");
+        }else{
+          await navigator.clipboard.writeText(url);
+          toast("المشاركة ماخداماش هنا — نسخنا الرابط ✅");
+        }
+      }catch(e){
+        toast("ماقدرناش نفتح المشاركة ❗");
+      }
+    }
+
     (function setActiveNav(){
       const p = location.pathname;
       if(p==="/" || p==="/home") document.getElementById("navHome").classList.add("active");
@@ -719,7 +867,6 @@
     })();
 
     async function load(){
-      // shortcuts default mins
       document.getElementById("scMinDep").textContent  = `أقل: ${MIN_DEP}$`;
       document.getElementById("scMinWd").textContent   = `أقل: ${MIN_WD}$`;
 
@@ -744,9 +891,20 @@
         document.getElementById("role").textContent = isAdmin ? "Admin" : "User";
         document.getElementById("secure").textContent = "OK";
         document.getElementById("statusTxt").textContent = "متصل ✅";
+
+        // Invite code (واجهة فقط) مبني على المستخدم
+        INVITE_CODE = makeInviteCodeFromMe(me);
+        const scInviteCode = document.getElementById("scInviteCode");
+        if(scInviteCode) scInviteCode.textContent = INVITE_CODE;
+
       }catch(e){
         document.getElementById("statusTxt").textContent = "غير متصل ❗";
         toast("وقع مشكل فـ /api/me");
+
+        // fallback invite
+        INVITE_CODE = "MRP-" + Math.random().toString(36).slice(2,8).toUpperCase();
+        const scInviteCode = document.getElementById("scInviteCode");
+        if(scInviteCode) scInviteCode.textContent = INVITE_CODE;
       }
 
       await loadWalletHistorySafe();
