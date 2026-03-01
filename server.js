@@ -42,7 +42,7 @@ function ensureDbFile() {
       ],
       user_tasks: [],
       task_runs: [],
-      referrals: [] // ✅ NEW
+      referrals: []
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(init, null, 2), "utf8");
   }
@@ -67,9 +67,7 @@ function usdToPoints(db, usd) {
   return Math.floor(usd * rate);
 }
 
-// ✅ referral code generator (short + readable)
 function makeReferralCode(userId){
-  // مثال: U555555
   return "U" + String(userId);
 }
 
@@ -97,7 +95,7 @@ function ensureAdmin(db) {
     status: "active",
     created_at: nowISO(),
     last_login_at: null,
-    referral_code: makeReferralCode(adminId) // ✅ NEW
+    referral_code: makeReferralCode(adminId)
   };
 
   db.users.push(admin);
@@ -194,12 +192,10 @@ function resetUserProgress(db, userId) {
 
   ensureAdmin(db);
 
-  // ensure referral_code for all users (migration safe)
   for (const u of db.users) {
     if (!u.referral_code) u.referral_code = makeReferralCode(u.id);
   }
 
-  // sync tasks for normal users
   for (const u of db.users) {
     if (!u.is_admin) {
       ensureUserTasks(db, u.id);
@@ -216,30 +212,47 @@ app.use(express.urlencoded({ extended: true }));
 
 app.set("trust proxy", 1);
 
+// ✅ FIX: session cookie works both in Railway(https) and local(http)
+const isProd = process.env.NODE_ENV === "production";
+
 app.use(session({
   name: "mrp.sid",
   secret: process.env.SESSION_SECRET || "mrp_secret_change_me",
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    secure: true,
-    sameSite: "none"
+    secure: isProd,                     // true on https
+    sameSite: isProd ? "none" : "lax"   // none for cross-site https, lax for local
   }
 }));
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
 /* ---------------- Guards ---------------- */
+// ✅ FIX: APIs return JSON instead of redirecting to HTML login page
 function requireAuth(req, res, next) {
   const db = readDb();
   const u = (db.users || []).find(x => x.id === req.session.userId);
-  if (!u || u.status !== "active") return res.redirect("/login");
+
+  const isApi = req.path.startsWith("/api/");
+
+  if (!u || u.status !== "active") {
+    if (isApi) return res.status(401).json({ ok: false, message: "Unauthorized" });
+    return res.redirect("/login");
+  }
+
   req.user = u;
   req._db = db;
   next();
 }
+
 function requireAdmin(req, res, next) {
-  if (!req.user?.is_admin) return res.status(403).send("Forbidden");
+  const isApi = req.path.startsWith("/api/");
+  if (!req.user?.is_admin) {
+    return isApi
+      ? res.status(403).json({ ok: false, message: "Forbidden" })
+      : res.status(403).send("Forbidden");
+  }
   next();
 }
 
@@ -254,7 +267,6 @@ app.get("/admin", requireAuth, requireAdmin, (req, res) => res.sendFile(path.joi
 app.post("/logout", (req, res) => req.session.destroy(() => res.redirect("/login")));
 
 /* ---------------- Referral API ---------------- */
-// ✅ this is what Home will use to show invite link + count
 app.get("/api/referral/me", requireAuth, (req, res) => {
   const db = req._db;
   db.referrals = db.referrals || [];
@@ -262,7 +274,6 @@ app.get("/api/referral/me", requireAuth, (req, res) => {
   const code = req.user.referral_code || makeReferralCode(req.user.id);
   const total = db.referrals.filter(r => r.referrer_id === req.user.id).length;
 
-  // baseUrl from request
   const base = `${req.protocol}://${req.get("host")}`;
   const link = `${base}/register?ref=${encodeURIComponent(code)}`;
 
@@ -304,18 +315,16 @@ app.post("/api/register", (req, res) => {
     status: "active",
     created_at: nowISO(),
     last_login_at: null,
-    referral_code: makeReferralCode(newId) // ✅ NEW
+    referral_code: makeReferralCode(newId)
   };
 
   db.users.push(user);
   db.meta.next_user_id += 1;
 
-  // ✅ referral on signup (1 point)
   db.referrals = db.referrals || [];
   const code = String(ref_code || "").trim();
   if (code) {
     const referrer = db.users.find(u => u.referral_code === code);
-    // منع self-ref
     if (referrer && referrer.id !== user.id) {
       const already = db.referrals.find(r => r.referred_id === user.id);
       if (!already) {
@@ -566,7 +575,6 @@ app.post("/api/admin/requests/:id/approve", requireAuth, requireAdmin, (req, res
   row.status = "approved";
   row.processed_at = nowISO();
 
-  // ✅ referral deposit bonus: +30 points for referrer once
   if (String(row.type).toLowerCase() === "deposit") {
     db.referrals = db.referrals || [];
     const rel = db.referrals.find(r => r.referred_id === u.id && r.deposit_bonus_awarded === false);
