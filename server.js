@@ -214,10 +214,17 @@ function resetUserProgress(db, userId) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.set("trust proxy", 1);
+
 app.use(session({
+  name: "mrp.sid",
   secret: process.env.SESSION_SECRET || "mrp_secret_change_me",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: true,
+  cookie: {
+    secure: true,
+    sameSite: "none"
+  }
 }));
 
 app.use("/public", express.static(path.join(__dirname, "public")));
