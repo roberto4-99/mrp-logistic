@@ -2,121 +2,239 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>MRP Logistic | Tasks</title>
 
   <style>
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background:linear-gradient(180deg,#0f172a,#111827);
-      color:#fff;
-      min-height:100vh;
-      overflow-x:hidden;
-    }
     :root{
-      --glass: rgba(255,255,255,.06);
-      --glass2: rgba(255,255,255,.08);
+      --bg1:#020617;
+      --bg2:#0b1225;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.09);
       --border: rgba(255,255,255,.12);
       --border2: rgba(255,255,255,.18);
-      --accentA:#22c55e;
-      --accentB:#3b82f6;
-      --accentC:#a78bfa; /* purple */
-      --accentD:#7dd3fc; /* sky */
-      --dark:#020617;
+      --txt:#ffffff;
+      --muted: rgba(255,255,255,.75);
+      --muted2: rgba(255,255,255,.6);
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --shadow2: 0 10px 28px rgba(0,0,0,.28);
+      --r24:24px;
+      --r20:20px;
+      --r18:18px;
+      --r16:16px;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --blue:#3b82f6;
+      --yellow:#f59e0b;
+      --gray:#64748b;
+      --purple:#a78bfa;
+      --sky:#7dd3fc;
     }
 
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--txt);
+      background:
+        radial-gradient(900px 500px at 10% 10%, #15234a, transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, #0b3d2a, transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+      padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    }
+
+    /* ---------- Toast ---------- */
     .toast{
-      position:fixed;left:16px;bottom:90px;
-      background:#020617;
-      border:1px solid rgba(255,255,255,.14);
-      padding:12px 14px;border-radius:14px;
-      display:none;z-index:9999;max-width:360px;
-      box-shadow:0 18px 50px rgba(0,0,0,.45);
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom: calc(90px + env(safe-area-inset-bottom));
+      margin:auto;
+      max-width:520px;
+      background: rgba(2,6,23,.92);
+      border:1px solid var(--border);
+      border-radius: 16px;
+      padding:12px 14px;
+      box-shadow: var(--shadow2);
+      display:none;
+      z-index:5000;
+      backdrop-filter: blur(14px);
     }
     .toast.show{display:block}
 
-    .wrap{max-width:1100px;margin:auto;padding:20px;padding-bottom:120px}
-
-    /* Header */
-    .header{
-      display:flex;justify-content:space-between;align-items:center;gap:12px;
-      margin-bottom:18px;
-    }
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{
-      width:54px;height:54px;border-radius:18px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      overflow:hidden;
-      box-shadow:0 16px 40px rgba(0,0,0,.35);
-      flex:0 0 auto;
-      display:flex;align-items:center;justify-content:center;
-    }
-    .logo img{width:100%;height:100%;object-fit:cover;display:block}
-    .title{font-size:18px;font-weight:900}
-    .sub{font-size:12px;opacity:.8}
-
-    .btn-link{
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.2);
-      padding:10px 14px;border-radius:999px;
-      color:#fff;text-decoration:none;font-weight:800;
-      white-space:nowrap;
-      transition:transform .12s ease, background .2s ease, border-color .2s ease;
-    }
-    .btn-link:hover{
-      background:rgba(255,255,255,.16);
-      border-color:rgba(255,255,255,.28);
-      transform:translateY(-1px);
-    }
-    .btn-link:active{transform:translateY(1px) scale(.99)}
-
-    .grid{display:grid;gap:14px}
-
-    .card{
-      background:var(--glass);
-      border:1px solid var(--border);
-      border-radius:22px;
+    /* ---------- Wrap ---------- */
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
       padding:16px;
-      backdrop-filter: blur(10px);
-      box-shadow:0 18px 55px rgba(0,0,0,.25);
     }
 
-    .topRow{
-      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+    /* ---------- Topbar ---------- */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 10px;
+      border-radius: var(--r24);
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 14px 50px rgba(0,0,0,.22);
+      margin-top: 12px;
     }
-
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.18);
-      padding:10px 12px;border-radius:999px;
-      font-size:12px;font-weight:900;
-    }
-
-    /* Tasks */
-    .task{
-      display:flex;justify-content:space-between;align-items:center;gap:12px;
-      background:rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
-      padding:14px;
-    }
-    .left{
-      display:flex;align-items:center;gap:12px;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
       min-width:0;
     }
-    .meta{min-width:0}
-    .meta b{display:block}
-    .meta .small{
-      font-size:12px;opacity:.8;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      max-width:560px
+    .logo{
+      width:46px;
+      height:46px;
+      border-radius: 16px;
+      overflow:hidden;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      flex: 0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 12px 35px rgba(0,0,0,.22);
     }
-    @media(max-width:700px){
-      .meta .small{max-width:240px}
+    .logo img{width:100%;height:100%;object-fit:cover;display:block}
+
+    .brandTxt{min-width:0}
+    .appName{
+      font-weight: 950;
+      font-size: 16px;
+      line-height: 1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .sub{
+      font-size:12px;
+      color: var(--muted);
+      margin-top:4px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topActions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+    }
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      color: var(--txt);
+      font-weight: 900;
+      font-size:12px;
+      white-space:nowrap;
+      user-select:none;
+    }
+
+    /* ---------- Content cards ---------- */
+    .grid{
+      display:grid;
+      gap:14px;
+      margin-top: 14px;
+      grid-template-columns: 1.1fr .9fr;
+      align-items:start;
+    }
+    @media(max-width: 920px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--r24);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .cardTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 12px;
+    }
+    .cardTitle h2{
+      margin:0;
+      font-size: 14px;
+      font-weight: 950;
+      letter-spacing:.2px;
+    }
+    .subtxt{
+      font-size:12px;
+      color: var(--muted2);
+      line-height:1.5;
+    }
+
+    /* ---------- Summary ---------- */
+    .summary{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:12px;
+    }
+    @media(max-width: 520px){
+      .summary{grid-template-columns:1fr}
+    }
+    .sum{
+      background: var(--card2);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--r20);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .sum b{font-weight:950}
+    .sum .n{
+      font-size: 26px;
+      font-weight: 950;
+      margin-top: 8px;
+      line-height:1;
+    }
+    .sum .t{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ---------- Task items ---------- */
+    .tasks{
+      display:grid;
+      gap:10px;
+    }
+    .task{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 12px;
+      border-radius: var(--r20);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
     }
 
     .dot{
@@ -124,81 +242,129 @@
       box-shadow:0 0 0 6px rgba(255,255,255,.06);
       flex:0 0 auto;
     }
-    .dot.ok{background:#22c55e}
-    .dot.wait{background:#f59e0b}
-    .dot.lock{background:#64748b}
+    .dot.ok{background: var(--good)}
+    .dot.wait{background: var(--yellow)}
+    .dot.lock{background: var(--gray)}
+
+    .meta{min-width:0}
+    .meta b{
+      display:block;
+      font-size: 13px;
+      font-weight: 950;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 560px;
+    }
+    .meta .small{
+      font-size:12px;
+      color: var(--muted2);
+      margin-top:3px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      max-width: 560px;
+    }
+    @media(max-width:700px){
+      .meta b,.meta .small{max-width: 260px;}
+    }
 
     .btn{
-      border:none;cursor:pointer;
+      border:none;
+      cursor:pointer;
       border-radius:999px;
       padding:10px 14px;
-      font-weight:900;
-      background:#111;color:#fff;
+      font-weight:950;
+      color:#021019;
+      background: linear-gradient(135deg, var(--good), var(--blue));
       white-space:nowrap;
-      transition:transform .12s ease, filter .2s ease;
-    }
-    .btn:active{transform:translateY(1px)}
-    .btn[disabled]{opacity:.55;cursor:not-allowed}
-
-    /* Nav (interactive like home) */
-    .nav{
-      position:fixed;left:0;right:0;bottom:0;
-      background:rgba(0,0,0,.65);
-      border-top:1px solid rgba(255,255,255,.14);
-      backdrop-filter:blur(12px);
-      z-index:999;
-    }
-    .nav .inner{
-      max-width:1100px;margin:auto;
-      display:flex;justify-content:space-around;align-items:center;
-      padding:10px;
-      gap:10px;
-    }
-    .navbtn{
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:4px;
-      min-width:90px;
-      padding:10px 12px;
-      border-radius:16px;
-      color:#fff;
-      text-decoration:none;
-      font-weight:900;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.18);
-      cursor:pointer;
-      transition:transform .12s ease, background .2s ease, border-color .2s ease;
+      transition: transform .12s ease, filter .2s ease;
       user-select:none;
     }
-    .navbtn .ico{font-size:20px;line-height:1}
-    .navbtn .txt{font-size:11px;opacity:.9}
+    .btn:active{transform: translateY(1px) scale(.99)}
+    .btn[disabled]{opacity:.55;cursor:not-allowed}
+
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.16);
+      font-size:12px;
+      font-weight:950;
+      color: rgba(255,255,255,.92);
+      white-space:nowrap;
+    }
+
+    /* ---------- Bottom Nav (same as home) ---------- */
+    .nav{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 4000;
+      background: rgba(2,6,23,.70);
+      border-top: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(14px);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .navInner{
+      max-width:1100px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content: space-around;
+      gap:10px;
+      padding: 10px 12px;
+    }
+    .navbtn{
+      min-width: 86px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      text-decoration:none;
+      color:#fff;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: 18px;
+      padding: 10px 12px;
+      font-weight: 950;
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    .navbtn svg{width:18px;height:18px;opacity:.95}
+    .navbtn small{font-size: 11px; opacity:.9}
     .navbtn:hover{
-      background:rgba(255,255,255,.16);
-      border-color:rgba(255,255,255,.28);
-      transform:translateY(-1px);
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.24);
+      transform: translateY(-1px);
     }
-    .navbtn:active{transform:translateY(1px) scale(.98)}
+    .navbtn:active{transform: translateY(1px) scale(.99)}
     .navbtn.active{
-      background:linear-gradient(135deg,var(--accentA),var(--accentB));
-      border-color:transparent;
-      box-shadow:0 10px 26px rgba(0,0,0,.25);
-      color:#020617;
+      background: linear-gradient(135deg, var(--good), var(--blue));
+      border-color: transparent;
+      color: #020617;
+      box-shadow: 0 12px 28px rgba(0,0,0,.22);
     }
-    .navbtn.active .txt{opacity:1}
+    .navbtn.active small{opacity:1}
     .navbtn.danger{
-      background:rgba(239,68,68,.20);
-      border-color:rgba(239,68,68,.35);
+      background: rgba(239,68,68,.18);
+      border-color: rgba(239,68,68,.30);
     }
     .navbtn.danger:hover{
-      background:rgba(239,68,68,.28);
-      border-color:rgba(239,68,68,.5);
+      background: rgba(239,68,68,.26);
+      border-color: rgba(239,68,68,.46);
+      transform: translateY(-1px);
+      color:#fff;
     }
     .nav form{margin:0}
 
-    /* =========  ✨ SMART TASK OVERLAY (NEW) ========= */
+    /* ========= Smart Overlay (kept, improved) ========= */
     .overlay{
       position:fixed; inset:0;
       display:none;
-      z-index:3000;
+      z-index:6000;
       background:radial-gradient(900px 600px at 50% 45%, rgba(2,6,23,.35), rgba(2,6,23,.78));
       backdrop-filter: blur(10px);
     }
@@ -217,8 +383,6 @@
       place-items:center;
       transform: translateZ(0);
     }
-
-    /* glow layers */
     .halo::before{
       content:"";
       position:absolute; inset:-18px;
@@ -240,13 +404,11 @@
       box-shadow: 0 30px 90px rgba(0,0,0,.55);
       backdrop-filter: blur(14px);
     }
-
     @keyframes pulse{
       0%,100%{ transform:scale(0.98); opacity:.85 }
       50%{ transform:scale(1.02); opacity:1 }
     }
 
-    /* progress ring */
     .ring{
       position:relative;
       width:78%;
@@ -255,12 +417,12 @@
       display:grid;
       place-items:center;
     }
-    svg{display:block}
     .ring svg{
       width:100%;
       height:100%;
       transform: rotate(-90deg);
       filter: drop-shadow(0 16px 30px rgba(0,0,0,.35));
+      display:block;
     }
     .ringTrack{
       stroke: rgba(255,255,255,.10);
@@ -276,8 +438,6 @@
       stroke-dashoffset: 999;
       transition: stroke-dashoffset .18s ease-in-out;
     }
-
-    /* subtle shimmer vibration */
     .vibe{
       position:absolute; inset:0;
       border-radius:999px;
@@ -305,7 +465,7 @@
       letter-spacing:.5px;
       margin:0;
       line-height:1.05;
-      background: linear-gradient(135deg, var(--accentD), var(--accentC));
+      background: linear-gradient(135deg, var(--sky), var(--purple));
       -webkit-background-clip:text;
       background-clip:text;
       color:transparent;
@@ -316,11 +476,11 @@
       font-size:12px;
       opacity:.86;
       line-height:1.5;
+      color: rgba(255,255,255,.88);
     }
-
     .taskTitle{
       margin-top:10px;
-      font-weight:900;
+      font-weight:950;
       font-size:13px;
       opacity:.95;
       white-space:nowrap;
@@ -328,35 +488,30 @@
       text-overflow:ellipsis;
     }
 
-    /* particles canvas */
     #fx{
       position:fixed; inset:0;
       width:100%; height:100%;
-      z-index:3100;
+      z-index:6100;
       pointer-events:none;
       display:none;
     }
     #fx.show{display:block}
 
-    /* completion flash */
     .flash{
       position:fixed; inset:0;
       background: radial-gradient(700px 400px at 50% 45%, rgba(125,211,252,.40), rgba(167,139,250,.18), transparent 65%),
                   rgba(255,255,255,.02);
       opacity:0;
-      z-index:3200;
+      z-index:6200;
       pointer-events:none;
     }
-    .flash.go{
-      animation: flash .45s ease-in-out;
-    }
+    .flash.go{ animation: flash .45s ease-in-out; }
     @keyframes flash{
       0%{opacity:0}
       35%{opacity:.95}
       100%{opacity:0}
     }
 
-    /* checkmark draw */
     .checkWrap{
       position:absolute;
       inset:0;
@@ -382,7 +537,7 @@
       fill:none;
     }
     .checkPath{
-      stroke: #facc15; /* gold */
+      stroke: #facc15;
       stroke-width:10;
       fill:none;
       stroke-linecap:round;
@@ -391,11 +546,8 @@
       stroke-dashoffset: 120;
       animation: draw .55s ease-in-out forwards;
     }
-    @keyframes draw{
-      to{ stroke-dashoffset: 0; }
-    }
+    @keyframes draw{ to{ stroke-dashoffset: 0; } }
 
-    /* small hint button */
     .cancelBtn{
       position:absolute;
       bottom:-54px;
@@ -406,435 +558,472 @@
       color:#fff;
       border-radius:999px;
       padding:10px 14px;
-      font-weight:900;
+      font-weight:950;
       cursor:not-allowed;
       opacity:.55;
       white-space:nowrap;
       z-index:2;
     }
-    .cancelBtn small{opacity:.85;font-weight:700}
-
+    .cancelBtn small{opacity:.85;font-weight:800}
   </style>
 </head>
+
 <body>
+  <div class="toast" id="toast"></div>
 
-<div class="toast" id="toast"></div>
-
-<div class="wrap">
-
-  <!-- Header -->
-  <div class="header">
-    <div class="brand">
-      <div class="logo">
-        <img
-          src="https://reduced-maroon-xf3kajtb8g.edgeone.app/WhatsApp%20Image%202026-02-28%20at%2012.54.14.jpeg"
-          alt="MRP Logo"
-        />
-      </div>
-      <div>
-        <div class="title">MRP Logistic</div>
-        <div class="sub">المهام اليومية</div>
-      </div>
-    </div>
-    <a class="btn-link" href="/home">← الرجوع للرئيسية</a>
-  </div>
-
-  <div class="card">
-    <div class="topRow">
-      <div>
-        <div class="title">قائمة المهام</div>
-        <div class="sub">أكمل مهمة واحدة في كل مرة (سيتم فتح المهمة التالية تلقائياً)</div>
-      </div>
-      <div class="pill" id="waitPill">⏱️ انتظار 10 ثواني لكل مهمة</div>
-    </div>
-
-    <div style="height:14px"></div>
-    <div id="tasks" class="grid"></div>
-  </div>
-
-</div>
-
-<div class="nav">
-  <div class="inner">
-
-    <a href="/home" class="navbtn" id="navHome">
-      <span class="ico">🏠</span>
-      <span class="txt">الرئيسية</span>
-    </a>
-
-    <a href="/tasks" class="navbtn" id="navTasks">
-      <span class="ico">✅</span>
-      <span class="txt">المهام</span>
-    </a>
-
-    <a href="/profile" class="navbtn" id="navProfile">
-      <span class="ico">👤</span>
-      <span class="txt">بروفايل</span>
-    </a>
-
-    <form method="post" action="/logout">
-      <button type="submit" class="navbtn danger">
-        <span class="ico">🚪</span>
-        <span class="txt">خروج</span>
-      </button>
-    </form>
-
-  </div>
-</div>
-
-<!-- ✨ FX Canvas -->
-<canvas id="fx"></canvas>
-<div class="flash" id="flash"></div>
-
-<!-- ✨ Smart Overlay -->
-<div class="overlay" id="overlay" aria-hidden="true">
-  <div class="center">
-    <div class="halo" id="halo">
-      <div class="ring">
-        <svg viewBox="0 0 120 120">
-          <defs>
-            <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#7dd3fc"/>
-              <stop offset="55%" stop-color="#a78bfa"/>
-              <stop offset="100%" stop-color="#3b82f6"/>
-            </linearGradient>
-          </defs>
-          <circle class="ringTrack" cx="60" cy="60" r="46"></circle>
-          <circle class="ringProg" id="ringProg" cx="60" cy="60" r="46"></circle>
-        </svg>
-
-        <div class="vibe"></div>
-
-        <div class="count">
-          <div class="big" id="sec">10</div>
-          <div class="small" id="hint">جاري المعالجة الذكية…</div>
-          <div class="taskTitle" id="runTitle">—</div>
+  <div class="wrap">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">
+          <img
+            src="https://reduced-maroon-xf3kajtb8g.edgeone.app/WhatsApp%20Image%202026-02-28%20at%2012.54.14.jpeg"
+            alt="MRP Logo"
+          />
         </div>
-
-        <div class="checkWrap" id="checkWrap">
-          <svg class="checkSvg" viewBox="0 0 120 120">
-            <circle class="checkCircle" cx="60" cy="60" r="46"></circle>
-            <path class="checkPath" d="M34 64 L54 82 L90 40"></path>
-          </svg>
+        <div class="brandTxt">
+          <div class="appName">MRP Logistic</div>
+          <div class="sub">المهام اليومية</div>
         </div>
       </div>
 
-      <div class="cancelBtn">⏳ رجاءً انتظر… <small>لا يمكن الخروج أثناء المهمة</small></div>
+      <div class="topActions">
+        <div class="pill" id="waitPill">⏱️ انتظار — ثانية</div>
+      </div>
     </div>
-  </div>
-</div>
 
-<script src="/public/app.js"></script>
-<script>
-  let currentRun = null;
-  let timer = null;
-  let waitTotal = 10;
-  let waitLeft = 0;
+    <div class="grid">
+      <!-- Left -->
+      <div class="card">
+        <div class="cardTitle">
+          <h2>قائمة المهام</h2>
+          <div class="subtxt">مهمة واحدة في كل مرة، وكي تكمّل كتتحلّ اللي من بعدها</div>
+        </div>
 
-  // FX canvas
-  const fx = document.getElementById("fx");
-  const ctx = fx.getContext("2d");
-  let W=0,H=0, dpr=1;
+        <div class="tasks" id="tasks"></div>
+      </div>
 
-  function resizeFX(){
-    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    W = fx.width = Math.floor(window.innerWidth * dpr);
-    H = fx.height = Math.floor(window.innerHeight * dpr);
-    fx.style.width = window.innerWidth + "px";
-    fx.style.height = window.innerHeight + "px";
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  window.addEventListener("resize", resizeFX);
-  resizeFX();
+      <!-- Right -->
+      <div class="card">
+        <div class="cardTitle">
+          <h2>ملخص اليوم</h2>
+          <div class="subtxt" id="sumHint">—</div>
+        </div>
 
-  function toast(msg){
-    const t=document.getElementById("toast");
-    t.textContent=msg;
-    t.classList.add("show");
-    setTimeout(()=>t.classList.remove("show"),2600);
-  }
+        <div class="summary">
+          <div class="sum">
+            <b>المكتملة</b>
+            <div class="n" id="done">0</div>
+            <div class="t">مهام</div>
+          </div>
 
-  function statusLabel(status){
-    if(status==="completed") return { text:"مكتملة", cls:"ok" };
-    if(status==="available") return { text:"متاحة", cls:"wait" };
-    return { text:"مقفلة", cls:"lock" };
-  }
+          <div class="sum">
+            <b>الكل</b>
+            <div class="n" id="total">0</div>
+            <div class="t">مهام</div>
+          </div>
 
-  function renderTask(t){
-    const st = statusLabel(t.status);
-    const btn = t.status==="available"
-      ? `<button class="btn" onclick="startTask(${t.id})" ${currentRun ? "disabled":""}>بدء</button>`
-      : `<span class="pill"><span class="dot ${st.cls}"></span>${st.text}</span>`;
-
-    return `
-      <div class="task">
-        <div class="left">
-          <span class="dot ${st.cls}"></span>
-          <div class="meta">
-            <b>${t.title}</b>
-            <div class="small">مكافأة: ${t.reward_points} نقطة • ترتيب ${t.order_index}</div>
+          <div class="sum">
+            <b>القادمة</b>
+            <div class="n" id="next">—</div>
+            <div class="t">مهمة متاحة</div>
           </div>
         </div>
-        <div>${btn}</div>
+
+        <div style="height:12px"></div>
+        <div class="subtxt">
+          نصيحة: إلا بان “مقفلة”، كمّل المهمة المتاحة أولاً.
+        </div>
       </div>
-    `;
-  }
+    </div>
+  </div>
 
-  // Ring math
-  const ring = document.getElementById("ringProg");
-  const R = 46;
-  const C = 2 * Math.PI * R; // circumference
-  ring.style.strokeDasharray = String(C);
-  ring.style.strokeDashoffset = String(C);
+  <!-- Bottom Navigation -->
+  <div class="nav">
+    <div class="navInner">
+      <a href="/home" class="navbtn" id="navHome">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 10.5l9-7 9 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 9.8V20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.8" stroke="currentColor" stroke-width="2" opacity=".85"/>
+        </svg>
+        <small>الرئيسية</small>
+      </a>
 
-  function setRingProgress(pct){
-    pct = Math.max(0, Math.min(1, pct));
-    const off = C * (1 - pct);
-    ring.style.strokeDashoffset = String(off);
-  }
+      <a href="/tasks" class="navbtn" id="navTasks">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M9 11l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 4h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2" opacity=".85"/>
+        </svg>
+        <small>المهام</small>
+      </a>
 
-  // Overlay controls
-  const overlay = document.getElementById("overlay");
-  const secEl = document.getElementById("sec");
-  const hintEl = document.getElementById("hint");
-  const runTitle = document.getElementById("runTitle");
-  const flash = document.getElementById("flash");
-  const checkWrap = document.getElementById("checkWrap");
+      <a href="/profile" class="navbtn" id="navProfile">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <small>بروفايل</small>
+      </a>
 
-  // Particles (stardust while waiting)
-  let particles = [];
-  let confetti = [];
-  let raf = null;
-  let runningFX = false;
+      <form method="post" action="/logout">
+        <button type="submit" class="navbtn danger" style="width:100%; border:none;">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10 12h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 9l3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <small>خروج</small>
+        </button>
+      </form>
+    </div>
+  </div>
 
-  function rand(min,max){ return min + Math.random()*(max-min); }
+  <!-- FX -->
+  <canvas id="fx"></canvas>
+  <div class="flash" id="flash"></div>
 
-  function spawnStardust(){
-    // spawn near center
-    const cx = window.innerWidth/2;
-    const cy = window.innerHeight/2;
-    for(let i=0;i<10;i++){
-      particles.push({
-        x: cx + rand(-30,30),
-        y: cy + rand(-30,30),
-        vx: rand(-0.7,0.7),
-        vy: rand(-1.2,0.2),
-        a: rand(0.25,0.85),
-        r: rand(1,2.2),
-        life: rand(28,60),
-        hue: Math.random()<.5 ? 205 : 265 // sky/purple
-      });
-    }
-  }
+  <!-- Smart Overlay -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="center">
+      <div class="halo">
+        <div class="ring">
+          <svg viewBox="0 0 120 120">
+            <defs>
+              <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#7dd3fc"/>
+                <stop offset="55%" stop-color="#a78bfa"/>
+                <stop offset="100%" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+            <circle class="ringTrack" cx="60" cy="60" r="46"></circle>
+            <circle class="ringProg" id="ringProg" cx="60" cy="60" r="46"></circle>
+          </svg>
 
-  function spawnConfetti(){
-    const cx = window.innerWidth/2;
-    const cy = window.innerHeight/2;
-    for(let i=0;i<160;i++){
-      confetti.push({
-        x: cx + rand(-12,12),
-        y: cy + rand(-12,12),
-        vx: rand(-6,6),
-        vy: rand(-9,-2),
-        g: rand(0.20,0.35),
-        a: rand(0.7,1),
-        w: rand(3,6),
-        h: rand(6,12),
-        rot: rand(0,Math.PI),
-        vr: rand(-0.25,0.25),
-        hue: rand(0,360),
-        life: rand(55,90)
-      });
-    }
-  }
+          <div class="vibe"></div>
 
-  function fxLoop(){
-    if(!runningFX) return;
-    ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+          <div class="count">
+            <div class="big" id="sec">10</div>
+            <div class="small" id="hint">جاري المعالجة الذكية…</div>
+            <div class="taskTitle" id="runTitle">—</div>
+          </div>
 
-    // stardust
-    if(particles.length<140) spawnStardust();
+          <div class="checkWrap" id="checkWrap">
+            <svg class="checkSvg" viewBox="0 0 120 120">
+              <circle class="checkCircle" cx="60" cy="60" r="46"></circle>
+              <path class="checkPath" d="M34 64 L54 82 L90 40"></path>
+            </svg>
+          </div>
+        </div>
 
-    for(let i=particles.length-1;i>=0;i--){
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= 1;
-      p.a *= 0.985;
+        <div class="cancelBtn">⏳ رجاءً انتظر… <small>لا يمكن الخروج أثناء المهمة</small></div>
+      </div>
+    </div>
+  </div>
 
-      ctx.beginPath();
-      ctx.fillStyle = `hsla(${p.hue}, 95%, 75%, ${p.a})`;
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fill();
+  <script src="/public/app.js"></script>
+  <script>
+    let currentRun = null;
+    let timer = null;
+    let waitTotal = 10;
+    let waitLeft = 0;
 
-      if(p.life<=0 || p.a<0.05) particles.splice(i,1);
-    }
-
-    // confetti
-    for(let i=confetti.length-1;i>=0;i--){
-      const c = confetti[i];
-      c.vy += c.g;
-      c.x += c.vx;
-      c.y += c.vy;
-      c.rot += c.vr;
-      c.life -= 1;
-      c.a *= 0.985;
-
-      ctx.save();
-      ctx.translate(c.x, c.y);
-      ctx.rotate(c.rot);
-      ctx.fillStyle = `hsla(${c.hue}, 95%, 65%, ${c.a})`;
-      ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
-      ctx.restore();
-
-      if(c.life<=0 || c.y>window.innerHeight+50 || c.a<0.05) confetti.splice(i,1);
+    function toast(msg){
+      const t=document.getElementById("toast");
+      t.textContent=msg;
+      t.classList.add("show");
+      setTimeout(()=>t.classList.remove("show"),2600);
     }
 
-    raf = requestAnimationFrame(fxLoop);
-  }
-
-  function startFX(){
-    particles = [];
-    confetti = [];
-    runningFX = true;
-    fx.classList.add("show");
-    if(!raf) fxLoop();
-  }
-
-  function stopFX(){
-    runningFX = false;
-    fx.classList.remove("show");
-    if(raf){
-      cancelAnimationFrame(raf);
-      raf = null;
+    function statusLabel(status){
+      if(status==="completed") return { text:"مكتملة", cls:"ok" };
+      if(status==="available") return { text:"متاحة", cls:"wait" };
+      return { text:"مقفلة", cls:"lock" };
     }
-    ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-    particles = [];
-    confetti = [];
-  }
 
-  function showOverlay(title, seconds){
-    runTitle.textContent = title || "مهمة قيد التنفيذ";
-    waitTotal = Number(seconds || 10);
-    waitLeft = waitTotal;
-    secEl.textContent = waitLeft;
-    hintEl.textContent = "جاري المعالجة الذكية…";
-    setRingProgress(0);
+    function renderTask(t){
+      const st = statusLabel(t.status);
 
-    checkWrap.classList.remove("show");
-    overlay.classList.add("show");
-    overlay.setAttribute("aria-hidden","false");
-    startFX();
-  }
+      const btn = t.status==="available"
+        ? `<button class="btn" onclick="startTask(${t.id})" ${currentRun ? "disabled":""}>بدء</button>`
+        : `<span class="tag"><span class="dot ${st.cls}"></span>${st.text}</span>`;
 
-  function hideOverlay(){
-    overlay.classList.remove("show");
-    overlay.setAttribute("aria-hidden","true");
-    stopFX();
-  }
-
-  function completeFX(){
-    // flash + confetti + checkmark
-    flash.classList.remove("go");
-    void flash.offsetWidth;
-    flash.classList.add("go");
-
-    spawnConfetti();
-    checkWrap.classList.add("show");
-    hintEl.textContent = "تمت المهمة بنجاح ✅";
-  }
-
-  // ---- Load tasks list
-  async function load(){
-    const r = await api("/api/tasks");
-    const box = document.getElementById("tasks");
-    box.innerHTML = (r.rows||[]).map(renderTask).join("");
-
-    const av = (r.rows||[]).find(x=>x.status==="available");
-    if(av && av.wait_seconds){
-      document.getElementById("waitPill").textContent = `⏱️ انتظار ${av.wait_seconds} ثواني لكل مهمة`;
+      return `
+        <div class="task">
+          <div class="left">
+            <span class="dot ${st.cls}"></span>
+            <div class="meta">
+              <b>${escapeHtml(t.title || "—")}</b>
+              <div class="small">مكافأة: ${Number(t.reward_points||0)} نقطة • ترتيب ${Number(t.order_index||0)}</div>
+            </div>
+          </div>
+          <div>${btn}</div>
+        </div>
+      `;
     }
-  }
 
-  // IMPORTANT: keep server as-is:
-  // /api/tasks/start and /api/tasks/finish
-  async function startTask(taskId){
-    try{
-      const r = await api("/api/tasks/start","POST",{});
-      currentRun = r.run_token;
+    function escapeHtml(s){
+      return String(s||"").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[m]));
+    }
 
-      const rows = await api("/api/tasks");
-      const av = (rows.rows||[]).find(x=>x.status==="available") || {};
-      const title = av.title || "مهمة جديدة";
+    // Ring
+    const ring = document.getElementById("ringProg");
+    const R = 46;
+    const C = 2 * Math.PI * R;
+    ring.style.strokeDasharray = String(C);
+    ring.style.strokeDashoffset = String(C);
 
-      showOverlay(title, r.wait_seconds);
+    function setRingProgress(pct){
+      pct = Math.max(0, Math.min(1, pct));
+      ring.style.strokeDashoffset = String(C * (1 - pct));
+    }
 
-      // timer
-      waitTotal = Number(r.wait_seconds || 10);
+    // Overlay
+    const overlay = document.getElementById("overlay");
+    const secEl = document.getElementById("sec");
+    const hintEl = document.getElementById("hint");
+    const runTitle = document.getElementById("runTitle");
+    const flash = document.getElementById("flash");
+    const checkWrap = document.getElementById("checkWrap");
+
+    // FX canvas
+    const fx = document.getElementById("fx");
+    const ctx = fx.getContext("2d");
+    let raf = null, runningFX = false;
+    let particles = [], confetti = [];
+
+    function resizeFX(){
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      fx.width = Math.floor(window.innerWidth * dpr);
+      fx.height = Math.floor(window.innerHeight * dpr);
+      fx.style.width = window.innerWidth + "px";
+      fx.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener("resize", resizeFX);
+    resizeFX();
+
+    function rand(min,max){ return min + Math.random()*(max-min); }
+
+    function spawnStardust(){
+      const cx = window.innerWidth/2;
+      const cy = window.innerHeight/2;
+      for(let i=0;i<10;i++){
+        particles.push({
+          x: cx + rand(-30,30),
+          y: cy + rand(-30,30),
+          vx: rand(-0.7,0.7),
+          vy: rand(-1.2,0.2),
+          a: rand(0.25,0.85),
+          r: rand(1,2.2),
+          life: rand(28,60),
+          hue: Math.random()<.5 ? 205 : 265
+        });
+      }
+    }
+
+    function spawnConfetti(){
+      const cx = window.innerWidth/2;
+      const cy = window.innerHeight/2;
+      for(let i=0;i<160;i++){
+        confetti.push({
+          x: cx + rand(-12,12),
+          y: cy + rand(-12,12),
+          vx: rand(-6,6),
+          vy: rand(-9,-2),
+          g: rand(0.20,0.35),
+          a: rand(0.7,1),
+          w: rand(3,6),
+          h: rand(6,12),
+          rot: rand(0,Math.PI),
+          vr: rand(-0.25,0.25),
+          hue: rand(0,360),
+          life: rand(55,90)
+        });
+      }
+    }
+
+    function fxLoop(){
+      if(!runningFX) return;
+      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+
+      if(particles.length < 140) spawnStardust();
+
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        p.life -= 1;
+        p.a *= 0.985;
+
+        ctx.beginPath();
+        ctx.fillStyle = `hsla(${p.hue}, 95%, 75%, ${p.a})`;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+
+        if(p.life<=0 || p.a<0.05) particles.splice(i,1);
+      }
+
+      for(let i=confetti.length-1;i>=0;i--){
+        const c = confetti[i];
+        c.vy += c.g;
+        c.x += c.vx;
+        c.y += c.vy;
+        c.rot += c.vr;
+        c.life -= 1;
+        c.a *= 0.985;
+
+        ctx.save();
+        ctx.translate(c.x, c.y);
+        ctx.rotate(c.rot);
+        ctx.fillStyle = `hsla(${c.hue}, 95%, 65%, ${c.a})`;
+        ctx.fillRect(-c.w/2, -c.h/2, c.w, c.h);
+        ctx.restore();
+
+        if(c.life<=0 || c.y>window.innerHeight+50 || c.a<0.05) confetti.splice(i,1);
+      }
+
+      raf = requestAnimationFrame(fxLoop);
+    }
+
+    function startFX(){
+      particles = [];
+      confetti = [];
+      runningFX = true;
+      fx.classList.add("show");
+      if(!raf) fxLoop();
+    }
+    function stopFX(){
+      runningFX = false;
+      fx.classList.remove("show");
+      if(raf){ cancelAnimationFrame(raf); raf=null; }
+      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+      particles = [];
+      confetti = [];
+    }
+
+    function showOverlay(title, seconds){
+      runTitle.textContent = title || "مهمة قيد التنفيذ";
+      waitTotal = Number(seconds || 10);
       waitLeft = waitTotal;
+
       secEl.textContent = waitLeft;
+      hintEl.textContent = "جاري المعالجة الذكية…";
+      checkWrap.classList.remove("show");
       setRingProgress(0);
 
-      timer = setInterval(()=>{
-        waitLeft--;
-        if(waitLeft<=0){
-          clearInterval(timer);
-          secEl.textContent = "0";
-          setRingProgress(1);
-          finishTask(); // will trigger completion animation
-        }else{
-          secEl.textContent = waitLeft;
-          const pct = (waitTotal - waitLeft) / waitTotal;
-          setRingProgress(pct);
-        }
-      },1000);
-
-      toast(`بدء المهمة…`);
-
-    }catch(e){
-      toast(e.message || "وقع خطأ");
-      currentRun = null;
-      hideOverlay();
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden","false");
+      startFX();
     }
-  }
 
-  async function finishTask(){
-    try{
-      await api("/api/tasks/finish","POST",{ run_token: currentRun });
+    function hideOverlay(){
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden","true");
+      stopFX();
+    }
 
-      // completion cinematic
-      completeFX();
+    function completeFX(){
+      flash.classList.remove("go");
+      void flash.offsetWidth;
+      flash.classList.add("go");
 
-      // small delay for satisfaction, then close and refresh list
-      setTimeout(async ()=>{
+      spawnConfetti();
+      checkWrap.classList.add("show");
+      hintEl.textContent = "تمت المهمة بنجاح ✅";
+    }
+
+    // ---- Load tasks
+    async function load(){
+      const r = await api("/api/tasks");
+      const rows = (r.rows || []);
+
+      document.getElementById("tasks").innerHTML = rows.map(renderTask).join("");
+
+      const total = rows.length;
+      const done = rows.filter(x => x.status === "completed").length;
+      const nextTask = rows.find(x => x.status === "available");
+
+      document.getElementById("done").textContent = done;
+      document.getElementById("total").textContent = total;
+      document.getElementById("next").textContent = nextTask ? (nextTask.order_index || "—") : "—";
+      document.getElementById("sumHint").textContent = nextTask ? `المهمة المتاحة: ${nextTask.title}` : "لا توجد مهمة متاحة الآن";
+
+      // Wait pill: خد wait_seconds من المهمة المتاحة (ولا من أول مهمة)
+      const w = (nextTask && nextTask.wait_seconds) ? nextTask.wait_seconds : (rows[0]?.wait_seconds || 10);
+      document.getElementById("waitPill").textContent = `⏱️ انتظار ${Number(w)} ثانية لكل مهمة`;
+    }
+
+    // IMPORTANT: keep server as-is: start ignores taskId like your backend
+    async function startTask(taskId){
+      try{
+        const r = await api("/api/tasks/start","POST",{});
+        currentRun = r.run_token;
+
+        // get title of available task from /api/tasks (same as your logic)
+        const list = await api("/api/tasks");
+        const av = (list.rows||[]).find(x=>x.status==="available") || {};
+        const title = av.title || "مهمة جديدة";
+
+        showOverlay(title, r.wait_seconds);
+
+        waitTotal = Number(r.wait_seconds || 10);
+        waitLeft = waitTotal;
+        secEl.textContent = waitLeft;
+        setRingProgress(0);
+
+        timer = setInterval(()=>{
+          waitLeft--;
+          if(waitLeft<=0){
+            clearInterval(timer);
+            secEl.textContent = "0";
+            setRingProgress(1);
+            finishTask();
+          }else{
+            secEl.textContent = waitLeft;
+            setRingProgress((waitTotal - waitLeft) / waitTotal);
+          }
+        }, 1000);
+
+        toast("بدء المهمة…");
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+        currentRun = null;
+        hideOverlay();
+      }
+    }
+
+    async function finishTask(){
+      try{
+        await api("/api/tasks/finish","POST",{ run_token: currentRun });
+
+        completeFX();
+
+        setTimeout(async ()=>{
+          currentRun = null;
+          hideOverlay();
+          await load();
+          toast("تمت إضافة المكافأة ✅");
+        }, 850);
+
+      }catch(e){
+        toast(e.message || "وقع خطأ");
         currentRun = null;
         hideOverlay();
         await load();
-        toast("تمت إضافة المكافأة ✅");
-      }, 850);
-
-    }catch(e){
-      toast(e.message || "وقع خطأ");
-      currentRun = null;
-      hideOverlay();
-      await load();
+      }
     }
-  }
 
-  // ✅ Active nav highlight
-(function setActiveNav(){
-  const p = location.pathname;
-  const home = document.getElementById("navHome");
-  const tasks = document.getElementById("navTasks");
-  const profile = document.getElementById("navProfile");
+    // Active nav highlight
+    (function setActiveNav(){
+      const p = location.pathname;
+      if(p==="/tasks") document.getElementById("navTasks").classList.add("active");
+      if(p==="/home" || p==="/") document.getElementById("navHome").classList.add("active");
+      if(p==="/profile") document.getElementById("navProfile").classList.add("active");
+    })();
 
-  if(home && (p==="/home" || p==="/")) home.classList.add("active");
-  if(tasks && p==="/tasks") tasks.classList.add("active");
-  if(profile && p==="/profile") profile.classList.add("active");
-})();
-
-  // Start page
-  load().catch(e=>toast(e.message));
-</script>
+    // Start
+    load().catch(e=>toast(e.message));
+  </script>
 </body>
 </html>
