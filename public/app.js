@@ -1,57 +1,162 @@
-// public/app.js
+/* =========================
+   Simple API helper
+   ========================= */
 
-async function api(url, opts = {}) {
-  const isBodyObject =
-    opts.body &&
-    typeof opts.body === "object" &&
-    !(opts.body instanceof FormData) &&
-    !(opts.body instanceof URLSearchParams);
+async function api(url, options = {}) {
+  const opts = {
+    credentials: "include", // مهم للسيسيون
+    headers: {
+      "Content-Type": "application/json"
+    },
+    ...options
+  };
 
-  const headers = Object.assign(
-    { Accept: "application/json" },
-    isBodyObject ? { "Content-Type": "application/json" } : {},
-    opts.headers || {}
-  );
+  try {
+    const res = await fetch(url, opts);
 
-  const res = await fetch(url, {
-    method: opts.method || "GET",
-    headers,
-    body: isBodyObject ? JSON.stringify(opts.body) : (opts.body || undefined),
-
-    // ✅ أهم سطر: باش session cookie تمشي مع الطلب
-    // إذا نفس الدومين: same-origin (أفضل)
-    // إذا front فـ دومين مختلف: بدّلها لـ "include"
-    credentials: "same-origin"
-  });
-
-  const ct = (res.headers.get("content-type") || "").toLowerCase();
-
-  // حاول نقرا JSON إلا كان
-  let data = null;
-  if (ct.includes("application/json")) {
-    data = await res.json().catch(() => null);
-  } else {
-    // إلا رجع HTML (مثلا redirect/login) كنقرّاه نص باش نعرفو شنو وقع
-    const txt = await res.text().catch(() => "");
-    data = { ok: false, message: "Unexpected response (not JSON)", _text: txt };
-  }
-
-  if (!res.ok || (data && data.ok === false)) {
-    // إذا API رجع 401 => رجّع المستخدم للـ login
-    if (res.status === 401) {
-      // من الأفضل نرجعو للـ login مباشرة
+    // إذا كان غير مسموح (session سالات)
+    if (res.status === 401 || res.status === 403) {
       window.location.href = "/login";
-      throw new Error("UNAUTH");
+      return;
     }
 
-    const msg = (data && data.message) ? data.message : `HTTP ${res.status}`;
-    throw new Error(msg);
-  }
+    const data = await res.json();
 
-  return data;
+    if (!data.ok && data.message) {
+      throw new Error(data.message);
+    }
+
+    return data;
+  } catch (err) {
+    console.error("API error:", err);
+    throw err;
+  }
 }
 
-// Helpers
-async function apiPost(url, body) {
-  return api(url, { method: "POST", body });
+/* =========================
+   Helpers
+   ========================= */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function showToast(msg) {
+  const t = $("toast");
+  if (!t) return;
+  t.innerHTML = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+/* =========================
+   Auth forms (login / register)
+   ========================= */
+
+async function submitLogin(e) {
+  e.preventDefault();
+
+  const emailOrPhone = $("emailOrPhone").value.trim();
+  const password = $("password").value;
+
+  try {
+    const r = await api("/api/login", {
+      method: "POST",
+      body: JSON.stringify({ emailOrPhone, password })
+    });
+
+    if (r.ok) {
+      window.location.href = "/home";
+    }
+  } catch (err) {
+    showToast(err.message || "خطأ في تسجيل الدخول");
+  }
+}
+
+async function submitRegister(e) {
+  e.preventDefault();
+
+  const full_name = $("full_name").value.trim();
+  const email = $("email")?.value.trim();
+  const phone = $("phone")?.value.trim();
+  const password = $("password").value;
+
+  // ref من الرابط
+  const params = new URLSearchParams(window.location.search);
+  const ref_code = params.get("ref");
+
+  try {
+    const r = await api("/api/register", {
+      method: "POST",
+      body: JSON.stringify({
+        full_name,
+        email,
+        phone,
+        password,
+        ref_code
+      })
+    });
+
+    if (r.ok) {
+      window.location.href = "/login";
+    }
+  } catch (err) {
+    showToast(err.message || "خطأ في التسجيل");
+  }
+}
+
+/* =========================
+   Wallet
+   ========================= */
+
+async function sendWalletRequest(type, amount) {
+  try {
+    const r = await api("/api/wallet/request", {
+      method: "POST",
+      body: JSON.stringify({
+        type,
+        amount_usd: amount
+      })
+    });
+
+    if (r.ok) {
+      showToast("تم إرسال الطلب ✅");
+    }
+  } catch (err) {
+    showToast(err.message || "فشل الطلب");
+  }
+}
+
+/* =========================
+   Tasks
+   ========================= */
+
+async function startTask() {
+  try {
+    const r = await api("/api/tasks/start", {
+      method: "POST"
+    });
+
+    if (r.ok) {
+      showToast("بدأت المهمة ⏳");
+    }
+  } catch (err) {
+    showToast(err.message);
+  }
+}
+
+async function finishTask(run_token) {
+  try {
+    const r = await api("/api/tasks/finish", {
+      method: "POST",
+      body: JSON.stringify({ run_token })
+    });
+
+    if (r.ok) {
+      showToast("تمت المهمة ✅");
+      location.reload();
+    }
+  } catch (err) {
+    showToast(err.message);
+  }
 }
