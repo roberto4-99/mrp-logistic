@@ -245,6 +245,9 @@ app.get("/tasks", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "
 app.get("/profile", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/profile.html")));
 app.get("/admin", requireAuth, requireAdmin, (req, res) => res.sendFile(path.join(__dirname, "views/admin.html")));
 app.post("/logout", (req, res) => req.session.destroy(() => res.redirect("/login")));
+app.get("/deposit", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/deposit.html")));
+
+app.get("/withdraw", requireAuth, (req, res) =>res.sendFile(path.join(__dirname, "views/withdraw.html")));
 
 /* ---------------- Referral API ---------------- */
 // ✅ this is what Home will use to show invite link + count

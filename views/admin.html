@@ -7,35 +7,52 @@
   <link rel="stylesheet" href="/public/app.css"/>
 
   <style>
+    :root{
+      --bg1:#020617;
+      --bg2:#071026;
+      --glass: rgba(255,255,255,.06);
+      --glass2: rgba(255,255,255,.10);
+      --border: rgba(255,255,255,.12);
+      --border2: rgba(255,255,255,.18);
+      --txt:#ffffff;
+      --muted: rgba(255,255,255,.72);
+      --muted2: rgba(255,255,255,.58);
+
+      --shadow: 0 24px 70px rgba(0,0,0,.45);
+      --shadow2: 0 14px 36px rgba(0,0,0,.28);
+
+      --grad: linear-gradient(135deg,#8b5cf6,#3b82f6);
+      --grad2: linear-gradient(135deg,#22c55e,#3b82f6);
+
+      --ok: rgba(34,197,94,.16);
+      --okb: rgba(34,197,94,.30);
+      --warn: rgba(245,158,11,.16);
+      --warnb: rgba(245,158,11,.30);
+      --bad: rgba(239,68,68,.16);
+      --badb: rgba(239,68,68,.32);
+
+      --r28:28px;
+      --r24:24px;
+      --r20:20px;
+      --r18:18px;
+      --r16:16px;
+    }
+
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      color:#fff;
+      color:var(--txt);
       background:
-        radial-gradient(900px 500px at 10% 10%, rgba(99,102,241,.22), transparent 55%),
-        radial-gradient(900px 500px at 90% 15%, rgba(59,130,246,.16), transparent 60%),
-        radial-gradient(900px 500px at 70% 90%, rgba(34,197,94,.10), transparent 55%),
-        linear-gradient(180deg,#071026,#040816);
+        radial-gradient(1100px 600px at 10% 10%, rgba(99,102,241,.22), transparent 60%),
+        radial-gradient(1000px 600px at 90% 15%, rgba(59,130,246,.18), transparent 62%),
+        radial-gradient(900px 600px at 70% 90%, rgba(34,197,94,.10), transparent 58%),
+        linear-gradient(180deg,var(--bg2),var(--bg1));
       min-height:100vh;
       overflow-x:hidden;
     }
 
-    :root{
-      --glass: rgba(255,255,255,.07);
-      --glass2: rgba(255,255,255,.10);
-      --border: rgba(255,255,255,.14);
-      --border2: rgba(255,255,255,.20);
-      --muted: rgba(255,255,255,.72);
-      --muted2: rgba(255,255,255,.60);
-      --shadow: 0 26px 80px rgba(0,0,0,.55);
-      --shadow2: 0 18px 50px rgba(0,0,0,.38);
-      --grad: linear-gradient(135deg,#8b5cf6,#3b82f6);
-      --grad2: linear-gradient(135deg,#22c55e,#3b82f6);
-      --danger: rgba(239,68,68,.22);
-      --dangerb: rgba(239,68,68,.38);
-    }
-
+    /* ---------- Toast ---------- */
     .toast{
       position:fixed;
       bottom:22px;
@@ -43,7 +60,7 @@
       transform:translateX(-50%);
       background:rgba(2,6,23,.92);
       border:1px solid rgba(255,255,255,.14);
-      box-shadow:0 18px 60px rgba(0,0,0,.55);
+      box-shadow:0 18px 60px rgba(0,0,0,.45);
       padding:12px 16px;
       border-radius:999px;
       display:none;
@@ -51,34 +68,120 @@
       max-width:92vw;
       text-align:center;
       backdrop-filter: blur(12px);
+      font-weight:900;
+      font-size:13px;
     }
     .toast.show{display:block}
 
-    /* Layout */
+    /* ---------- Page Layout ---------- */
     .page{
-      max-width:1280px;
+      max-width:1320px;
       margin:auto;
       padding:18px;
       padding-bottom:110px;
       display:grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: 300px 1fr;
       gap:14px;
     }
-    @media(max-width:980px){
+    @media(max-width:1060px){
       .page{grid-template-columns:1fr}
     }
 
     .panel{
       background:var(--glass);
       border:1px solid var(--border);
-      border-radius:26px;
+      border-radius:var(--r28);
       padding:16px;
       box-shadow:var(--shadow2);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
     }
 
-    /* Sidebar */
+    /* ---------- Topbar (NEW) ---------- */
+    .topbar{
+      max-width:1320px;
+      margin:16px auto 0;
+      padding:0 18px;
+    }
+    .topbarInner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border-radius:var(--r28);
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(18px);
+    }
+    .topLeft{
+      display:flex;align-items:center;gap:12px;min-width:0;
+    }
+    .mark{
+      width:46px;height:46px;border-radius:18px;
+      background: var(--grad2);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 16px 46px rgba(0,0,0,.30);
+      display:flex;align-items:center;justify-content:center;
+      color:#031018;font-weight:1000;
+      flex:0 0 auto;
+    }
+    .mark img{width:100%;height:100%;object-fit:cover;display:block}
+    .topTxt{min-width:0}
+    .topTxt b{
+      display:block;
+      font-size:14px;
+      font-weight:1000;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .topTxt span{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-top:3px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .topRight{
+      display:flex;align-items:center;gap:10px;flex:0 0 auto;flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+      font-weight:1000;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .pill.ok{background: var(--ok); border-color: var(--okb)}
+    .pill.warn{background: var(--warn); border-color: var(--warnb)}
+    .pill.bad{background: var(--bad); border-color: var(--badb)}
+    .btnPill{
+      border:none;cursor:pointer;
+      padding:10px 12px;border-radius:999px;
+      background: var(--grad);
+      color:#071026;
+      font-weight:1000;
+      box-shadow:0 14px 40px rgba(59,130,246,.18);
+      transition: transform .12s ease, filter .2s ease;
+    }
+    .btnPill:hover{filter:brightness(1.04)}
+    .btnPill:active{transform: translateY(1px) scale(.99)}
+    .btnPill.ghost{
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+      box-shadow:none;
+    }
+
+    /* ---------- Sidebar ---------- */
     .sideHeader{
       display:flex;
       align-items:center;
@@ -91,15 +194,15 @@
       min-width:0;
     }
     .logo{
-      width:44px;height:44px;border-radius:16px;
-      background:var(--grad2);
-      color:#020617;
-      font-weight:1000;
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 14px 40px rgba(0,0,0,.35);
-      flex:0 0 auto;
+      width:44px;height:44px;border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
       overflow:hidden;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 14px 40px rgba(0,0,0,.28);
+      flex:0 0 auto;
     }
+    .logo img{width:100%;height:100%;object-fit:cover;display:block}
     .btxt{min-width:0}
     .btxt .t{font-weight:1000;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .btxt .s{font-size:12px;color:var(--muted);margin-top:2px}
@@ -111,7 +214,7 @@
       background:rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
       color:#fff;
-      font-weight:900;
+      font-weight:1000;
       font-size:12px;
       white-space:nowrap;
     }
@@ -126,27 +229,28 @@
       gap:10px;
       width:100%;
       padding:12px 12px;
-      border-radius:18px;
+      border-radius:var(--r20);
       border:1px solid rgba(255,255,255,.14);
       background:rgba(255,255,255,.08);
       color:#fff;
       cursor:pointer;
       font-weight:1000;
       transition:transform .12s ease, background .2s ease, border-color .2s ease;
+      text-align:right;
     }
     .tabBtn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
     .tabBtn:active{transform:translateY(1px)}
     .tabBtn.active{
       background:var(--grad);
       border-color:transparent;
-      color:#020617;
+      color:#071026;
       box-shadow:0 14px 38px rgba(59,130,246,.20);
     }
     .tabBtn .left{
       display:flex;align-items:center;gap:10px;min-width:0;
     }
     .tabIco{
-      width:38px;height:38px;border-radius:14px;
+      width:38px;height:38px;border-radius:16px;
       display:flex;align-items:center;justify-content:center;
       background:rgba(255,255,255,.12);
       border:1px solid rgba(255,255,255,.14);
@@ -156,7 +260,10 @@
     .tabBtn.active .tabIco{background:rgba(2,6,23,.12);border-color:rgba(2,6,23,.10)}
     .tabTxt{min-width:0}
     .tabTxt b{display:block}
-    .tabTxt span{display:block;font-size:12px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+    .tabTxt span{
+      display:block;font-size:12px;opacity:.86;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px
+    }
     .countPill{
       padding:8px 10px;border-radius:999px;
       background:rgba(0,0,0,.25);
@@ -165,12 +272,37 @@
       white-space:nowrap;
     }
     .tabBtn.active .countPill{background:rgba(2,6,23,.10);border-color:rgba(2,6,23,.10)}
+
+    .searchBox{
+      margin-top:12px;
+      padding:12px;
+      border-radius:var(--r24);
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .searchBox label{font-size:12px;color:var(--muted);font-weight:1000}
+    .searchBox input{
+      width:100%;
+      margin-top:8px;
+      padding:12px 12px;
+      border-radius:var(--r18);
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.35);
+      color:#fff;
+      outline:none;
+      font-size:13px;
+    }
+    .searchBox input:focus{
+      border-color: rgba(147,197,253,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.14);
+    }
+
     .sideActions{
       display:grid;gap:10px;margin-top:12px
     }
     .linkBtn{
       display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      padding:12px 14px;border-radius:18px;
+      padding:12px 14px;border-radius:var(--r20);
       background:rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
       color:#fff;text-decoration:none;
@@ -179,34 +311,15 @@
     }
     .linkBtn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
     .linkBtn:active{transform:translateY(1px)}
-    .dangerBtn{
-      background:var(--danger);
-      border-color:var(--dangerb);
+    .linkBtn.danger{
+      background: var(--bad);
+      border-color: var(--badb);
     }
-    .dangerBtn:hover{background:rgba(239,68,68,.28);border-color:rgba(239,68,68,.55)}
-    .searchBox{
-      margin-top:12px;
-      padding:12px;
-      border-radius:20px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-    }
-    .searchBox label{font-size:12px;color:var(--muted);font-weight:900}
-    .searchBox input{
-      width:100%;
-      margin-top:8px;
-      padding:12px 12px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(0,0,0,.35);
-      color:#fff;
-      outline:none;
-      font-size:13px;
-    }
+    .linkBtn.danger:hover{background: rgba(239,68,68,.26); border-color: rgba(239,68,68,.48)}
 
-    /* Main */
+    /* ---------- Main ---------- */
     .mainTop{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
       margin-bottom:12px;
     }
     .mainTop h1{
@@ -218,28 +331,36 @@
     .mainTop .small{
       color:var(--muted);
       font-size:12px;
-      margin-top:4px;
+      margin-top:6px;
+      line-height:1.6;
     }
 
-    .section{
-      display:none;
+    .section{display:none;}
+    .section.active{display:block;}
+
+    .cardBlock{
+      margin-top:10px;
+      border-radius:var(--r28);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 18px 55px rgba(0,0,0,.18);
+      padding:14px;
     }
-    .section.active{display:block}
 
     .secHeader{
       display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
       margin-bottom:12px;
     }
     .secHeader .title{
-      font-size:16px;
+      font-size:15px;
       font-weight:1000;
       margin:0;
     }
     .secHeader .desc{
       font-size:12px;
       color:var(--muted);
-      margin-top:4px;
-      line-height:1.6;
+      margin-top:5px;
+      line-height:1.7;
     }
     .secTools{
       display:flex;gap:10px;align-items:center;flex-wrap:wrap;
@@ -249,13 +370,14 @@
     .btnX{
       border:none;cursor:pointer;
       border-radius:999px;
-      padding:12px 14px;
+      padding:11px 14px;
       font-weight:1000;
       background:var(--grad);
-      color:#020617;
+      color:#071026;
       box-shadow:0 16px 45px rgba(59,130,246,.18);
       transition:transform .12s ease, filter .2s ease;
       white-space:nowrap;
+      font-size:13px;
     }
     .btnX:hover{filter:brightness(1.04)}
     .btnX:active{transform:translateY(1px) scale(.99)}
@@ -266,42 +388,45 @@
       box-shadow:none;
     }
     .btnX.danger{
-      background:rgba(239,68,68,.22);
-      border:1px solid rgba(239,68,68,.40);
+      background: var(--bad);
+      border:1px solid var(--badb);
       color:#fff;
       box-shadow:none;
     }
 
-    /* Forms */
+    /* ---------- Forms ---------- */
     .formGrid{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:12px;
       margin-top:10px;
     }
-    @media(max-width:700px){
-      .formGrid{grid-template-columns:1fr}
-    }
-    .field label{font-size:12px;color:var(--muted);font-weight:900}
+    @media(max-width:700px){ .formGrid{grid-template-columns:1fr} }
+
+    .field label{font-size:12px;color:var(--muted);font-weight:1000}
     .field input, .field select{
       width:100%;
       margin-top:8px;
       padding:12px 12px;
-      border-radius:16px;
+      border-radius:var(--r18);
       border:1px solid rgba(255,255,255,.16);
       background:rgba(0,0,0,.35);
       color:#fff;
       outline:none;
       font-size:13px;
     }
+    .field input:focus, .field select:focus{
+      border-color: rgba(147,197,253,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.14);
+    }
 
-    /* Tables */
+    /* ---------- Tables ---------- */
     .tableWrap{
-      background:rgba(255,255,255,.05);
+      background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.12);
-      border-radius:22px;
+      border-radius:var(--r28);
       overflow:auto;
-      box-shadow:0 18px 55px rgba(0,0,0,.22);
+      box-shadow:0 18px 55px rgba(0,0,0,.18);
     }
     table{
       width:100%;
@@ -318,13 +443,14 @@
     thead th{
       position:sticky;
       top:0;
-      background:rgba(2,6,23,.88);
+      background:rgba(2,6,23,.90);
       backdrop-filter: blur(10px);
       font-weight:1000;
       z-index:2;
     }
     tbody tr:hover{background:rgba(255,255,255,.04)}
     .muted{color:var(--muted);font-size:12px}
+
     .tag{
       display:inline-flex;align-items:center;justify-content:center;
       padding:8px 10px;border-radius:999px;
@@ -334,26 +460,30 @@
       font-size:12px;
       white-space:nowrap;
     }
-    .tag.ok{background:rgba(34,197,94,.14);border-color:rgba(34,197,94,.30)}
-    .tag.warn{background:rgba(245,158,11,.14);border-color:rgba(245,158,11,.30)}
-    .tag.bad{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.30)}
+    .tag.ok{background: var(--ok); border-color: var(--okb)}
+    .tag.warn{background: var(--warn); border-color: var(--warnb)}
+    .tag.bad{background: var(--bad); border-color: var(--badb)}
 
     .miniInput{
       width:100%;
       padding:10px 10px;
-      border-radius:14px;
+      border-radius:var(--r16);
       border:1px solid rgba(255,255,255,.16);
       background:rgba(0,0,0,.35);
       color:#fff;
       outline:none;
       font-size:13px;
     }
+    .miniInput:focus{
+      border-color: rgba(147,197,253,.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.14);
+    }
     .rowBtns{
       display:flex;gap:8px;flex-wrap:wrap;
       justify-content:flex-start;
     }
 
-    /* Bottom nav (keep like your app) */
+    /* ---------- Bottom nav (keep like your app) ---------- */
     .nav{
       position:fixed;left:0;right:0;bottom:0;
       background:rgba(0,0,0,.65);
@@ -362,7 +492,7 @@
       z-index:999;
     }
     .nav .inner{
-      max-width:1280px;margin:auto;
+      max-width:1320px;margin:auto;
       display:flex;justify-content:space-around;align-items:center;
       padding:10px;
       gap:10px;
@@ -382,30 +512,50 @@
     .nav form{margin:0}
 
     /* mobile: show sidebar tabs horizontal */
-    @media(max-width:980px){
-      .sideHeader{margin-bottom:10px}
+    @media(max-width:1060px){
+      .topbar{padding:0 14px}
+      .page{padding:14px}
       .navTabs{
         display:flex;
         overflow:auto;
         gap:10px;
         padding-bottom:6px;
       }
-      .tabBtn{min-width:250px}
+      .tabBtn{min-width:260px}
       .searchBox{display:none}
     }
   </style>
 </head>
-<body>
 
+<body>
   <div class="toast" id="toast"></div>
 
-  <div class="page">
+  <!-- ✅ NEW TOPBAR -->
+  <div class="topbar">
+    <div class="topbarInner">
+      <div class="topLeft">
+        <div class="mark">A</div>
+        <div class="topTxt">
+          <b id="tbTitle">لوحة تحكم المدير</b>
+          <span id="tbSub">MRP Logistic • تحكم شامل و سريع</span>
+        </div>
+      </div>
+      <div class="topRight">
+        <div class="pill ok" id="lastSync">🔄 جاهز</div>
+        <button class="btnPill ghost" onclick="refreshCurrent()">↻ تحديث القسم</button>
+        <button class="btnPill" onclick="init()">⚡ تحديث الكل</button>
+      </div>
+    </div>
+  </div>
 
+  <div class="page">
     <!-- SIDEBAR -->
     <aside class="panel">
       <div class="sideHeader">
         <div class="brand">
-          <div class="logo">A</div>
+          <div class="logo">
+            <img src="https://reduced-maroon-xf3kajtb8g.edgeone.app/WhatsApp%20Image%202026-02-28%20at%2012.54.14.jpeg" alt="MRP"/>
+          </div>
           <div class="btxt">
             <div class="t">MRP Logistic</div>
             <div class="s">لوحة المدير — تحكم شامل</div>
@@ -469,7 +619,7 @@
         <a class="linkBtn" href="/home">🏠 رجوع للرئيسية</a>
         <a class="linkBtn" href="/tasks">✅ صفحة المهام</a>
         <form method="post" action="/logout">
-          <button type="submit" class="linkBtn dangerBtn" style="width:100%">🚪 تسجيل الخروج</button>
+          <button type="submit" class="linkBtn danger" style="width:100%">🚪 تسجيل الخروج</button>
         </form>
       </div>
     </aside>
@@ -481,159 +631,166 @@
           <h1 id="mainTitle">الإعدادات</h1>
           <div class="small" id="mainDesc">تحكم في الحد الأدنى للإيداع/السحب + تحويل الدولار إلى نقاط + وسائل التواصل.</div>
         </div>
-        <div class="chip" id="lastSync">🔄 جاهز</div>
+        <div class="chip" id="miniSync">✨ تصميم جديد</div>
       </div>
 
       <!-- SETTINGS -->
       <section class="section active" id="sec_settings">
-        <div class="secHeader">
-          <div>
-            <div class="title">⚙️ الإعدادات</div>
-            <div class="desc">غير القيم ثم اضغط حفظ. كلشي كيمشي لنفس Endpoints ديال السيرفر.</div>
+        <div class="cardBlock">
+          <div class="secHeader">
+            <div>
+              <div class="title">⚙️ الإعدادات</div>
+              <div class="desc">غير القيم ثم اضغط حفظ. نفس Endpoints ديال السيرفر (بدون تغيير).</div>
+            </div>
+            <div class="secTools">
+              <button class="btnX ghost" onclick="loadSettings(); toast('تم تحديث البيانات');">🔄 تحديث</button>
+              <button class="btnX" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+            </div>
           </div>
-          <div class="secTools">
-            <button class="btnX ghost" onclick="loadSettings(); toast('تم تحديث البيانات');">🔄 تحديث</button>
-            <button class="btnX" onclick="saveSettings()">💾 حفظ الإعدادات</button>
-          </div>
-        </div>
 
-        <div class="formGrid">
-          <div class="field">
-            <label>USD → Points</label>
-            <input id="usd_to_points" type="number" min="1" placeholder="مثال: 10"/>
+          <div class="formGrid">
+            <div class="field">
+              <label>USD → Points</label>
+              <input id="usd_to_points" type="number" min="1" placeholder="مثال: 10"/>
+            </div>
+            <div class="field">
+              <label>Min Deposit ($)</label>
+              <input id="min_deposit_usd" type="number" min="1" placeholder="مثال: 5"/>
+            </div>
+            <div class="field">
+              <label>Min Withdraw ($)</label>
+              <input id="min_withdraw_usd" type="number" min="1" placeholder="مثال: 10"/>
+            </div>
+            <div class="field">
+              <label>WhatsApp</label>
+              <input id="whatsapp" placeholder="+2126xxxxxx"/>
+            </div>
+            <div class="field">
+              <label>Telegram</label>
+              <input id="telegram" placeholder="@username"/>
+            </div>
+            <div class="field">
+              <label>ملاحظة</label>
+              <input value="التغييرات تطبق مباشرة في المنصة" disabled/>
+            </div>
           </div>
-          <div class="field">
-            <label>Min Deposit ($)</label>
-            <input id="min_deposit_usd" type="number" min="1" placeholder="مثال: 5"/>
-          </div>
-          <div class="field">
-            <label>Min Withdraw ($)</label>
-            <input id="min_withdraw_usd" type="number" min="1" placeholder="مثال: 10"/>
-          </div>
-          <div class="field">
-            <label>WhatsApp</label>
-            <input id="whatsapp" placeholder="+2126xxxxxx"/>
-          </div>
-          <div class="field">
-            <label>Telegram</label>
-            <input id="telegram" placeholder="@username"/>
-          </div>
-          <div class="field">
-            <label>ملاحظة</label>
-            <input value="التغييرات تطبق مباشرة في المنصة" disabled/>
-          </div>
-        </div>
 
-        <div style="margin-top:12px;color:var(--muted);font-size:12px;line-height:1.7">
-          ✅ نصيحة: إلا بدلتي USD→Points خليه مطابق للقانون اللي عندك (مثلاً 10 نقاط = 1$).
+          <div class="muted" style="margin-top:12px;line-height:1.8">
+            ✅ نصيحة: إلا بدلتي USD→Points خليه مطابق للقانون اللي عندك (مثلاً 10 نقاط = 1$).
+          </div>
         </div>
       </section>
 
       <!-- REQUESTS -->
       <section class="section" id="sec_requests">
-        <div class="secHeader">
-          <div>
-            <div class="title">⏳ طلبات الإيداع/السحب (Pending)</div>
-            <div class="desc">العميل كيدير الطلب، وانت كتوافق ولا كترفض. استعمل Refresh باش تشوف الجديد.</div>
+        <div class="cardBlock">
+          <div class="secHeader">
+            <div>
+              <div class="title">⏳ طلبات الإيداع/السحب (Pending)</div>
+              <div class="desc">العميل كيدير الطلب، وانت كتوافق ولا كترفض. استعمل Refresh باش تشوف الجديد.</div>
+            </div>
+            <div class="secTools">
+              <button class="btnX ghost" onclick="loadRequests()">🔄 تحديث</button>
+              <button class="btnX danger" onclick="loadRequests(); toast('تمت إعادة تحميل الطلبات');">⚡ Refresh سريع</button>
+            </div>
           </div>
-          <div class="secTools">
-            <button class="btnX ghost" onclick="loadRequests()">🔄 تحديث</button>
-            <button class="btnX danger" onclick="loadRequests(); toast('تمت إعادة تحميل الطلبات');">⚡ Refresh سريع</button>
-          </div>
-        </div>
 
-        <div class="tableWrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th><th>المستخدم</th><th>النوع</th><th>$</th><th>النقاط</th><th>الحالة</th><th>إجراء</th>
-              </tr>
-            </thead>
-            <tbody id="rq"></tbody>
-          </table>
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>المستخدم</th><th>النوع</th><th>$</th><th>النقاط</th><th>الحالة</th><th>إجراء</th>
+                </tr>
+              </thead>
+              <tbody id="rq"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
       <!-- TASKS -->
       <section class="section" id="sec_tasks">
-        <div class="secHeader">
-          <div>
-            <div class="title">✅ التحكم في المهام</div>
-            <div class="desc">تغيير اسم المهمة + المكافأة + مدة الانتظار + تفعيل/إيقاف. ثم حفظ لكل سطر.</div>
+        <div class="cardBlock">
+          <div class="secHeader">
+            <div>
+              <div class="title">✅ التحكم في المهام</div>
+              <div class="desc">تغيير اسم المهمة + المكافأة + مدة الانتظار + تفعيل/إيقاف. ثم حفظ لكل سطر.</div>
+            </div>
+            <div class="secTools">
+              <button class="btnX ghost" onclick="loadTasks()">🔄 تحديث</button>
+            </div>
           </div>
-          <div class="secTools">
-            <button class="btnX ghost" onclick="loadTasks()">🔄 تحديث</button>
-          </div>
-        </div>
 
-        <div class="tableWrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th><th>العنوان</th><th>Reward</th><th>Wait(s)</th><th>Active</th><th>حفظ</th>
-              </tr>
-            </thead>
-            <tbody id="tasks"></tbody>
-          </table>
-        </div>
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>العنوان</th><th>Reward</th><th>Wait(s)</th><th>Active</th><th>حفظ</th>
+                </tr>
+              </thead>
+              <tbody id="tasks"></tbody>
+            </table>
+          </div>
 
-        <div style="height:14px"></div>
+          <div style="height:14px"></div>
 
-        <div class="secHeader" style="margin-top:10px">
-          <div>
-            <div class="title">➕ إضافة مهمة جديدة</div>
-            <div class="desc">عبّي البيانات و ضغط إضافة.</div>
+          <div class="secHeader" style="margin-top:10px">
+            <div>
+              <div class="title">➕ إضافة مهمة جديدة</div>
+              <div class="desc">عبّي البيانات و ضغط إضافة.</div>
+            </div>
           </div>
-        </div>
 
-        <div class="formGrid" style="grid-template-columns:2fr 1fr 1fr 1fr">
-          <div class="field" style="grid-column:1/2">
-            <label>عنوان المهمة</label>
-            <input id="new_title" placeholder="عنوان مهمة جديدة"/>
-          </div>
-          <div class="field">
-            <label>Reward</label>
-            <input id="new_reward" type="number" min="0" value="15"/>
-          </div>
-          <div class="field">
-            <label>Wait(s)</label>
-            <input id="new_wait" type="number" min="1" value="10"/>
-          </div>
-          <div class="field" style="display:flex;align-items:end">
-            <button class="btnX" style="width:100%" onclick="createTask()">إضافة</button>
+          <div class="formGrid" style="grid-template-columns:2fr 1fr 1fr 1fr">
+            <div class="field" style="grid-column:1/2">
+              <label>عنوان المهمة</label>
+              <input id="new_title" placeholder="عنوان مهمة جديدة"/>
+            </div>
+            <div class="field">
+              <label>Reward</label>
+              <input id="new_reward" type="number" min="0" value="15"/>
+            </div>
+            <div class="field">
+              <label>Wait(s)</label>
+              <input id="new_wait" type="number" min="1" value="10"/>
+            </div>
+            <div class="field" style="display:flex;align-items:end">
+              <button class="btnX" style="width:100%" onclick="createTask()">إضافة</button>
+            </div>
           </div>
         </div>
       </section>
 
       <!-- USERS -->
       <section class="section" id="sec_users">
-        <div class="secHeader">
-          <div>
-            <div class="title">👤 المستخدمون</div>
-            <div class="desc">تغيير النقاط + إعادة تعيين كلمة السر. يمكنك تستعمل بحث سريع من اليسار.</div>
+        <div class="cardBlock">
+          <div class="secHeader">
+            <div>
+              <div class="title">👤 المستخدمون</div>
+              <div class="desc">تغيير النقاط + إعادة تعيين كلمة السر. يمكنك تستعمل بحث سريع من اليسار.</div>
+            </div>
+            <div class="secTools">
+              <button class="btnX ghost" onclick="loadUsers()">🔄 تحديث</button>
+            </div>
           </div>
-          <div class="secTools">
-            <button class="btnX ghost" onclick="loadUsers()">🔄 تحديث</button>
-          </div>
-        </div>
 
-        <div class="tableWrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>الاسم</th>
-                <th>تواصل</th>
-                <th>نقاط</th>
-                <th>كلمة سر جديدة</th>
-                <th>حفظ</th>
-              </tr>
-            </thead>
-            <tbody id="us"></tbody>
-          </table>
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>الاسم</th>
+                  <th>تواصل</th>
+                  <th>نقاط</th>
+                  <th>كلمة سر جديدة</th>
+                  <th>حفظ</th>
+                </tr>
+              </thead>
+              <tbody id="us"></tbody>
+            </table>
+          </div>
         </div>
       </section>
-
     </main>
   </div>
 
@@ -651,7 +808,12 @@
 
   <script src="/public/app.js"></script>
   <script>
-    function setSync(txt){ const el=document.getElementById("lastSync"); if(el) el.textContent=txt; }
+    function setSync(txt){
+      const el=document.getElementById("lastSync");
+      if(el) el.textContent=txt;
+      const el2=document.getElementById("miniSync");
+      if(el2) el2.textContent=txt;
+    }
 
     function toast(msg){
       const t=document.getElementById("toast");
@@ -668,8 +830,14 @@
       return '<span class="tag warn">Pending</span>';
     }
 
+    // ✅ Fix: formatUsd was missing in your code
+    function formatUsd(n){
+      const x = Number(n);
+      if(!Number.isFinite(x)) return "-";
+      return "$" + x.toFixed(2);
+    }
+
     function openTab(key){
-      // buttons
       const keys=["settings","requests","tasks","users"];
       for(const k of keys){
         document.getElementById("tab_"+k)?.classList.remove("active");
@@ -678,9 +846,9 @@
       document.getElementById("tab_"+key)?.classList.add("active");
       document.getElementById("sec_"+key)?.classList.add("active");
 
-      // title/desc
       const mainTitle = document.getElementById("mainTitle");
       const mainDesc  = document.getElementById("mainDesc");
+
       const map = {
         settings:{t:"الإعدادات", d:"تحكم في التحويل + الحد الأدنى + وسائل التواصل."},
         requests:{t:"طلبات Pending", d:"موافقة أو رفض الطلبات بسرعة."},
@@ -689,6 +857,28 @@
       };
       if(mainTitle) mainTitle.textContent = map[key].t;
       if(mainDesc)  mainDesc.textContent  = map[key].d;
+
+      // update topbar subtitle
+      const tbTitle = document.getElementById("tbTitle");
+      const tbSub   = document.getElementById("tbSub");
+      if(tbTitle) tbTitle.textContent = map[key].t;
+      if(tbSub) tbSub.textContent = map[key].d;
+    }
+
+    function currentTab(){
+      const btns = ["settings","requests","tasks","users"];
+      for(const k of btns){
+        if(document.getElementById("tab_"+k)?.classList.contains("active")) return k;
+      }
+      return "settings";
+    }
+
+    async function refreshCurrent(){
+      const t = currentTab();
+      if(t==="settings") return loadSettings();
+      if(t==="requests") return loadRequests();
+      if(t==="tasks") return loadTasks();
+      if(t==="users") return loadUsers();
     }
 
     // -------- SETTINGS ----------
@@ -717,7 +907,7 @@
         toast("تم حفظ الإعدادات ✅");
         setSync("✅ محفوظ");
       }catch(e){
-        toast(e.message);
+        toast(e.message || "وقع خطأ");
         setSync("⚠️ خطأ");
       }
     }
@@ -736,12 +926,12 @@
           <tr data-row="rq">
             <td>${r.id}</td>
             <td>
-              <b>${r.full_name || "-"}</b>
-              <div class="muted">${(r.email || r.phone || "")}</div>
+              <b>${escapeHtml(r.full_name || "-")}</b>
+              <div class="muted">${escapeHtml((r.email || r.phone || ""))}</div>
             </td>
             <td><span class="tag">${typeLabel(r.type)}</span></td>
             <td>${formatUsd(r.amount_usd)}</td>
-            <td><b>${r.points_delta}</b></td>
+            <td><b>${escapeHtml(r.points_delta)}</b></td>
             <td>${statusTag(r.status || "pending")}</td>
             <td>
               <div class="rowBtns">
@@ -763,14 +953,14 @@
         await api(`/api/admin/requests/${id}/approve`,"POST",{});
         toast("تمت الموافقة ✅");
         loadRequests();
-      }catch(e){ toast(e.message); }
+      }catch(e){ toast(e.message || "وقع خطأ"); }
     }
     async function reject(id){
       try{
         await api(`/api/admin/requests/${id}/reject`,"POST",{});
         toast("تم الرفض ✅");
         loadRequests();
-      }catch(e){ toast(e.message); }
+      }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
     // -------- TASKS ----------
@@ -816,7 +1006,7 @@
         });
         toast("تم تحديث المهمة ✅");
         loadTasks();
-      }catch(e){ toast(e.message); }
+      }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
     async function createTask(){
@@ -829,7 +1019,7 @@
         toast("تمت إضافة مهمة ✅");
         document.getElementById("new_title").value = "";
         loadTasks();
-      }catch(e){ toast(e.message); }
+      }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
     // -------- USERS ----------
@@ -871,7 +1061,7 @@
         });
         toast("تم تحديث النقاط ✅");
         loadUsers();
-      }catch(e){ toast(e.message); }
+      }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
     async function setPassword(userId){
@@ -884,7 +1074,7 @@
         await api(`/api/admin/users/${userId}/password`,"POST",{ new_password });
         document.getElementById(`pw_${userId}`).value = "";
         toast("تم تحديث كلمة السر ✅");
-      }catch(e){ toast(e.message); }
+      }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
     // -------- SEARCH (front-end only) ----------
@@ -912,8 +1102,10 @@
       await loadRequests();
       await loadTasks();
       await loadUsers();
+      toast("تم تحديث كلشي ✅");
     }
-    init().catch(e=>toast(e.message));
+
+    init().catch(e=>toast(e.message || "وقع خطأ"));
   </script>
 </body>
 </html>

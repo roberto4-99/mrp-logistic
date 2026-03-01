@@ -7,7 +7,11 @@
     "manager_contact": {
       "title": "تواصل مع المدير لإتمام العملية",
       "whatsapp": "+212619692685",
-      "telegram": "@MRP_Manager"
+      "telegram": "99"
+    },
+    "referral": {
+      "signup_bonus_points": 1,
+      "deposit_bonus_points": 30
     }
   },
   "users": [
@@ -21,7 +25,8 @@
       "is_admin": true,
       "status": "active",
       "created_at": "2026-02-27T15:33:49.221Z",
-      "last_login_at": "2026-02-28T16:28:19.553Z"
+      "last_login_at": "2026-03-01T18:12:07.857Z",
+      "referral_code": "Ud728daa5-d822-42cd-b4f6-67abeb6b0fe2"
     },
     {
       "id": "87608041-b3f4-4f25-aaea-8d4b2dc399aa",
@@ -33,7 +38,8 @@
       "is_admin": false,
       "status": "active",
       "created_at": "2026-02-27T15:39:30.203Z",
-      "last_login_at": "2026-02-28T14:57:58.008Z"
+      "last_login_at": "2026-02-28T14:57:58.008Z",
+      "referral_code": "U87608041-b3f4-4f25-aaea-8d4b2dc399aa"
     },
     {
       "id": "14222512-10e7-4b22-ae6a-e04b74c6e287",
@@ -45,7 +51,21 @@
       "is_admin": false,
       "status": "active",
       "created_at": "2026-02-27T17:09:31.485Z",
-      "last_login_at": "2026-02-27T17:43:11.579Z"
+      "last_login_at": "2026-02-27T17:43:11.579Z",
+      "referral_code": "U14222512-10e7-4b22-ae6a-e04b74c6e287"
+    },
+    {
+      "id": 555555,
+      "full_name": "AMED",
+      "email": "test1",
+      "phone": null,
+      "password_hash": "$2a$10$kq0nJrd4aSeaq18d9e/ZmeqExIFvX63JLjMqAWO8BDYfLm7iy35By",
+      "points_balance": 15,
+      "is_admin": false,
+      "status": "active",
+      "created_at": "2026-03-01T17:39:20.310Z",
+      "last_login_at": "2026-03-01T17:39:22.984Z",
+      "referral_code": "U555555"
     }
   ],
   "wallet_transactions": [
@@ -1445,6 +1465,17 @@
       "status": "approved",
       "created_at": "2026-02-27T17:48:27.512Z",
       "processed_at": "2026-02-27T17:48:50.821Z"
+    },
+    {
+      "id": "1772386834004-5674",
+      "user_id": 555555,
+      "type": "deposit",
+      "amount_usd": 50,
+      "rate_usd_to_points": 10,
+      "points_delta": 500,
+      "status": "pending",
+      "created_at": "2026-03-01T17:40:34.004Z",
+      "processed_at": null
     }
   ],
   "tasks": [
@@ -1624,6 +1655,51 @@
       "started_at": null,
       "completed_at": null,
       "earned_points": 0
+    },
+    {
+      "id": "555555-1",
+      "user_id": 555555,
+      "task_id": 1,
+      "status": "completed",
+      "started_at": null,
+      "completed_at": "2026-03-01T17:51:28.499Z",
+      "earned_points": 15
+    },
+    {
+      "id": "555555-2",
+      "user_id": 555555,
+      "task_id": 2,
+      "status": "available",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
+    },
+    {
+      "id": "555555-3",
+      "user_id": 555555,
+      "task_id": 3,
+      "status": "locked",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
+    },
+    {
+      "id": "555555-4",
+      "user_id": 555555,
+      "task_id": 4,
+      "status": "locked",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
+    },
+    {
+      "id": "555555-5",
+      "user_id": 555555,
+      "task_id": 5,
+      "status": "locked",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
     }
   ],
   "task_runs": [
@@ -1776,6 +1852,20 @@
       "expected_finish_ms": 1772281625330,
       "finished_at": "2026-02-28T12:27:05.402Z",
       "status": "completed"
+    },
+    {
+      "id": "1772387478433-90949",
+      "user_id": 555555,
+      "task_id": 1,
+      "run_token": "1772387478433-90949",
+      "started_at": "2026-03-01T17:51:18.433Z",
+      "expected_finish_ms": 1772387488433,
+      "finished_at": "2026-03-01T17:51:28.499Z",
+      "status": "completed"
     }
-  ]
+  ],
+  "meta": {
+    "next_user_id": 555556
+  },
+  "referrals": []
 }
