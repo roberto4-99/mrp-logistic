@@ -24,11 +24,13 @@ function ensureDbFile() {
           title: "تواصل مع المدير لإتمام العملية",
           whatsapp: "+212619692685",
           telegram: "@Mrp_logistic"
+        },
+        referral: {
+          signup_bonus_points: 1,
+          deposit_bonus_points: 30
         }
       },
-      meta: {
-        next_user_id: 555555
-      },
+      meta: { next_user_id: 555555 },
       users: [],
       wallet_transactions: [],
       tasks: [
@@ -39,7 +41,8 @@ function ensureDbFile() {
         { id: 5, title: "مهمة 5", order_index: 5, reward_points: 15, wait_seconds: 10, is_active: true }
       ],
       user_tasks: [],
-      task_runs: []
+      task_runs: [],
+      referrals: [] // ✅ NEW
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(init, null, 2), "utf8");
   }
@@ -64,6 +67,12 @@ function usdToPoints(db, usd) {
   return Math.floor(usd * rate);
 }
 
+// ✅ referral code generator (short + readable)
+function makeReferralCode(userId){
+  // مثال: U555555
+  return "U" + String(userId);
+}
+
 function ensureAdmin(db) {
   db.users = db.users || [];
   const exists = db.users.some(u => u.is_admin === true);
@@ -75,8 +84,10 @@ function ensureAdmin(db) {
   const adminEmail = process.env.ADMIN_EMAIL || "admin@mrp.local";
   const adminPass = process.env.ADMIN_PASSWORD || "Med@19851985";
 
+  const adminId = db.meta.next_user_id;
+
   const admin = {
-    id: db.meta.next_user_id, // رقم
+    id: adminId,
     full_name: "Admin",
     email: adminEmail,
     phone: null,
@@ -85,7 +96,8 @@ function ensureAdmin(db) {
     is_admin: true,
     status: "active",
     created_at: nowISO(),
-    last_login_at: null
+    last_login_at: null,
+    referral_code: makeReferralCode(adminId) // ✅ NEW
   };
 
   db.users.push(admin);
@@ -125,7 +137,6 @@ function syncLocks(db, userId) {
     ut: db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id)
   }));
 
-  // خلي غير وحدة available
   let seenAvailable = false;
   for (const x of uts) {
     if (!x.ut) continue;
@@ -137,7 +148,6 @@ function syncLocks(db, userId) {
     }
   }
 
-  // إذا ما كايناش available و ماشي كاملين completed -> فتح أول غير مكتمل
   const anyAvailable = uts.some(x => x.ut?.status === "available");
   const allCompleted = uts.every(x => x.ut?.status === "completed");
   if (!anyAvailable && !allCompleted) {
@@ -172,14 +182,22 @@ function resetUserProgress(db, userId) {
 (function init() {
   const db = readDb();
   db.settings = db.settings || {};
+  db.settings.referral = db.settings.referral || { signup_bonus_points: 1, deposit_bonus_points: 30 };
+
   db.meta = db.meta || { next_user_id: 555555 };
   db.users = db.users || [];
   db.wallet_transactions = db.wallet_transactions || [];
   db.tasks = db.tasks || [];
   db.user_tasks = db.user_tasks || [];
   db.task_runs = db.task_runs || [];
+  db.referrals = db.referrals || [];
 
   ensureAdmin(db);
+
+  // ensure referral_code for all users (migration safe)
+  for (const u of db.users) {
+    if (!u.referral_code) u.referral_code = makeReferralCode(u.id);
+  }
 
   // sync tasks for normal users
   for (const u of db.users) {
@@ -228,17 +246,33 @@ app.get("/profile", requireAuth, (req, res) => res.sendFile(path.join(__dirname,
 app.get("/admin", requireAuth, requireAdmin, (req, res) => res.sendFile(path.join(__dirname, "views/admin.html")));
 app.post("/logout", (req, res) => req.session.destroy(() => res.redirect("/login")));
 
+/* ---------------- Referral API ---------------- */
+// ✅ this is what Home will use to show invite link + count
+app.get("/api/referral/me", requireAuth, (req, res) => {
+  const db = req._db;
+  db.referrals = db.referrals || [];
+
+  const code = req.user.referral_code || makeReferralCode(req.user.id);
+  const total = db.referrals.filter(r => r.referrer_id === req.user.id).length;
+
+  // baseUrl from request
+  const base = `${req.protocol}://${req.get("host")}`;
+  const link = `${base}/register?ref=${encodeURIComponent(code)}`;
+
+  writeDb(db);
+  res.json({ ok: true, code, link, total });
+});
+
 /* ---------------- Auth APIs ---------------- */
 app.post("/api/register", (req, res) => {
   const db = readDb();
-  const { full_name, email, phone, password } = req.body;
+  const { full_name, email, phone, password, ref_code } = req.body;
 
   const pw = String(password || "").trim();
   if (pw.length < 6) return res.status(400).json({ ok: false, message: "كلمة المرور 6 أحرف على الأقل." });
 
   const keyEmail = email ? String(email).trim() : "";
   const keyPhone = phone ? String(phone).trim() : "";
-
   if (!keyEmail && !keyPhone) return res.status(400).json({ ok: false, message: "أدخل البريد أو الهاتف." });
 
   const exists = (db.users || []).find(u =>
@@ -253,7 +287,7 @@ app.post("/api/register", (req, res) => {
   const newId = db.meta.next_user_id;
 
   const user = {
-    id: newId, // ✅ رقم يبدأ من 555555
+    id: newId,
     full_name: String(full_name || "").trim() || null,
     email: keyEmail || null,
     phone: keyPhone || null,
@@ -262,11 +296,37 @@ app.post("/api/register", (req, res) => {
     is_admin: false,
     status: "active",
     created_at: nowISO(),
-    last_login_at: null
+    last_login_at: null,
+    referral_code: makeReferralCode(newId) // ✅ NEW
   };
 
   db.users.push(user);
   db.meta.next_user_id += 1;
+
+  // ✅ referral on signup (1 point)
+  db.referrals = db.referrals || [];
+  const code = String(ref_code || "").trim();
+  if (code) {
+    const referrer = db.users.find(u => u.referral_code === code);
+    // منع self-ref
+    if (referrer && referrer.id !== user.id) {
+      const already = db.referrals.find(r => r.referred_id === user.id);
+      if (!already) {
+        const signupBonus = Number(db.settings?.referral?.signup_bonus_points ?? 1);
+        db.referrals.push({
+          id: String(Date.now()) + "-" + Math.floor(Math.random() * 99999),
+          referrer_id: referrer.id,
+          referred_id: user.id,
+          ref_code: code,
+          created_at: nowISO(),
+          signup_bonus_points: signupBonus,
+          deposit_bonus_points: Number(db.settings?.referral?.deposit_bonus_points ?? 30),
+          deposit_bonus_awarded: false
+        });
+        referrer.points_balance += signupBonus;
+      }
+    }
+  }
 
   ensureUserTasks(db, user.id);
   resetUserProgress(db, user.id);
@@ -499,6 +559,21 @@ app.post("/api/admin/requests/:id/approve", requireAuth, requireAdmin, (req, res
   row.status = "approved";
   row.processed_at = nowISO();
 
+  // ✅ referral deposit bonus: +30 points for referrer once
+  if (String(row.type).toLowerCase() === "deposit") {
+    db.referrals = db.referrals || [];
+    const rel = db.referrals.find(r => r.referred_id === u.id && r.deposit_bonus_awarded === false);
+    if (rel) {
+      const referrer = db.users.find(x => x.id === rel.referrer_id);
+      if (referrer) {
+        const bonus = Number(db.settings?.referral?.deposit_bonus_points ?? rel.deposit_bonus_points ?? 30);
+        referrer.points_balance += bonus;
+        rel.deposit_bonus_awarded = true;
+        rel.deposit_bonus_awarded_at = nowISO();
+      }
+    }
+  }
+
   writeDb(db);
   res.json({ ok: true });
 });
@@ -591,6 +666,10 @@ app.post("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
   if (req.body.whatsapp !== undefined) db.settings.manager_contact.whatsapp = String(req.body.whatsapp || "");
   if (req.body.telegram !== undefined) db.settings.manager_contact.telegram = String(req.body.telegram || "");
 
+  db.settings.referral = db.settings.referral || {};
+  if (req.body.signup_bonus_points !== undefined) db.settings.referral.signup_bonus_points = Number(req.body.signup_bonus_points) || 1;
+  if (req.body.deposit_bonus_points !== undefined) db.settings.referral.deposit_bonus_points = Number(req.body.deposit_bonus_points) || 30;
+
   writeDb(db);
   res.json({ ok: true });
 });
@@ -627,7 +706,6 @@ app.post("/api/admin/tasks/create", requireAuth, requireAdmin, (req, res) => {
 
   db.tasks.push(task);
 
-  // Sync users
   for (const u of db.users) {
     if (!u.is_admin) {
       ensureUserTasks(db, u.id);
@@ -660,7 +738,6 @@ app.post("/api/admin/tasks/:id/update", requireAuth, requireAdmin, (req, res) =>
   t.wait_seconds = Math.floor(wait_seconds);
   t.is_active = is_active;
 
-  // Sync users
   for (const u of db.users) {
     if (!u.is_admin) {
       ensureUserTasks(db, u.id);

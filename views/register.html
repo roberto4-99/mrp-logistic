@@ -53,7 +53,6 @@
       margin-bottom:18px;
     }
 
-    /* ✅ LOGO IMAGE (نفس login) */
     .logo{
       width:52px;height:52px;
       border-radius:18px;
@@ -82,6 +81,41 @@
       font-size:12px;
       opacity:.8;
     }
+
+    /* ✅ referral banner */
+    .refBanner{
+      display:none;
+      margin: 0 0 14px 0;
+      padding: 12px 12px;
+      border-radius: 18px;
+      background: rgba(167,139,250,.12);
+      border: 1px solid rgba(167,139,250,.28);
+      box-shadow: 0 14px 35px rgba(0,0,0,.25);
+    }
+    .refRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .refTxt{
+      font-size:12px;
+      opacity:.95;
+      line-height:1.5;
+    }
+    .refTxt b{font-weight:900}
+    .refBtn{
+      border:none;
+      cursor:pointer;
+      padding:10px 12px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      color:#fff;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .refBtn:active{transform:translateY(1px)}
 
     label{
       font-size:13px;
@@ -165,6 +199,14 @@
     </div>
   </div>
 
+  <!-- ✅ Referral banner -->
+  <div class="refBanner" id="refBanner">
+    <div class="refRow">
+      <div class="refTxt" id="refText">...</div>
+      <button class="refBtn" type="button" onclick="clearRef()">إزالة</button>
+    </div>
+  </div>
+
   <label>الاسم الكامل</label>
   <input class="input" id="name" placeholder="مثال: محمد أحمد"/>
 
@@ -196,6 +238,50 @@
     return /^[0-9+\s()-]{6,}$/.test(s) && /[0-9]/.test(s) && !s.includes("@");
   }
 
+  // ✅ Read ref from URL and keep it (localStorage) so user doesn't lose it if refresh
+  function getRefFromUrl(){
+    const u = new URL(location.href);
+    const ref = (u.searchParams.get("ref") || "").trim();
+    return ref;
+  }
+
+  function setStoredRef(ref){
+    if(ref) localStorage.setItem("mrp_ref", ref);
+    else localStorage.removeItem("mrp_ref");
+  }
+
+  function getStoredRef(){
+    return (localStorage.getItem("mrp_ref") || "").trim();
+  }
+
+  function showRefBanner(ref){
+    const box = document.getElementById("refBanner");
+    const txt = document.getElementById("refText");
+    if(!ref){
+      box.style.display = "none";
+      return;
+    }
+    txt.innerHTML = `تم فتح التسجيل عبر دعوة: <b>${ref}</b><br>🎁 كاين بونيس عند التسجيل والإيداع`;
+    box.style.display = "block";
+  }
+
+  function clearRef(){
+    setStoredRef("");
+    // remove param from URL (clean)
+    const u = new URL(location.href);
+    u.searchParams.delete("ref");
+    history.replaceState({}, "", u.toString());
+    showRefBanner("");
+    toast("تم حذف الدعوة");
+  }
+
+  // init ref
+  (function initRef(){
+    const ref = getRefFromUrl();
+    if(ref) setStoredRef(ref);
+    showRefBanner(getStoredRef());
+  })();
+
   async function doRegister(){
     try{
       const full_name = document.getElementById("name").value.trim();
@@ -216,10 +302,13 @@
       if(isPhone(key)) phone = key;
       else email = key;
 
+      // ✅ referral code
+      const ref_code = getStoredRef() || null;
+
       const r = await fetch("/api/register",{
         method:"POST",
         headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ full_name, email, phone, password })
+        body: JSON.stringify({ full_name, email, phone, password, ref_code })
       });
 
       const data = await r.json().catch(()=>({}));
@@ -227,6 +316,9 @@
         toast(data.message || "تعذر التسجيل");
         return;
       }
+
+      // clear referral after successful signup
+      setStoredRef("");
 
       toast("تم إنشاء الحساب ✅");
       setTimeout(()=>location.href="/login", 900);
@@ -236,7 +328,6 @@
     }
   }
 
-  // ✅ Enter = تسجيل
   document.addEventListener("keydown",(e)=>{
     if(e.key==="Enter") doRegister();
   });
