@@ -1,6 +1,6 @@
 /* public/app.js
    MRP Logistic - Front helpers
-   Fix: handle HTML responses when expecting JSON (Unexpected token '<')
+   FIXED: robust JSON parsing + handle HTML/redirect responses safely
 */
 
 (function () {
@@ -8,10 +8,7 @@
 
   // ---------- Utils ----------
   function qs(sel, root = document) { return root.querySelector(sel); }
-  function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
-
   function showToast(msg) {
-    // إذا عندك toast فـ الصفحة غادي يستعملو
     const t = qs("#toast");
     if (t) {
       t.innerHTML = msg;
@@ -23,58 +20,88 @@
   }
 
   function safeRedirectToLogin() {
-    // إلا كنا فـ login ما نديروش loop
-    if (location.pathname !== "/login") {
-      location.href = "/login";
-    }
+    // بلا loop
+    if (location.pathname !== "/login") location.href = "/login";
   }
 
-  // ---------- API (FIXED) ----------
+  // Detect HTML (login page / error page)
+  function looksLikeHTML(text) {
+    const s = String(text || "").trim().toLowerCase();
+    return (
+      s.startsWith("<!doctype") ||
+      s.startsWith("<html") ||
+      s.includes("<head") ||
+      s.includes("<body")
+    );
+  }
+
+  // ---------- API (VERY ROBUST) ----------
   async function api(url, options = {}) {
     const opts = {
       method: "GET",
       credentials: "include",
-      headers: {},
+      headers: { ...(options.headers || {}) },
       ...options
     };
 
-    // إذا body object => JSON stringify
+    // body object => JSON
     if (opts.body && typeof opts.body === "object" && !(opts.body instanceof FormData)) {
-      opts.headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+      opts.headers["Content-Type"] = opts.headers["Content-Type"] || "application/json";
       opts.body = JSON.stringify(opts.body);
     }
 
-    const res = await fetch(url, opts);
+    let res;
+    try {
+      res = await fetch(url, opts);
+    } catch (e) {
+      // Network error
+      throw new Error("مشكل فالاتصال بالأنترنت/السيرفر.");
+    }
 
-    // بعض الأحيان السيرفر كيرجع HTML (redirect لصفحة login) => content-type ماشي JSON
-    const contentType = (res.headers.get("content-type") || "").toLowerCase();
-
-    // لو كان redirect صريح
+    // fetch كيتبع redirect تلقائيا، وغالبا كيولي /login
     if (res.redirected && res.url) {
-      // غالباً مشى ل /login
-      safeRedirectToLogin();
-      throw new Error("Redirected");
-    }
-
-    // لو ماشي JSON
-    if (!contentType.includes("application/json")) {
-      // خذ شوية من النص باش نعرفو شنو رجع (debug)
-      const txt = await res.text().catch(() => "");
-      // إلى كان HTML واضح
-      if (txt.trim().startsWith("<!DOCTYPE") || txt.trim().startsWith("<html")) {
+      // إذا مشى لصفحة login
+      if (res.url.includes("/login")) {
         safeRedirectToLogin();
-        throw new Error("Not JSON (HTML returned)");
+        throw new Error("تم تسجيل الخروج. عاود دخل.");
       }
-      // إذا شي حاجة أخرى
-      throw new Error("Response is not JSON");
     }
 
-    const data = await res.json();
+    // قرا النص ديما، ومن بعد حاول parse
+    const text = await res.text().catch(() => "");
 
-    // إذا السيرفر رجع ok:false أو status ماشي 2xx
+    // إذا رجع HTML غالبا راه redirect ل login ولا page error
+    if (looksLikeHTML(text)) {
+      // Debug صغير
+      console.error("API returned HTML instead of JSON:", {
+        url,
+        status: res.status,
+        redirected: res.redirected,
+        finalUrl: res.url,
+        preview: text.slice(0, 200)
+      });
+
+      // إذا غير مسجّل
+      if (res.status === 401 || res.status === 403 || res.url.includes("/login")) {
+        safeRedirectToLogin();
+        throw new Error("خصك تدير تسجيل الدخول.");
+      }
+
+      throw new Error("السيرفر رجّع HTML بدل JSON.");
+    }
+
+    // حاول parse JSON حتى إلا header غلط
+    let data = null;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      console.error("Not valid JSON:", { url, status: res.status, preview: text.slice(0, 200) });
+      throw new Error("الرد ديال السيرفر ماشي JSON.");
+    }
+
+    // إذا status ماشي مزيان
     if (!res.ok || data?.ok === false) {
       const msg = data?.message || "وقع خطأ فالسيرفر.";
-      // إذا 401/403 غالباً session طاحت
       if (res.status === 401 || res.status === 403) safeRedirectToLogin();
       throw new Error(msg);
     }
@@ -82,19 +109,17 @@
     return data;
   }
 
-  // نخلي api global حيت صفحاتك كتنادي عليها
+  // نخلي api global حيث صفحاتك كتستعملها
   window.api = api;
 
   // ---------- Auth ----------
   async function handleLoginSubmit(e) {
     e.preventDefault();
+
     const emailOrPhone = (qs("#emailOrPhone")?.value || "").trim();
     const password = (qs("#password")?.value || "").trim();
 
-    if (!emailOrPhone || !password) {
-      showToast("عمر البريد/الهاتف وكلمة المرور.");
-      return;
-    }
+    if (!emailOrPhone || !password) return showToast("عمر البريد/الهاتف وكلمة المرور.");
 
     try {
       const data = await api("/api/login", {
@@ -102,7 +127,6 @@
         body: { emailOrPhone, password }
       });
 
-      // إلى كان Admin يقدر يمشي /admin وإلا /home
       if (data?.is_admin) location.href = "/admin";
       else location.href = "/home";
     } catch (err) {
@@ -118,18 +142,11 @@
     const phone = (qs("#phone")?.value || "").trim();
     const password = (qs("#password")?.value || "").trim();
 
-    // ref from input or query ?ref=
     const urlRef = new URLSearchParams(location.search).get("ref") || "";
     const ref_code = (qs("#ref_code")?.value || "").trim() || urlRef;
 
-    if (!password || password.length < 6) {
-      showToast("كلمة المرور 6 أحرف على الأقل.");
-      return;
-    }
-    if (!email && !phone) {
-      showToast("دخل البريد أو الهاتف.");
-      return;
-    }
+    if (!password || password.length < 6) return showToast("كلمة المرور 6 أحرف على الأقل.");
+    if (!email && !phone) return showToast("دخل البريد أو الهاتف.");
 
     try {
       await api("/api/register", {
@@ -145,7 +162,6 @@
 
   // ---------- Home helpers ----------
   async function loadHomeIfExists() {
-    // إلا ما كانتش عناصر home ما ندير والو
     const appNameEl = qs("#appName");
     const helloEl = qs("#hello");
     const pointsEl = qs("#points");
@@ -168,7 +184,6 @@
       if (roleEl) roleEl.textContent = isAdmin ? "Admin" : "User";
       if (statusTxt) statusTxt.textContent = "متصل ✅";
 
-      // تحديث min dep/wd في shortcuts إذا كاينين
       const minDep = me?.settings?.min_deposit_usd ?? 5;
       const minWd = me?.settings?.min_withdraw_usd ?? 10;
       const scMinDep = qs("#scMinDep");
@@ -176,22 +191,20 @@
       if (scMinDep) scMinDep.textContent = `أقل: ${minDep}$`;
       if (scMinWd) scMinWd.textContent = `أقل: ${minWd}$`;
 
-      // Invite code label فقط (واجهة)
+      // Referral (اختياري)
       const scInviteCode = qs("#scInviteCode");
       if (scInviteCode) {
-        // إذا بغيت تستعمل API ديال referral
         try {
           const ref = await api("/api/referral/me");
           scInviteCode.textContent = ref.code || "رابط خاص";
-          // وخلي الرابط يبان فالمودال إلى كاين
           const inviteLink = qs("#inviteLink");
           if (inviteLink) inviteLink.value = ref.link || "";
         } catch (_) {
-          // ماشي مشكل
+          // ignore
         }
       }
 
-      // load ops count إذا كاين
+      // Ops count
       const scOpsCount = qs("#scOpsCount");
       if (scOpsCount) {
         try {
@@ -204,7 +217,6 @@
       }
     } catch (err) {
       if (statusTxt) statusTxt.textContent = "غير متصل ❗";
-      // إلا session طاحت api() غادي يدير redirect، هنا غير toast
       showToast(err.message || "وقع مشكل فـ /api/me");
     }
   }
@@ -234,11 +246,17 @@
               : `<span style="opacity:.6">مقفولة 🔒</span>`;
 
         const row = document.createElement("div");
-        row.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:16px;background:rgba(255,255,255,.06);margin-bottom:8px;";
+        row.style.cssText =
+          "display:flex;align-items:center;justify-content:space-between;gap:10px;" +
+          "padding:10px;border:1px solid rgba(255,255,255,.12);border-radius:16px;" +
+          "background:rgba(255,255,255,.06);margin-bottom:8px;";
+
         row.innerHTML = `
           <div style="min-width:0">
             <b style="display:block;font-size:13px">${t.title}</b>
-            <div style="opacity:.75;font-size:12px;margin-top:3px">مكافأة: ${t.reward_points} نقطة • انتظار: ${t.wait_seconds}s</div>
+            <div style="opacity:.75;font-size:12px;margin-top:3px">
+              مكافأة: ${t.reward_points} نقطة • انتظار: ${t.wait_seconds}s
+            </div>
           </div>
           <div>${btn}</div>
         `;
@@ -249,12 +267,8 @@
             try {
               const s = await api("/api/tasks/start", { method: "POST", body: {} });
               showToast(`بدأت المهمة ✅ انتظر ${s.wait_seconds}s`);
-
-              // زر finish إذا عندك
               const runTokenEl = qs("#runToken");
               if (runTokenEl) runTokenEl.value = s.run_token;
-
-              // reload list
               await loadTasksIfExists();
             } catch (e) {
               showToast(e.message || "ماقدرتش نبدأ المهمة.");
@@ -275,10 +289,8 @@
 
     btn.addEventListener("click", async () => {
       const run_token = (qs("#runToken")?.value || "").trim();
-      if (!run_token) {
-        showToast("ماكايناش جلسة مهمة (run_token).");
-        return;
-      }
+      if (!run_token) return showToast("ماكايناش جلسة مهمة (run_token).");
+
       try {
         const r = await api("/api/tasks/finish", { method: "POST", body: { run_token } });
         showToast(r.message || "تم ✅");
@@ -289,7 +301,7 @@
     });
   }
 
-  // ---------- Wallet request (deposit/withdraw pages) ----------
+  // ---------- Wallet (deposit/withdraw) ----------
   function bindWalletButtonsIfExists() {
     const depBtn = qs("#depositBtn");
     const wdBtn = qs("#withdrawBtn");
@@ -303,7 +315,6 @@
         const r = await api("/api/wallet/request", { method: "POST", body: { type, amount_usd } });
         showToast(r.message || "تم إرسال الطلب ✅");
 
-        // إذا عندك مودال التواصل
         if (typeof window.openContact === "function") {
           const title = type === "deposit" ? "إيداع" : "سحب";
           window.openContact(title, "تواصل مع المدير لإتمام العملية.", amount_usd);
@@ -319,15 +330,12 @@
 
   // ---------- Boot ----------
   function boot() {
-    // login form
     const loginForm = qs("#loginForm");
     if (loginForm) loginForm.addEventListener("submit", handleLoginSubmit);
 
-    // register form
     const registerForm = qs("#registerForm");
     if (registerForm) registerForm.addEventListener("submit", handleRegisterSubmit);
 
-    // pages loaders
     loadHomeIfExists();
     loadTasksIfExists();
     handleFinishTaskIfExists();
