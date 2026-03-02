@@ -223,48 +223,93 @@
       cursor:pointer;
     }
 
-    /* bottom nav */
+    /* ===============================
+       MOBILE STYLE BOTTOM NAV (PRO)
+       =============================== */
     .nav{
-      position:fixed;left:0;right:0;bottom:0;
-      background:rgba(2,6,23,.70);
-      border-top:1px solid rgba(255,255,255,.14);
-      backdrop-filter:blur(14px);
-      z-index:4000;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 4000;
+
+      background: rgba(2,6,23,.72);
+      border-top: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(16px);
+
       padding-bottom: env(safe-area-inset-bottom);
     }
+
     .navInner{
       max-width:1100px;
-      margin:auto;
+      margin:0 auto;
+
       display:flex;
-      justify-content:space-around;
-      padding:10px;
-      gap:10px;
+      justify-content: space-around;
+      align-items:center;
+
+      padding: 10px 8px calc(12px + env(safe-area-inset-bottom));
+      gap: 6px;
     }
+
     .navbtn{
+      flex: 1;
+      min-width: 70px;
+
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:6px;
-      min-width:86px;
-      padding:10px 12px;
-      border-radius:18px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.16);
-      color:#fff;
-      font-weight:900;
+      justify-content:center;
+      gap: 6px;
+
       text-decoration:none;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,.72);
+
+      font-weight: 850;
+      user-select:none;
+
+      padding: 8px 6px;
+      border-radius: 16px;
+      transition: transform .12s ease, background .2s ease, color .2s ease;
+      cursor:pointer;
     }
+
+    .navbtn:hover{ background: rgba(255,255,255,.06); }
+    .navbtn:active{ transform: translateY(1px) scale(.99); }
+
+    .navbtn svg{
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+      color: rgba(255,255,255,.70);
+      opacity: .95;
+    }
+
+    .navbtn small{
+      font-size: 11px;
+      color: rgba(255,255,255,.70);
+      line-height: 1;
+    }
+
     .navbtn.active{
-      background:linear-gradient(135deg,var(--good),var(--blue));
-      color:#020617;
-      border-color:transparent;
+      background: linear-gradient(135deg, var(--good), var(--blue));
+      color: #020617;
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
     }
-    .navbtn small{font-size:11px;opacity:.9}
+    .navbtn.active svg{ color:#020617; }
+    .navbtn.active small{ color:#020617; font-weight:950; }
+
     .navbtn.danger{
-      background:rgba(239,68,68,.20);
-      border-color:rgba(239,68,68,.35);
+      background: rgba(239,68,68,.12);
     }
-    .nav form{margin:0}
+    .navbtn.danger svg,
+    .navbtn.danger small{ color:#ef4444; }
+    .navbtn.danger:hover{ background: rgba(239,68,68,.18); }
+
+    .nav form{margin:0;flex:1}
+    .nav form .navbtn{ width:100%; }
   </style>
 </head>
 
@@ -325,14 +370,42 @@
   </div>
 </div>
 
-<!-- bottom nav -->
+<!-- bottom nav (SVG + نفس السميات) -->
 <div class="nav">
   <div class="navInner">
-    <a href="/home" class="navbtn" id="navHome">🏠<small>الرئيسية</small></a>
-    <a href="/tasks" class="navbtn" id="navTasks">✅<small>المهام</small></a>
-    <a href="/profile" class="navbtn" id="navProfile">👤<small>بروفايل</small></a>
+    <a href="/home" class="navbtn" id="navHome" aria-label="الرئيسية">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M3 10.5l9-7 9 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M5 9.8V20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.8" stroke="currentColor" opacity=".85" stroke-linecap="round"/>
+      </svg>
+      <small>الرئيسية</small>
+    </a>
+
+    <a href="/tasks" class="navbtn" id="navTasks" aria-label="المهام">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M9 11l2 2 4-5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 4h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" opacity=".85"/>
+      </svg>
+      <small>المهام</small>
+    </a>
+
+    <a href="/profile" class="navbtn" id="navProfile" aria-label="بروفايل">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-linecap="round"/>
+        <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12z" stroke="currentColor"/>
+      </svg>
+      <small>بروفايل</small>
+    </a>
+
     <form method="post" action="/logout">
-      <button class="navbtn danger" type="submit">🚪<small>خروج</small></button>
+      <button class="navbtn danger" type="submit" aria-label="خروج">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" stroke="currentColor" stroke-linecap="round"/>
+          <path d="M10 12h11" stroke="currentColor" stroke-linecap="round"/>
+          <path d="M18 9l3 3-3 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <small>خروج</small>
+      </button>
     </form>
   </div>
 </div>
@@ -360,11 +433,17 @@
     toast("تم النسخ ✅");
   }
 
+  /* ✅ Active كيخدم حتى /profile/ و /tasks/... */
   (function setActiveNav(){
-    const p=location.pathname;
-    if(p==="/profile") navProfile.classList.add("active");
-    if(p==="/tasks") navTasks.classList.add("active");
-    if(p==="/home"||p==="/") navHome.classList.add("active");
+    const p = location.pathname || "/";
+    const home = document.getElementById("navHome");
+    const tasks = document.getElementById("navTasks");
+    const profile = document.getElementById("navProfile");
+    if(!home || !tasks || !profile) return;
+
+    if(p === "/" || p === "/home") home.classList.add("active");
+    else if(p === "/tasks" || p.startsWith("/tasks/")) tasks.classList.add("active");
+    else if(p === "/profile" || p.startsWith("/profile/")) profile.classList.add("active");
   })();
 
   async function load(){
@@ -373,23 +452,23 @@
       const full = me.user?.full_name || "User";
       const id = String(me.user?.id || "—");
 
-      fullName.textContent = full;
-      avatar.textContent = initials(full);
-      uid.textContent = id;
+      document.getElementById("fullName").textContent = full;
+      document.getElementById("avatar").textContent = initials(full);
+      document.getElementById("uid").textContent = id;
 
       const pts = me.user?.points_balance ?? 0;
-      points.textContent = pts;
-      done.textContent = me.tasks?.done ?? 0;
-      total.textContent = me.tasks?.total ?? 0;
+      document.getElementById("points").textContent = pts;
+      document.getElementById("done").textContent = me.tasks?.done ?? 0;
+      document.getElementById("total").textContent = me.tasks?.total ?? 0;
 
-      nameLine.textContent = full;
-      idLine.textContent = id;
-      pointsLine.textContent = pts;
+      document.getElementById("nameLine").textContent = full;
+      document.getElementById("idLine").textContent = id;
+      document.getElementById("pointsLine").textContent = pts;
 
-      subLine.textContent = "إدارة الحساب + الإحصائيات الشخصية";
+      document.getElementById("subLine").textContent = "إدارة الحساب + الإحصائيات الشخصية";
     }catch(e){
       toast("تعذر تحميل البيانات");
-      subLine.textContent = "تعذر تحميل البيانات";
+      document.getElementById("subLine").textContent = "تعذر تحميل البيانات";
     }
   }
 

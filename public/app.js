@@ -36,3 +36,20 @@ async function api(url, method = "GET", data) {
 
   return payload;
 }
+document.addEventListener("DOMContentLoaded", () => {
+  const path = window.location.pathname;
+
+  document.querySelectorAll(".navbtn").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  if (path === "/" || path === "/home") {
+    document.getElementById("navHome")?.classList.add("active");
+  } 
+  else if (path.startsWith("/tasks")) {
+    document.getElementById("navTasks")?.classList.add("active");
+  } 
+  else if (path.startsWith("/profile")) {
+    document.getElementById("navProfile")?.classList.add("active");
+  }
+});

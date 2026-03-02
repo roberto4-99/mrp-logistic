@@ -189,3 +189,204 @@ label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px}
   opacity:.45;
 }
 .small{font-size:12px;color:var(--muted);}
+/* ==================================================
+   Bottom Navigation — Home / Tasks / Profile / Logout
+   Mobile Friendly (ALL PAGES)
+   ================================================== */
+
+.nav{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(2,6,23,.80);
+  border-top: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(14px);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 4000;
+}
+
+.navInner{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  gap:6px;
+}
+
+/* 🔹 كل الأزرار */
+.navbtn{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+
+  padding:6px 4px;
+  min-width:0;
+
+  border-radius:14px;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+
+  transition: transform .12s ease, background .2s ease;
+}
+
+/* الأيقونات */
+.navbtn svg{
+  width:14px;
+  height:14px;
+  opacity:.95;
+}
+
+/* النص */
+.navbtn small{
+  font-size:9px;
+  opacity:.85;
+}
+
+/* Active (الصفحة الحالية) */
+.navbtn.active{
+  background: linear-gradient(135deg,#22c55e,#3b82f6);
+  color:#020617;
+  border-color: transparent;
+}
+
+/* زر الخروج */
+.navbtn.danger{
+  background: rgba(239,68,68,.18);
+  border-color: rgba(239,68,68,.30);
+}
+
+.navbtn.danger:hover{
+  background: rgba(239,68,68,.30);
+}
+
+/* 📱 الهاتف فقط */
+@media (max-width:520px){
+  .navInner{
+    padding: 6px;
+    gap:5px;
+  }
+
+  .navbtn{
+    padding:5px 3px;
+  }
+
+  .navbtn svg{
+    width:13px;
+    height:13px;
+  }
+
+  .navbtn small{
+    font-size:8.5px;
+  }
+}
+/* ==================================================
+   Bottom Navigation — KEEP LABELS + PRO LOOK
+   Works on Home / Tasks / Profile / Logout
+   ================================================== */
+
+.nav{
+  position: fixed;
+  left:0; right:0; bottom:0;
+  background: rgba(2,6,23,.85);
+  border-top: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(14px);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 4000;
+}
+
+.navInner{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap:6px;
+  padding: 8px 10px;
+}
+
+/* 🔹 زر التنقل */
+.navbtn{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+
+  padding:7px 4px;
+  border-radius:18px;
+
+  background: rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.14);
+
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+
+  transition: all .15s ease;
+}
+
+/* الأيقونة */
+.navbtn svg{
+  width:15px;
+  height:15px;
+  opacity:.95;
+}
+
+/* السمية */
+.navbtn small{
+  font-size:9.5px;
+  opacity:.9;
+  line-height:1;
+}
+
+/* Hover */
+.navbtn:hover{
+  background: rgba(255,255,255,.12);
+}
+
+/* Active */
+.navbtn.active{
+  background: linear-gradient(135deg,#22c55e,#3b82f6);
+  color:#020617;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(0,0,0,.25);
+}
+
+/* Logout */
+.navbtn.danger{
+  background: rgba(239,68,68,.18);
+  border-color: rgba(239,68,68,.30);
+}
+
+.navbtn.danger:hover{
+  background: rgba(239,68,68,.30);
+}
+
+/* 📱 الهاتف */
+@media (max-width:520px){
+  .navInner{
+    padding:6px 6px;
+    gap:5px;
+  }
+
+  .navbtn{
+    padding:6px 3px;
+    border-radius:16px;
+  }
+
+  .navbtn svg{
+    width:14px;
+    height:14px;
+  }
+
+  .navbtn small{
+    font-size:8.8px;
+  }
+}

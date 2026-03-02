@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>MRP Logistic | Tasks</title>
 
+  <!-- ✅ Favicon -->
+  <link rel="icon" type="image/png" href="/public/logo.png"/>
+
   <style>
     :root{
       --bg1:#020617;
@@ -43,7 +46,23 @@
         linear-gradient(180deg, var(--bg1), var(--bg2));
       overflow-x:hidden;
       padding-bottom: calc(92px + env(safe-area-inset-bottom));
+      position:relative;
     }
+
+    /* ✅ Watermark Logo فخلفية المنصة */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: url("/public/logo.png") center 120px / min(420px, 70vw) no-repeat;
+      opacity: .06;
+      pointer-events:none;
+      z-index:0;
+      filter: blur(.2px);
+    }
+
+    /* خلي المحتوى فوق الـ watermark */
+    .wrap, .toast, .nav, .overlay, #fx, .flash{ position:relative; z-index:1; }
 
     .toast{
       position:fixed;
@@ -88,20 +107,28 @@
       gap:12px;
       min-width:0;
     }
+
+    /* ✅ Logo جديد: كيبان مزيان حيث الصورة دائرية أصلا */
     .logo{
-      width:42px;
-      height:42px;
-      border-radius: 16px;
+      width:48px;
+      height:48px;
+      border-radius: 999px;
       overflow:hidden;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.16);
       flex: 0 0 auto;
       display:flex;
       align-items:center;
       justify-content:center;
       box-shadow: 0 12px 35px rgba(0,0,0,.22);
     }
-    .logo img{width:100%;height:100%;object-fit:cover;display:block}
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      transform: scale(1.02);
+    }
 
     .brandTxt{min-width:0}
     .appName{
@@ -180,7 +207,6 @@
       line-height:1.5;
     }
 
-    /* ✅✅ ملخص اليوم: أفقي + أصغر */
     .summary{
       display:flex;
       gap:10px;
@@ -217,7 +243,6 @@
       opacity:.9;
     }
 
-    /* ✅ على الشاشات الصغيرة نخليهم ما يزالو أفقي لكن أصغر */
     @media(max-width:520px){
       .summary{gap:8px}
       .sum{padding:10px 10px; border-radius:20px}
@@ -298,70 +323,87 @@
       white-space:nowrap;
     }
 
-    /* Bottom Nav */
+    /* ✅ Bottom Nav PRO */
     .nav{
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
       z-index: 4000;
-      background: rgba(2,6,23,.70);
-      border-top: 1px solid rgba(255,255,255,.14);
-      backdrop-filter: blur(14px);
+
+      background: rgba(2,6,23,.72);
+      border-top: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(16px);
       padding-bottom: env(safe-area-inset-bottom);
     }
+
     .navInner{
       max-width:1100px;
       margin:0 auto;
       display:flex;
-      align-items:center;
       justify-content: space-around;
-      gap:10px;
-      padding: 10px 12px;
+      align-items:center;
+      padding: 10px 8px calc(12px + env(safe-area-inset-bottom));
+      gap: 6px;
     }
+
     .navbtn{
-      min-width: 86px;
+      flex: 1;
+      min-width: 70px;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:6px;
+      gap: 6px;
+
       text-decoration:none;
-      color:#fff;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.16);
-      border-radius: 18px;
-      padding: 10px 12px;
-      font-weight: 950;
-      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,.72);
+
+      font-weight: 850;
       user-select:none;
+
+      padding: 8px 6px;
+      border-radius: 16px;
+      transition: transform .12s ease, background .2s ease, color .2s ease;
+      cursor:pointer;
     }
-    .navbtn svg{width:18px;height:18px;opacity:.95}
-    .navbtn small{font-size: 11px; opacity:.9}
-    .navbtn:hover{
-      background: rgba(255,255,255,.12);
-      border-color: rgba(255,255,255,.24);
-      transform: translateY(-1px);
+
+    .navbtn:hover{ background: rgba(255,255,255,.06); }
+    .navbtn:active{ transform: translateY(1px) scale(.99); }
+
+    .navbtn svg{
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+      color: rgba(255,255,255,.70);
+      opacity: .95;
     }
-    .navbtn:active{transform: translateY(1px) scale(.99)}
+
+    .navbtn small{
+      font-size: 11px;
+      color: rgba(255,255,255,.70);
+      line-height: 1;
+    }
+
     .navbtn.active{
       background: linear-gradient(135deg, var(--good), var(--blue));
-      border-color: transparent;
       color: #020617;
-      box-shadow: 0 12px 28px rgba(0,0,0,.22);
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
     }
-    .navbtn.active small{opacity:1}
+    .navbtn.active svg{ color:#020617; }
+    .navbtn.active small{ color:#020617; font-weight:950; }
+
     .navbtn.danger{
-      background: rgba(239,68,68,.18);
-      border-color: rgba(239,68,68,.30);
+      background: rgba(239,68,68,.12);
     }
-    .navbtn.danger:hover{
-      background: rgba(239,68,68,.26);
-      border-color: rgba(239,68,68,.46);
-      transform: translateY(-1px);
-      color:#fff;
-    }
-    .nav form{margin:0}
+    .navbtn.danger svg,
+    .navbtn.danger small{ color:#ef4444; }
+    .navbtn.danger:hover{ background: rgba(239,68,68,.18); }
+
+    .nav form{margin:0;flex:1}
+    .nav form .navbtn{ width:100%; }
 
     /* Overlay + FX (كما هي) */
     .overlay{
@@ -567,7 +609,7 @@
     <div class="topbar">
       <div class="brand">
         <div class="logo">
-          <!-- ✅ تصحيح اللوغو -->
+          <!-- ✅ اللوغو الجديد -->
           <img src="/public/logo.png" alt="MRP Logo" />
         </div>
         <div class="brandTxt">
@@ -596,7 +638,6 @@
           <div class="subtxt" id="sumHint">—</div>
         </div>
 
-        <!-- ✅ أفقي + مصغّر -->
         <div class="summary">
           <div class="sum">
             <b>المكتملة</b>
@@ -623,9 +664,10 @@
     </div>
   </div>
 
+  <!-- ✅ Bottom Nav (PRO + SVG + سميات) -->
   <div class="nav">
     <div class="navInner">
-      <a href="/home" class="navbtn" id="navHome">
+      <a href="/home" class="navbtn" id="navHome" aria-label="الرئيسية">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M3 10.5l9-7 9 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M5 9.8V20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.8" stroke="currentColor" stroke-width="2" opacity=".85"/>
@@ -633,7 +675,7 @@
         <small>الرئيسية</small>
       </a>
 
-      <a href="/tasks" class="navbtn" id="navTasks">
+      <a href="/tasks" class="navbtn" id="navTasks" aria-label="المهام">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M9 11l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M7 4h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2" opacity=".85"/>
@@ -641,7 +683,7 @@
         <small>المهام</small>
       </a>
 
-      <a href="/profile" class="navbtn" id="navProfile">
+      <a href="/profile" class="navbtn" id="navProfile" aria-label="بروفايل">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12z" stroke="currentColor" stroke-width="2"/>
@@ -650,7 +692,7 @@
       </a>
 
       <form method="post" action="/logout">
-        <button type="submit" class="navbtn danger" style="width:100%; border:none;">
+        <button type="submit" class="navbtn danger" style="width:100%; border:none;" aria-label="خروج">
           <svg viewBox="0 0 24 24" fill="none">
             <path d="M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             <path d="M10 12h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -989,10 +1031,15 @@
     }
 
     (function setActiveNav(){
-      const p = location.pathname;
-      if(p==="/tasks") document.getElementById("navTasks").classList.add("active");
-      if(p==="/home" || p==="/") document.getElementById("navHome").classList.add("active");
-      if(p==="/profile") document.getElementById("navProfile").classList.add("active");
+      const p = location.pathname || "/";
+      const home = document.getElementById("navHome");
+      const tasks = document.getElementById("navTasks");
+      const profile = document.getElementById("navProfile");
+      if(!home || !tasks || !profile) return;
+
+      if(p === "/" || p === "/home") home.classList.add("active");
+      else if(p === "/tasks" || p.startsWith("/tasks/")) tasks.classList.add("active");
+      else if(p === "/profile" || p.startsWith("/profile/")) profile.classList.add("active");
     })();
 
     load().catch(e=>toast(e.message));

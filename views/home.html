@@ -40,7 +40,75 @@
       overflow-x:hidden;
       padding-bottom: calc(86px + env(safe-area-inset-bottom));
     }
+/* ===============================
+   MOBILE STYLE BOTTOM NAV
+   =============================== */
 
+.nav{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4000;
+  background: #ffffff;
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+
+.navInner{
+  max-width:900px;
+  margin:0 auto;
+  display:flex;
+  justify-content:space-around;
+  align-items:flex-start;
+  padding: 14px 6px 18px;
+}
+
+/* الزر */
+.navbtn{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:6px;
+
+  background: none;
+  border:none;
+  text-decoration:none;
+  color:#6b7280;
+
+  font-weight:700;
+}
+
+/* الأيقونة */
+.navbtn svg{
+  width:34px;
+  height:34px;
+  stroke-width:2;
+  color:#9ca3af;
+}
+
+/* النص */
+.navbtn small{
+  font-size:12px;
+  color:#6b7280;
+}
+
+/* العنصر النشيط */
+.navbtn.active svg{
+  color:#2563eb;
+}
+
+.navbtn.active small{
+  color:#2563eb;
+  font-weight:800;
+}
+
+/* زر الخروج */
+.navbtn.danger svg,
+.navbtn.danger small{
+  color:#ef4444;
+}
     /* ---------- Toast ---------- */
     .toast{
       position:fixed;
