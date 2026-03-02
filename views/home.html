@@ -168,16 +168,16 @@
     }
     .subtxt{font-size:11px;color: var(--muted2);line-height:1.5;}
 
-    /* ---------- KPIs ---------- */
+    /* ==========================================================
+       ✅ KPIs (نظرة سريعة) — مصغرة + أفقية (التعديل الوحيد هنا)
+       ========================================================== */
     .kpis{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      display:flex;
       gap:10px;
     }
-    @media(max-width: 520px){
-      .kpis{grid-template-columns: 1fr}
-    }
     .kpi{
+      flex: 1 1 0;
+      min-width: 0;
       background: var(--card2);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: var(--r20);
@@ -191,12 +191,27 @@
       display:flex;align-items:center;justify-content:center;
       border:1px solid rgba(255,255,255,.16);
       background: rgba(255,255,255,.08);
-      box-shadow: 0 10px 22px rgba(0,0,0,.16);
+      box-shadow: 0 10px 20px rgba(0,0,0,.16);
       flex:0 0 auto;
     }
     .kpiIcon svg{width:16px;height:16px;opacity:.95}
     .kpiNum{font-size: 22px;font-weight: 950;margin-top: 6px;line-height:1;}
     .kpiLbl{font-size: 11px;color: var(--muted);margin-top: 5px;}
+
+    /* موبايل: تبقى أفقية لكن كتولي قابلة للسكرول */
+    @media(max-width: 520px){
+      .kpis{
+        overflow-x:auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        gap:8px;
+      }
+      .kpi{
+        flex: 0 0 78%;
+      }
+      .kpiNum{font-size: 20px;}
+      .kpiIcon{width:32px;height:32px;}
+    }
 
     /* ---------- Shortcuts ---------- */
     .shortcutsWrap{
@@ -501,6 +516,7 @@
           </div>
 
           <div class="shortcuts">
+            <!-- ✅ خليت هادو كيف ما كانو (deposit / withdraw) -->
             <div class="sc deposit" onclick="location.href='/deposit'">
               <div class="scIcon">
                 <svg viewBox="0 0 24 24" fill="none">
@@ -536,7 +552,6 @@
               <div class="scSub" id="scOpsCount">0 عملية</div>
             </div>
 
-            <!-- ✅ زر الدعوة (واجهة فقط) -->
             <div class="sc invite" onclick="openInvite()">
               <div class="scIcon">
                 <svg viewBox="0 0 24 24" fill="none">
@@ -549,7 +564,6 @@
               <div class="scLabel">دعوة</div>
               <div class="scSub" id="scInviteCode">رابط خاص</div>
             </div>
-
           </div>
         </div>
 
@@ -646,7 +660,7 @@
     </div>
   </div>
 
-  <!-- ✅ Invite Modal -->
+  <!-- Invite Modal -->
   <div id="inviteModal">
     <div id="inviteBackdrop" onclick="closeInvite()"></div>
     <div class="inviteBox">
@@ -799,7 +813,6 @@
 
     // ---------- Invite (واجهة فقط) ----------
     function makeInviteCodeFromMe(me){
-      // نولد Code ثابت نسبيا من id/name (بدون سيرفر)
       const id = (me?.user?.id ?? "").toString();
       const name = (me?.user?.full_name ?? "").toString();
       const base = (id ? ("U"+id) : (name ? name : "MRP")) + "-" + Date.now().toString(36).slice(-4);
@@ -807,8 +820,6 @@
     }
 
     function buildInviteUrl(){
-      // رابط share: نفس الدومين + /register?ref=CODE
-      // إلى ماعندكش /register فالسيرفر ماشي مشكل: غير مشاركة
       const origin = location.origin;
       return `${origin}/register?ref=${encodeURIComponent(INVITE_CODE)}`;
     }
@@ -892,7 +903,6 @@
         document.getElementById("secure").textContent = "OK";
         document.getElementById("statusTxt").textContent = "متصل ✅";
 
-        // Invite code (واجهة فقط) مبني على المستخدم
         INVITE_CODE = makeInviteCodeFromMe(me);
         const scInviteCode = document.getElementById("scInviteCode");
         if(scInviteCode) scInviteCode.textContent = INVITE_CODE;
@@ -901,7 +911,6 @@
         document.getElementById("statusTxt").textContent = "غير متصل ❗";
         toast("وقع مشكل فـ /api/me");
 
-        // fallback invite
         INVITE_CODE = "MRP-" + Math.random().toString(36).slice(2,8).toUpperCase();
         const scInviteCode = document.getElementById("scInviteCode");
         if(scInviteCode) scInviteCode.textContent = INVITE_CODE;

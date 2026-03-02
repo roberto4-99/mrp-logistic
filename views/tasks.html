@@ -45,7 +45,6 @@
       padding-bottom: calc(92px + env(safe-area-inset-bottom));
     }
 
-    /* ---------- Toast ---------- */
     .toast{
       position:fixed;
       left:16px;
@@ -64,14 +63,12 @@
     }
     .toast.show{display:block}
 
-    /* ---------- Wrap ---------- */
     .wrap{
       max-width:1100px;
       margin:0 auto;
       padding:16px;
     }
 
-    /* ---------- Topbar ---------- */
     .topbar{
       display:flex;
       align-items:center;
@@ -92,8 +89,8 @@
       min-width:0;
     }
     .logo{
-      width:46px;
-      height:46px;
+      width:42px;
+      height:42px;
       border-radius: 16px;
       overflow:hidden;
       background: rgba(255,255,255,.08);
@@ -109,7 +106,7 @@
     .brandTxt{min-width:0}
     .appName{
       font-weight: 950;
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.1;
       white-space:nowrap;
       overflow:hidden;
@@ -134,7 +131,7 @@
       display:flex;
       align-items:center;
       gap:8px;
-      padding:10px 12px;
+      padding:9px 11px;
       border-radius: 999px;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.16);
@@ -145,7 +142,6 @@
       user-select:none;
     }
 
-    /* ---------- Content cards ---------- */
     .grid{
       display:grid;
       gap:14px;
@@ -170,7 +166,7 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .cardTitle h2{
       margin:0;
@@ -184,41 +180,53 @@
       line-height:1.5;
     }
 
-    /* ---------- Summary ---------- */
+    /* ✅✅ ملخص اليوم: أفقي + أصغر */
     .summary{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:12px;
-    }
-    @media(max-width: 520px){
-      .summary{grid-template-columns:1fr}
-    }
-    .sum{
-      background: var(--card2);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: var(--r20);
-      padding: 14px;
-      position:relative;
+      display:flex;
+      gap:10px;
       overflow:hidden;
     }
-    .sum b{font-weight:950}
+    .sum{
+      flex:1 1 0;
+      min-width:0;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 22px;
+      padding: 12px 12px;
+      position:relative;
+      overflow:hidden;
+      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+    }
+    .sum b{
+      display:block;
+      font-weight:950;
+      font-size:13px;
+      opacity:.95;
+    }
     .sum .n{
-      font-size: 26px;
-      font-weight: 950;
+      font-size: 28px;
+      font-weight: 1000;
       margin-top: 8px;
       line-height:1;
+      letter-spacing:.3px;
     }
     .sum .t{
       font-size: 12px;
       color: var(--muted);
       margin-top: 6px;
+      opacity:.9;
     }
 
-    /* ---------- Task items ---------- */
-    .tasks{
-      display:grid;
-      gap:10px;
+    /* ✅ على الشاشات الصغيرة نخليهم ما يزالو أفقي لكن أصغر */
+    @media(max-width:520px){
+      .summary{gap:8px}
+      .sum{padding:10px 10px; border-radius:20px}
+      .sum .n{font-size:24px}
+      .sum b{font-size:12px}
+      .sum .t{font-size:11px}
     }
+
+    .tasks{display:grid;gap:10px}
     .task{
       display:flex;
       align-items:center;
@@ -230,12 +238,7 @@
       border: 1px solid rgba(255,255,255,.10);
     }
 
-    .left{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
+    .left{display:flex;align-items:center;gap:12px;min-width:0}
 
     .dot{
       width:12px;height:12px;border-radius:50%;
@@ -295,7 +298,7 @@
       white-space:nowrap;
     }
 
-    /* ---------- Bottom Nav (same as home) ---------- */
+    /* Bottom Nav */
     .nav{
       position: fixed;
       left: 0;
@@ -360,7 +363,7 @@
     }
     .nav form{margin:0}
 
-    /* ========= Smart Overlay (kept, improved) ========= */
+    /* Overlay + FX (كما هي) */
     .overlay{
       position:fixed; inset:0;
       display:none;
@@ -424,11 +427,7 @@
       filter: drop-shadow(0 16px 30px rgba(0,0,0,.35));
       display:block;
     }
-    .ringTrack{
-      stroke: rgba(255,255,255,.10);
-      stroke-width:10;
-      fill:none;
-    }
+    .ringTrack{stroke: rgba(255,255,255,.10);stroke-width:10;fill:none}
     .ringProg{
       stroke: url(#grad);
       stroke-width:10;
@@ -527,15 +526,8 @@
       transform: scale(1);
       transition: opacity .18s ease, transform .18s ease;
     }
-    .checkSvg{
-      width:120px;height:120px;
-      filter: drop-shadow(0 20px 40px rgba(0,0,0,.35));
-    }
-    .checkCircle{
-      stroke: rgba(255,215,0,.25);
-      stroke-width:6;
-      fill:none;
-    }
+    .checkSvg{width:120px;height:120px;filter: drop-shadow(0 20px 40px rgba(0,0,0,.35))}
+    .checkCircle{stroke: rgba(255,215,0,.25);stroke-width:6;fill:none}
     .checkPath{
       stroke: #facc15;
       stroke-width:10;
@@ -572,14 +564,11 @@
   <div class="toast" id="toast"></div>
 
   <div class="wrap">
-    <!-- Topbar -->
     <div class="topbar">
       <div class="brand">
         <div class="logo">
-          <img
-            src="/public/logo.png" alt="MRP Logo">"
-            alt="MRP Logo"
-          />
+          <!-- ✅ تصحيح اللوغو -->
+          <img src="/public/logo.png" alt="MRP Logo" />
         </div>
         <div class="brandTxt">
           <div class="appName">MRP Logistic</div>
@@ -593,23 +582,21 @@
     </div>
 
     <div class="grid">
-      <!-- Left -->
       <div class="card">
         <div class="cardTitle">
           <h2>قائمة المهام</h2>
           <div class="subtxt">مهمة واحدة في كل مرة، وكي تكمّل كتتحلّ اللي من بعدها</div>
         </div>
-
         <div class="tasks" id="tasks"></div>
       </div>
 
-      <!-- Right -->
       <div class="card">
         <div class="cardTitle">
           <h2>ملخص اليوم</h2>
           <div class="subtxt" id="sumHint">—</div>
         </div>
 
+        <!-- ✅ أفقي + مصغّر -->
         <div class="summary">
           <div class="sum">
             <b>المكتملة</b>
@@ -631,14 +618,11 @@
         </div>
 
         <div style="height:12px"></div>
-        <div class="subtxt">
-          نصيحة: إلا بان “مقفلة”، كمّل المهمة المتاحة أولاً.
-        </div>
+        <div class="subtxt">نصيحة: إلا بان “مقفلة”، كمّل المهمة المتاحة أولاً.</div>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Navigation -->
   <div class="nav">
     <div class="navInner">
       <a href="/home" class="navbtn" id="navHome">
@@ -678,11 +662,9 @@
     </div>
   </div>
 
-  <!-- FX -->
   <canvas id="fx"></canvas>
   <div class="flash" id="flash"></div>
 
-  <!-- Smart Overlay -->
   <div class="overlay" id="overlay" aria-hidden="true">
     <div class="center">
       <div class="halo">
@@ -767,7 +749,6 @@
       }[m]));
     }
 
-    // Ring
     const ring = document.getElementById("ringProg");
     const R = 46;
     const C = 2 * Math.PI * R;
@@ -779,7 +760,6 @@
       ring.style.strokeDashoffset = String(C * (1 - pct));
     }
 
-    // Overlay
     const overlay = document.getElementById("overlay");
     const secEl = document.getElementById("sec");
     const hintEl = document.getElementById("hint");
@@ -787,7 +767,6 @@
     const flash = document.getElementById("flash");
     const checkWrap = document.getElementById("checkWrap");
 
-    // FX canvas
     const fx = document.getElementById("fx");
     const ctx = fx.getContext("2d");
     let raf = null, runningFX = false;
@@ -933,7 +912,6 @@
       hintEl.textContent = "تمت المهمة بنجاح ✅";
     }
 
-    // ---- Load tasks
     async function load(){
       const r = await api("/api/tasks");
       const rows = (r.rows || []);
@@ -949,18 +927,15 @@
       document.getElementById("next").textContent = nextTask ? (nextTask.order_index || "—") : "—";
       document.getElementById("sumHint").textContent = nextTask ? `المهمة المتاحة: ${nextTask.title}` : "لا توجد مهمة متاحة الآن";
 
-      // Wait pill: خد wait_seconds من المهمة المتاحة (ولا من أول مهمة)
       const w = (nextTask && nextTask.wait_seconds) ? nextTask.wait_seconds : (rows[0]?.wait_seconds || 10);
       document.getElementById("waitPill").textContent = `⏱️ انتظار ${Number(w)} ثانية لكل مهمة`;
     }
 
-    // IMPORTANT: keep server as-is: start ignores taskId like your backend
     async function startTask(taskId){
       try{
         const r = await api("/api/tasks/start","POST",{});
         currentRun = r.run_token;
 
-        // get title of available task from /api/tasks (same as your logic)
         const list = await api("/api/tasks");
         const av = (list.rows||[]).find(x=>x.status==="available") || {};
         const title = av.title || "مهمة جديدة";
@@ -996,7 +971,6 @@
     async function finishTask(){
       try{
         await api("/api/tasks/finish","POST",{ run_token: currentRun });
-
         completeFX();
 
         setTimeout(async ()=>{
@@ -1014,7 +988,6 @@
       }
     }
 
-    // Active nav highlight
     (function setActiveNav(){
       const p = location.pathname;
       if(p==="/tasks") document.getElementById("navTasks").classList.add("active");
@@ -1022,7 +995,6 @@
       if(p==="/profile") document.getElementById("navProfile").classList.add("active");
     })();
 
-    // Start
     load().catch(e=>toast(e.message));
   </script>
 </body>
