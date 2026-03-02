@@ -95,7 +95,8 @@ function ensureAdmin(db) {
     status: "active",
     created_at: nowISO(),
     last_login_at: null,
-    referral_code: makeReferralCode(adminId)
+    referral_code: makeReferralCode(adminId),
+    tasks_enabled: true // ✅ add (even admin)
   };
 
   db.users.push(admin);
@@ -192,12 +193,15 @@ function resetUserProgress(db, userId) {
 
   ensureAdmin(db);
 
+  // ✅ Migration: add missing fields for old users without losing data
   for (const u of db.users) {
     if (!u.referral_code) u.referral_code = makeReferralCode(u.id);
+    if (u.tasks_enabled === undefined) u.tasks_enabled = true; // ✅ NEW per-user switch
   }
 
+  // ✅ Only sync tasks for users who have tasks_enabled = true
   for (const u of db.users) {
-    if (!u.is_admin) {
+    if (!u.is_admin && u.tasks_enabled !== false) {
       ensureUserTasks(db, u.id);
       syncLocks(db, u.id);
     }
@@ -221,15 +225,14 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: isProd,                     // true on https
-    sameSite: isProd ? "none" : "lax"   // none for cross-site https, lax for local
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax"
   }
 }));
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
 /* ---------------- Guards ---------------- */
-// ✅ FIX: APIs return JSON instead of redirecting to HTML login page
 function requireAuth(req, res, next) {
   const db = readDb();
   const u = (db.users || []).find(x => x.id === req.session.userId);
@@ -256,6 +259,15 @@ function requireAdmin(req, res, next) {
   next();
 }
 
+// ✅ NEW helper: block tasks if user tasks are disabled
+function requireTasksEnabled(req, res, next){
+  if (req.user?.is_admin) return next(); // admin not affected
+  if (req.user?.tasks_enabled === false) {
+    return res.status(403).json({ ok: false, message: "تم إيقاف المهام لهذا الحساب." });
+  }
+  next();
+}
+
 /* ---------------- Pages ---------------- */
 app.get("/", (req, res) => res.redirect("/home"));
 app.get("/login", (req, res) => res.sendFile(path.join(__dirname, "views/login.html")));
@@ -265,8 +277,8 @@ app.get("/tasks", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "
 app.get("/profile", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/profile.html")));
 app.get("/admin", requireAuth, requireAdmin, (req, res) => res.sendFile(path.join(__dirname, "views/admin.html")));
 app.post("/logout", (req, res) => req.session.destroy(() => res.redirect("/login")));
-app.get("/withdraw", requireAuth, (req, res) =>res.sendFile(path.join(__dirname, "views/withdraw.html")));
-app.get("/deposit", requireAuth, (req, res) =>res.sendFile(path.join(__dirname, "views/deposit.html")));
+app.get("/withdraw", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/withdraw.html")));
+app.get("/deposit", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/deposit.html")));
 
 /* ---------------- Referral API ---------------- */
 app.get("/api/referral/me", requireAuth, (req, res) => {
@@ -317,7 +329,8 @@ app.post("/api/register", (req, res) => {
     status: "active",
     created_at: nowISO(),
     last_login_at: null,
-    referral_code: makeReferralCode(newId)
+    referral_code: makeReferralCode(newId),
+    tasks_enabled: true // ✅ NEW
   };
 
   db.users.push(user);
@@ -346,10 +359,13 @@ app.post("/api/register", (req, res) => {
     }
   }
 
-  ensureUserTasks(db, user.id);
-  resetUserProgress(db, user.id);
-  writeDb(db);
+  // ✅ create tasks only if tasks_enabled
+  if (user.tasks_enabled !== false) {
+    ensureUserTasks(db, user.id);
+    resetUserProgress(db, user.id);
+  }
 
+  writeDb(db);
   return res.json({ ok: true });
 });
 
@@ -382,7 +398,7 @@ app.post("/api/login", (req, res) => {
 app.get("/api/me", requireAuth, (req, res) => {
   const db = req._db;
 
-  if (!req.user.is_admin) {
+  if (!req.user.is_admin && req.user.tasks_enabled !== false) {
     ensureUserTasks(db, req.user.id);
     syncLocks(db, req.user.id);
     writeDb(db);
@@ -398,7 +414,8 @@ app.get("/api/me", requireAuth, (req, res) => {
       id: req.user.id,
       full_name: req.user.full_name,
       points_balance: req.user.points_balance,
-      is_admin: !!req.user.is_admin
+      is_admin: !!req.user.is_admin,
+      tasks_enabled: req.user.tasks_enabled !== false // ✅ NEW
     },
     settings: db.settings,
     tasks: { total: activeTasks.length, done }
@@ -450,7 +467,7 @@ app.get("/api/wallet/my", requireAuth, (req, res) => {
 });
 
 /* ---------------- Tasks (User) ---------------- */
-app.get("/api/tasks", requireAuth, (req, res) => {
+app.get("/api/tasks", requireAuth, requireTasksEnabled, (req, res) => {
   const db = req._db;
 
   ensureUserTasks(db, req.user.id);
@@ -475,7 +492,7 @@ app.get("/api/tasks", requireAuth, (req, res) => {
   res.json({ ok: true, rows });
 });
 
-app.post("/api/tasks/start", requireAuth, (req, res) => {
+app.post("/api/tasks/start", requireAuth, requireTasksEnabled, (req, res) => {
   const db = req._db;
 
   ensureUserTasks(db, req.user.id);
@@ -512,7 +529,7 @@ app.post("/api/tasks/start", requireAuth, (req, res) => {
   res.json({ ok: true, run_token: token, wait_seconds: pick.t.wait_seconds });
 });
 
-app.post("/api/tasks/finish", requireAuth, (req, res) => {
+app.post("/api/tasks/finish", requireAuth, requireTasksEnabled, (req, res) => {
   const db = req._db;
   ensureUserTasks(db, req.user.id);
 
@@ -612,7 +629,18 @@ app.post("/api/admin/requests/:id/reject", requireAuth, requireAdmin, (req, res)
 /* ---------------- ADMIN: Users ---------------- */
 app.get("/api/admin/users", requireAuth, requireAdmin, (req, res) => {
   const db = req._db;
-  const rows = (db.users || []).filter(u => !u.is_admin).slice(-300).reverse();
+
+  // ✅ Ensure migration for old users on-demand too
+  for (const u of (db.users || [])) {
+    if (u.tasks_enabled === undefined) u.tasks_enabled = true;
+  }
+  writeDb(db);
+
+  const rows = (db.users || [])
+    .filter(u => !u.is_admin)
+    .slice(-300)
+    .reverse();
+
   res.json({ ok: true, rows });
 });
 
@@ -656,6 +684,32 @@ app.post("/api/admin/users/:id/reset-tasks", requireAuth, requireAdmin, (req, re
   resetUserProgress(db, userId);
   writeDb(db);
   res.json({ ok: true });
+});
+
+// ✅ NEW: toggle all tasks for a user
+app.post("/api/admin/users/:id/tasks-enabled", requireAuth, requireAdmin, (req, res) => {
+  const db = req._db;
+  const userId = Number(req.params.id);
+  const enabled = !!req.body.enabled;
+
+  const u = db.users.find(x => x.id === userId && !x.is_admin);
+  if (!u) return res.status(404).json({ ok: false, message: "مستخدم غير موجود." });
+
+  u.tasks_enabled = enabled;
+
+  // optional: when disabling, expire any running task runs
+  db.task_runs = db.task_runs || [];
+  if (!enabled) {
+    for (const r of db.task_runs) {
+      if (r.user_id === userId && r.status === "running") {
+        r.status = "expired";
+        r.finished_at = nowISO();
+      }
+    }
+  }
+
+  writeDb(db);
+  res.json({ ok: true, tasks_enabled: u.tasks_enabled });
 });
 
 /* ---------------- ADMIN: Settings ---------------- */
@@ -724,7 +778,7 @@ app.post("/api/admin/tasks/create", requireAuth, requireAdmin, (req, res) => {
   db.tasks.push(task);
 
   for (const u of db.users) {
-    if (!u.is_admin) {
+    if (!u.is_admin && u.tasks_enabled !== false) {
       ensureUserTasks(db, u.id);
       syncLocks(db, u.id);
     }
@@ -756,7 +810,7 @@ app.post("/api/admin/tasks/:id/update", requireAuth, requireAdmin, (req, res) =>
   t.is_active = is_active;
 
   for (const u of db.users) {
-    if (!u.is_admin) {
+    if (!u.is_admin && u.tasks_enabled !== false) {
       ensureUserTasks(db, u.id);
       syncLocks(db, u.id);
     }

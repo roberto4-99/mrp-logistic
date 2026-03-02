@@ -97,7 +97,7 @@
       -webkit-backdrop-filter: blur(18px);
     }
 
-    /* ---------- Topbar (NEW) ---------- */
+    /* ---------- Topbar ---------- */
     .topbar{
       max-width:1320px;
       margin:16px auto 0;
@@ -126,6 +126,7 @@
       display:flex;align-items:center;justify-content:center;
       color:#031018;font-weight:1000;
       flex:0 0 auto;
+      overflow:hidden;
     }
     .mark img{width:100%;height:100%;object-fit:cover;display:block}
     .topTxt{min-width:0}
@@ -431,7 +432,7 @@
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:860px;
+      min-width:1100px;
     }
     th, td{
       padding:12px;
@@ -483,7 +484,129 @@
       justify-content:flex-start;
     }
 
-    /* ---------- Bottom nav (keep like your app) ---------- */
+    /* ---------- Switch ---------- */
+    .sw{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .switch{
+      position:relative;
+      width:54px;
+      height:30px;
+      border-radius:999px;
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow: 0 10px 20px rgba(0,0,0,.18);
+      cursor:pointer;
+      transition: background .2s ease, border-color .2s ease, filter .2s ease;
+    }
+    .switch input{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }
+    .knob{
+      position:absolute;
+      top:3px;
+      right:3px;
+      width:24px;
+      height:24px;
+      border-radius:999px;
+      background: rgba(255,255,255,.88);
+      transition: transform .18s ease;
+      box-shadow: 0 10px 18px rgba(0,0,0,.20);
+    }
+    .switch.on{
+      background: rgba(34,197,94,.22);
+      border-color: rgba(34,197,94,.35);
+    }
+    .switch.on .knob{
+      transform: translateX(-24px); /* RTL */
+      background: rgba(255,255,255,.96);
+    }
+    .sw small{
+      font-size:12px;
+      color: var(--muted);
+      font-weight:1000;
+    }
+
+    /* ---------- Schedule mini UI ---------- */
+    .dtMini{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-start;
+      flex-wrap:wrap;
+    }
+    .dtMini input[type="datetime-local"]{
+      width: 190px;
+      max-width: 100%;
+      padding:9px 10px;
+      border-radius: var(--r16);
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.35);
+      color:#fff;
+      outline:none;
+      font-size:12px;
+    }
+    .miniBtn{
+      border:none;
+      cursor:pointer;
+      padding:9px 10px;
+      border-radius:999px;
+      font-weight:1000;
+      font-size:12px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff;
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+    }
+    .miniBtn:hover{background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.20)}
+    .miniBtn:active{transform: translateY(1px) scale(.99)}
+    .miniBtn.ok{background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.30)}
+    .miniBtn.bad{background: rgba(239,68,68,.16); border-color: rgba(239,68,68,.32)}
+    .miniBtn.warn{background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.30)}
+
+    /* ---------- Schedule panel list ---------- */
+    .schedBox{
+      margin-top:14px;
+      border-radius: var(--r28);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      padding:12px;
+    }
+    .schedHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .schedHead b{font-size:13px;font-weight:1000}
+    .schedList{
+      margin-top:10px;
+      display:grid;
+      gap:8px;
+    }
+    .schedRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .schedRow .l{min-width:0}
+    .schedRow .l b{display:block;font-size:12px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .schedRow .l span{display:block;font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .schedRow .r{display:flex;gap:8px;align-items:center;flex:0 0 auto}
+
+    /* ---------- Bottom nav ---------- */
     .nav{
       position:fixed;left:0;right:0;bottom:0;
       background:rgba(0,0,0,.65);
@@ -511,7 +634,6 @@
     .nav .txt{font-size:11px;opacity:.9}
     .nav form{margin:0}
 
-    /* mobile: show sidebar tabs horizontal */
     @media(max-width:1060px){
       .topbar{padding:0 14px}
       .page{padding:14px}
@@ -530,7 +652,7 @@
 <body>
   <div class="toast" id="toast"></div>
 
-  <!-- ✅ NEW TOPBAR -->
+  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbarInner">
       <div class="topLeft">
@@ -592,7 +714,7 @@
             <div class="tabIco">✅</div>
             <div class="tabTxt">
               <b>المهام</b>
-              <span>تعديل/إضافة/تعطيل</span>
+              <span>تعديل/إضافة/تعطيل + جدولة</span>
             </div>
           </div>
           <div class="countPill" id="taskCount">—</div>
@@ -603,7 +725,7 @@
             <div class="tabIco">👤</div>
             <div class="tabTxt">
               <b>المستخدمون</b>
-              <span>نقاط + كلمة سر</span>
+              <span>نقاط + كلمة سر + مهام</span>
             </div>
           </div>
           <div class="countPill" id="userCount">—</div>
@@ -714,10 +836,14 @@
           <div class="secHeader">
             <div>
               <div class="title">✅ التحكم في المهام</div>
-              <div class="desc">تغيير اسم المهمة + المكافأة + مدة الانتظار + تفعيل/إيقاف. ثم حفظ لكل سطر.</div>
+              <div class="desc">
+                سويتش فتح/غلق (is_active) + حفظ لكل سطر + فتح/غلق الكل + جدولة فتح/غلق بتاريخ/ساعة (محفوظة فمتصفح الأدمن).
+              </div>
             </div>
             <div class="secTools">
               <button class="btnX ghost" onclick="loadTasks()">🔄 تحديث</button>
+              <button class="btnX ghost" onclick="openAllTasks()">🔓 فتح الكل</button>
+              <button class="btnX danger" onclick="closeAllTasks()">🔒 غلق الكل</button>
             </div>
           </div>
 
@@ -725,11 +851,31 @@
             <table>
               <thead>
                 <tr>
-                  <th>#</th><th>العنوان</th><th>Reward</th><th>Wait(s)</th><th>Active</th><th>حفظ</th>
+                  <th>#</th>
+                  <th>العنوان</th>
+                  <th>Reward</th>
+                  <th>Wait(s)</th>
+                  <th>الحالة</th>
+                  <th>جدولة</th>
+                  <th>حفظ</th>
                 </tr>
               </thead>
               <tbody id="tasks"></tbody>
             </table>
+          </div>
+
+          <div class="schedBox">
+            <div class="schedHead">
+              <b>⏰ الجدولة الحالية (Browser)</b>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
+                <button class="miniBtn warn" onclick="runDueSchedules()">⚡ نفّذ اللي فات</button>
+                <button class="miniBtn bad" onclick="clearAllSchedules()">🧹 مسح الكل</button>
+              </div>
+            </div>
+            <div class="muted" style="margin-top:6px;line-height:1.7">
+              ملاحظة: هاد الجدولة كتتخزن فـ localStorage ديال المتصفح ديال الأدمن فقط.
+            </div>
+            <div class="schedList" id="schedList"></div>
           </div>
 
           <div style="height:14px"></div>
@@ -767,7 +913,7 @@
           <div class="secHeader">
             <div>
               <div class="title">👤 المستخدمون</div>
-              <div class="desc">تغيير النقاط + إعادة تعيين كلمة السر. يمكنك تستعمل بحث سريع من اليسار.</div>
+              <div class="desc">تغيير النقاط + إعادة تعيين كلمة السر + زر تشغيل/إيقاف جميع المهام لكل مستخدم.</div>
             </div>
             <div class="secTools">
               <button class="btnX ghost" onclick="loadUsers()">🔄 تحديث</button>
@@ -782,6 +928,7 @@
                   <th>الاسم</th>
                   <th>تواصل</th>
                   <th>نقاط</th>
+                  <th>المهام</th>
                   <th>كلمة سر جديدة</th>
                   <th>حفظ</th>
                 </tr>
@@ -830,7 +977,6 @@
       return '<span class="tag warn">Pending</span>';
     }
 
-    // ✅ Fix: formatUsd was missing in your code
     function formatUsd(n){
       const x = Number(n);
       if(!Number.isFinite(x)) return "-";
@@ -852,13 +998,12 @@
       const map = {
         settings:{t:"الإعدادات", d:"تحكم في التحويل + الحد الأدنى + وسائل التواصل."},
         requests:{t:"طلبات Pending", d:"موافقة أو رفض الطلبات بسرعة."},
-        tasks:{t:"التحكم في المهام", d:"تعديل/إضافة/تعطيل المهام بدون تغيير السيرفر."},
-        users:{t:"المستخدمون", d:"تغيير النقاط وإعادة تعيين كلمة السر."},
+        tasks:{t:"التحكم في المهام", d:"تعديل/إضافة/تعطيل + جدولة (بدون تغيير السيرفر)."},
+        users:{t:"المستخدمون", d:"تغيير النقاط + كلمة السر + تشغيل/إيقاف مهام المستخدم."},
       };
       if(mainTitle) mainTitle.textContent = map[key].t;
       if(mainDesc)  mainDesc.textContent  = map[key].d;
 
-      // update topbar subtitle
       const tbTitle = document.getElementById("tbTitle");
       const tbSub   = document.getElementById("tbSub");
       if(tbTitle) tbTitle.textContent = map[key].t;
@@ -965,6 +1110,140 @@
 
     // -------- TASKS ----------
     let CACHE_TASKS = [];
+
+    const SCHED_KEY = "mrp_task_schedules_v1";
+    let SCHED = [];
+    let SCHED_TIMERS = {};
+
+    function loadSchedFromLS(){
+      try{
+        const raw = localStorage.getItem(SCHED_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        SCHED = Array.isArray(arr) ? arr : [];
+      }catch(e){
+        SCHED = [];
+      }
+    }
+    function saveSchedToLS(){
+      localStorage.setItem(SCHED_KEY, JSON.stringify(SCHED));
+    }
+    function fmtLocal(dtMs){
+      const d = new Date(dtMs);
+      if(!Number.isFinite(d.getTime())) return "-";
+      return d.toLocaleString();
+    }
+    function taskTitleById(id){
+      const t = (CACHE_TASKS||[]).find(x => Number(x.id) === Number(id));
+      return t?.title || ("Task #" + id);
+    }
+
+    function renderSchedules(){
+      const box = document.getElementById("schedList");
+      if(!box) return;
+      box.innerHTML = "";
+
+      if(!SCHED.length){
+        box.innerHTML = `<div class="muted" style="padding:10px">لا توجد جدولة.</div>`;
+        return;
+      }
+
+      const sorted = [...SCHED].sort((a,b)=> (a.at_ms||0)-(b.at_ms||0));
+      for(const it of sorted){
+        const when = fmtLocal(it.at_ms);
+        const act = it.action === "open" ? "🔓 فتح" : "🔒 غلق";
+        box.insertAdjacentHTML("beforeend", `
+          <div class="schedRow">
+            <div class="l">
+              <b>${escapeHtml(taskTitleById(it.task_id))} • ${act}</b>
+              <span>${escapeHtml(when)} • id: ${escapeHtml(it.id)}</span>
+            </div>
+            <div class="r">
+              <button class="miniBtn warn" onclick="runOneSchedule('${it.id}')">⚡ تنفيذ</button>
+              <button class="miniBtn bad" onclick="removeSchedule('${it.id}')">🗑️ حذف</button>
+            </div>
+          </div>
+        `);
+      }
+    }
+
+    function removeSchedule(id){
+      SCHED = (SCHED||[]).filter(x => x.id !== id);
+      if(SCHED_TIMERS[id]) { clearTimeout(SCHED_TIMERS[id]); delete SCHED_TIMERS[id]; }
+      saveSchedToLS();
+      renderSchedules();
+      toast("تم حذف الجدولة ✅");
+    }
+
+    function clearAllSchedules(){
+      for(const k in SCHED_TIMERS){ clearTimeout(SCHED_TIMERS[k]); }
+      SCHED_TIMERS = {};
+      SCHED = [];
+      saveSchedToLS();
+      renderSchedules();
+      toast("تم مسح جميع الجدولة ✅");
+    }
+
+    async function setTaskActive(taskId, isActive){
+      return api(`/api/admin/tasks/${taskId}/update`, "POST", { is_active: !!isActive });
+    }
+
+    async function runOneSchedule(id){
+      const it = (SCHED||[]).find(x => x.id === id);
+      if(!it) return;
+
+      try{
+        await setTaskActive(it.task_id, it.action === "open");
+        toast("تم تنفيذ الجدولة ✅");
+      }catch(e){
+        toast(e.message || "فشل تنفيذ الجدولة");
+        return;
+      }
+
+      removeSchedule(id);
+      await loadTasks();
+    }
+
+    async function runDueSchedules(){
+      const now = Date.now();
+      const due = (SCHED||[]).filter(x => (x.at_ms||0) <= now);
+      if(!due.length){
+        return;
+      }
+      for(const it of due){
+        await runOneSchedule(it.id);
+      }
+    }
+
+    function scheduleTimers(){
+      for(const k in SCHED_TIMERS){ clearTimeout(SCHED_TIMERS[k]); }
+      SCHED_TIMERS = {};
+
+      const now = Date.now();
+      for(const it of (SCHED||[])){
+        const ms = (it.at_ms||0) - now;
+        if(ms <= 0) continue;
+        SCHED_TIMERS[it.id] = setTimeout(()=>runOneSchedule(it.id), Math.min(ms, 2147483000));
+      }
+    }
+
+    function addSchedule(taskId, action, dtValue){
+      if(!dtValue){
+        toast("حدد التاريخ والساعة");
+        return;
+      }
+      const at = new Date(dtValue).getTime();
+      if(!Number.isFinite(at)){
+        toast("تاريخ غير صالح");
+        return;
+      }
+      const id = String(Date.now()) + "-" + Math.floor(Math.random()*99999);
+      SCHED.push({ id, task_id: Number(taskId), action, at_ms: at });
+      saveSchedToLS();
+      renderSchedules();
+      scheduleTimers();
+      toast("تمت إضافة جدولة ✅");
+    }
+
     async function loadTasks(){
       setSync("🔄 تحميل المهام...");
       const r = await api("/api/admin/tasks");
@@ -973,27 +1252,72 @@
 
       const tb = document.getElementById("tasks");
       tb.innerHTML = "";
+
       for(const t of CACHE_TASKS){
+        const on = !!t.is_active;
         tb.innerHTML += `
           <tr data-row="task" data-search="${escapeHtml((t.title||"")+" "+t.id+" "+t.order_index)}">
-            <td><b>${t.order_index}</b></td>
+            <td><b>${t.order_index}</b><div class="muted">id: ${t.id}</div></td>
             <td><input class="miniInput" id="t_title_${t.id}" value="${escapeAttr(t.title)}"/></td>
             <td><input class="miniInput" type="number" min="0" id="t_reward_${t.id}" value="${t.reward_points}"/></td>
             <td><input class="miniInput" type="number" min="1" id="t_wait_${t.id}" value="${t.wait_seconds}"/></td>
+
             <td>
-              <select class="miniInput" id="t_active_${t.id}">
-                <option value="true" ${t.is_active ? "selected":""}>Yes</option>
-                <option value="false" ${!t.is_active ? "selected":""}>No</option>
-              </select>
+              <div class="sw">
+                <div class="switch ${on ? "on":""}" id="sw_${t.id}" onclick="toggleSwitch(${t.id})" title="فتح/غلق">
+                  <input type="checkbox" ${on ? "checked":""} aria-label="Active"/>
+                  <div class="knob"></div>
+                </div>
+                <small id="swlbl_${t.id}">${on ? "مفتوحة": "مغلقة"}</small>
+                <input type="hidden" id="t_active_${t.id}" value="${on ? "true":"false"}"/>
+              </div>
             </td>
+
             <td>
-              <button class="btnX ghost" onclick="saveTask(${t.id})">💾 حفظ</button>
+              <div class="dtMini">
+                <input type="datetime-local" id="dt_${t.id}" />
+                <button class="miniBtn ok" onclick="scheduleFromRow(${t.id}, 'open')">🔓 فتح</button>
+                <button class="miniBtn bad" onclick="scheduleFromRow(${t.id}, 'close')">🔒 غلق</button>
+              </div>
+              <div class="muted" style="margin-top:6px">كتتخزن فـ Browser</div>
+            </td>
+
+            <td>
+              <div class="rowBtns">
+                <button class="btnX ghost" onclick="saveTask(${t.id})">💾 حفظ</button>
+              </div>
             </td>
           </tr>
         `;
       }
+
       setSync("✅ تم التحديث");
       applySearch();
+
+      loadSchedFromLS();
+      renderSchedules();
+      scheduleTimers();
+    }
+
+    function toggleSwitch(id){
+      const sw = document.getElementById("sw_"+id);
+      const hid = document.getElementById("t_active_"+id);
+      const lbl = document.getElementById("swlbl_"+id);
+      if(!sw || !hid) return;
+
+      const isOn = sw.classList.contains("on");
+      const next = !isOn;
+
+      if(next) sw.classList.add("on");
+      else sw.classList.remove("on");
+
+      hid.value = next ? "true" : "false";
+      if(lbl) lbl.textContent = next ? "مفتوحة" : "مغلقة";
+    }
+
+    function scheduleFromRow(taskId, action){
+      const dt = document.getElementById("dt_"+taskId)?.value || "";
+      addSchedule(taskId, action, dt);
     }
 
     async function saveTask(id){
@@ -1005,8 +1329,40 @@
           is_active: document.getElementById(`t_active_${id}`).value === "true"
         });
         toast("تم تحديث المهمة ✅");
-        loadTasks();
+        await loadTasks();
       }catch(e){ toast(e.message || "وقع خطأ"); }
+    }
+
+    async function openAllTasks(){
+      if(!confirm("فتح جميع المهام؟")) return;
+      try{
+        setSync("🔓 فتح الكل...");
+        for(const t of (CACHE_TASKS||[])){
+          await api(`/api/admin/tasks/${t.id}/update`,"POST",{ is_active:true });
+        }
+        toast("تم فتح الكل ✅");
+        await loadTasks();
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+      }finally{
+        setSync("✅");
+      }
+    }
+
+    async function closeAllTasks(){
+      if(!confirm("غلق جميع المهام؟")) return;
+      try{
+        setSync("🔒 غلق الكل...");
+        for(const t of (CACHE_TASKS||[])){
+          await api(`/api/admin/tasks/${t.id}/update`,"POST",{ is_active:false });
+        }
+        toast("تم غلق الكل ✅");
+        await loadTasks();
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+      }finally{
+        setSync("✅");
+      }
     }
 
     async function createTask(){
@@ -1018,12 +1374,52 @@
         });
         toast("تمت إضافة مهمة ✅");
         document.getElementById("new_title").value = "";
-        loadTasks();
+        await loadTasks();
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
     // -------- USERS ----------
     let CACHE_USERS = [];
+
+    function setUserSwitchUI(userId, enabled){
+      const sw = document.getElementById("ut_sw_"+userId);
+      const lbl = document.getElementById("ut_lbl_"+userId);
+      const hid = document.getElementById("ut_val_"+userId);
+      if(!sw || !lbl || !hid) return;
+
+      if(enabled){
+        sw.classList.add("on");
+        lbl.textContent = "شغالة";
+        hid.value = "true";
+      }else{
+        sw.classList.remove("on");
+        lbl.textContent = "مطفية";
+        hid.value = "false";
+      }
+    }
+
+    async function toggleUserTasks(userId){
+      const hid = document.getElementById("ut_val_"+userId);
+      if(!hid) return;
+
+      const current = (hid.value === "true");
+      const next = !current;
+
+      // UI optimistic
+      setUserSwitchUI(userId, next);
+
+      try{
+        const r = await api(`/api/admin/users/${userId}/tasks-enabled`, "POST", { enabled: next });
+        // sync from server response
+        setUserSwitchUI(userId, r.tasks_enabled !== false);
+        toast(next ? "تم تشغيل المهام ✅" : "تم إيقاف المهام ✅");
+      }catch(e){
+        // rollback
+        setUserSwitchUI(userId, current);
+        toast(e.message || "وقع خطأ");
+      }
+    }
+
     async function loadUsers(){
       setSync("🔄 تحميل المستخدمين...");
       const users = await api("/api/admin/users");
@@ -1032,15 +1428,33 @@
 
       const us = document.getElementById("us");
       us.innerHTML = "";
+
       for(const u of CACHE_USERS){
         const contact = u.email || u.phone || "-";
+        const enabled = (u.tasks_enabled !== false);
+
         us.innerHTML += `
           <tr data-row="user" data-search="${escapeHtml((u.full_name||"")+" "+(u.id||"")+" "+contact)}">
-            <td><b>${u.id}</b></td>
+            <td><b>${escapeHtml(u.id)}</b></td>
             <td>${escapeHtml(u.full_name || "-")}</td>
             <td class="muted">${escapeHtml(contact)}</td>
-            <td><input class="miniInput" style="max-width:140px" id="p_${u.id}" value="${u.points_balance}"/></td>
+
+            <td><input class="miniInput" style="max-width:140px" id="p_${u.id}" value="${escapeAttr(u.points_balance)}"/></td>
+
+            <td>
+              <div class="sw">
+                <div class="switch ${enabled ? "on":""}" id="ut_sw_${u.id}" onclick="toggleUserTasks('${u.id}')" title="تشغيل/إيقاف جميع المهام">
+                  <input type="checkbox" ${enabled ? "checked":""} aria-label="Tasks enabled"/>
+                  <div class="knob"></div>
+                </div>
+                <small id="ut_lbl_${u.id}">${enabled ? "شغالة" : "مطفية"}</small>
+                <input type="hidden" id="ut_val_${u.id}" value="${enabled ? "true":"false"}"/>
+              </div>
+              <div class="muted" style="margin-top:6px">كتمنع /tasks و start/finish</div>
+            </td>
+
             <td><input class="miniInput" style="max-width:180px" id="pw_${u.id}" type="password" placeholder="كلمة سر جديدة"/></td>
+
             <td>
               <div class="rowBtns">
                 <button class="btnX ghost" onclick="setPoints('${u.id}')">💠 نقاط</button>
@@ -1050,6 +1464,7 @@
           </tr>
         `;
       }
+
       setSync("✅ تم التحديث");
       applySearch();
     }
@@ -1077,7 +1492,7 @@
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
-    // -------- SEARCH (front-end only) ----------
+    // -------- SEARCH ----------
     function applySearch(){
       const q = (document.getElementById("globalSearch")?.value || "").trim().toLowerCase();
       const rows = document.querySelectorAll('tr[data-search]');
@@ -1098,6 +1513,12 @@
     // -------- INIT ----------
     async function init(){
       openTab("settings");
+
+      loadSchedFromLS();
+      renderSchedules();
+      scheduleTimers();
+      await runDueSchedules();
+
       await loadSettings();
       await loadRequests();
       await loadTasks();
