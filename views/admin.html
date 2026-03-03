@@ -4,824 +4,519 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>MRP Logistic | Admin</title>
-  <link rel="stylesheet" href="/public/app.css"/>
 
   <style>
     :root{
-      --bg1:#020617;
-      --bg2:#071026;
-      --glass: rgba(255,255,255,.06);
-      --glass2: rgba(255,255,255,.10);
-      --border: rgba(255,255,255,.12);
-      --border2: rgba(255,255,255,.18);
-      --txt:#ffffff;
-      --muted: rgba(255,255,255,.72);
-      --muted2: rgba(255,255,255,.58);
-
-      --shadow: 0 24px 70px rgba(0,0,0,.45);
-      --shadow2: 0 14px 36px rgba(0,0,0,.28);
-
-      --grad: linear-gradient(135deg,#8b5cf6,#3b82f6);
-      --grad2: linear-gradient(135deg,#22c55e,#3b82f6);
-
-      --ok: rgba(34,197,94,.16);
-      --okb: rgba(34,197,94,.30);
-      --warn: rgba(245,158,11,.16);
-      --warnb: rgba(245,158,11,.30);
-      --bad: rgba(239,68,68,.16);
-      --badb: rgba(239,68,68,.32);
-
-      --r28:28px;
-      --r24:24px;
-      --r20:20px;
-      --r18:18px;
-      --r16:16px;
+      --bg:#0b1220;
+      --card:#101a2c;
+      --card2:#0f1a2a;
+      --line:rgba(255,255,255,.10);
+      --txt:#fff;
+      --muted:rgba(255,255,255,.70);
+      --muted2:rgba(255,255,255,.55);
+      --blue:#3b82f6;
+      --purple:#8b5cf6;
+      --green:#22c55e;
+      --red:#ef4444;
+      --amber:#f59e0b;
+      --shadow:0 18px 60px rgba(0,0,0,.35);
+      --r:18px;
+      --r2:14px;
     }
 
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      color:var(--txt);
       background:
-        radial-gradient(1100px 600px at 10% 10%, rgba(99,102,241,.22), transparent 60%),
-        radial-gradient(1000px 600px at 90% 15%, rgba(59,130,246,.18), transparent 62%),
-        radial-gradient(900px 600px at 70% 90%, rgba(34,197,94,.10), transparent 58%),
-        linear-gradient(180deg,var(--bg2),var(--bg1));
+        radial-gradient(900px 500px at 10% 10%, rgba(59,130,246,.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 15%, rgba(139,92,246,.14), transparent 60%),
+        linear-gradient(180deg,#0b1220,#070b14);
+      color:var(--txt);
       min-height:100vh;
-      overflow-x:hidden;
     }
 
-    /* ---------- Toast ---------- */
+    /* Topbar */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(12px);
+      background: rgba(7,11,20,.55);
+      border-bottom:1px solid var(--line);
+    }
+    .topinner{
+      max-width:1200px;
+      margin:auto;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .logo{
+      width:42px; height:42px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(135deg,var(--purple),var(--blue));
+      color:#0b1220; font-weight:1000;
+      box-shadow: var(--shadow);
+      flex:0 0 auto;
+    }
+    .btxt{min-width:0}
+    .btxt b{
+      display:block; font-size:14px; font-weight:1000;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .btxt span{
+      display:block; font-size:12px; color:var(--muted);
+      margin-top:2px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .btn{
+      border:none; cursor:pointer;
+      padding:9px 12px;
+      border-radius:999px;
+      font-weight:1000;
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--line);
+      color:#fff;
+      transition: transform .12s ease, filter .2s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{filter:brightness(1.05)}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg,var(--purple),var(--blue));
+      border-color: transparent;
+      color:#0b1220;
+    }
+    .btn.danger{
+      background: rgba(239,68,68,.14);
+      border-color: rgba(239,68,68,.30);
+    }
+
+    /* Layout */
+    .wrap{
+      max-width:1200px;
+      margin:auto;
+      padding:14px;
+      display:grid;
+      grid-template-columns: 280px 1fr;
+      gap:12px;
+    }
+    @media(max-width:980px){
+      .wrap{grid-template-columns:1fr}
+    }
+
+    .card{
+      background: rgba(16,26,44,.72);
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+    }
+
+    /* Sidebar */
+    .side{padding:12px}
+    .tabs{display:grid; gap:8px}
+    .tab{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      width:100%;
+      padding:12px;
+      border-radius: var(--r2);
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color:#fff;
+      cursor:pointer;
+      font-weight:1000;
+      text-align:right;
+    }
+    .tab.active{
+      background: linear-gradient(135deg,var(--purple),var(--blue));
+      border-color: transparent;
+      color:#0b1220;
+    }
+    .tab .left{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .ico{
+      width:36px;height:36px;border-radius:14px;
+      display:flex;align-items:center;justify-content:center;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      flex:0 0 auto;
+    }
+    .tab.active .ico{background: rgba(11,18,32,.18); border-color: rgba(11,18,32,.10)}
+    .tab .txt{min-width:0}
+    .tab .txt b{display:block}
+    .tab .txt span{
+      display:block;
+      font-size:12px;
+      opacity:.86;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width:160px;
+    }
+    .count{
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      font-size:12px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .sidehr{height:10px}
+    .search{
+      margin-top:10px;
+      padding:10px;
+      border-radius: var(--r);
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+    }
+    .search label{font-size:12px;color:var(--muted);font-weight:1000}
+    .search input{
+      width:100%;
+      margin-top:8px;
+      padding:11px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      outline:none;
+      font-size:13px;
+    }
+    .links{
+      margin-top:10px;
+      display:grid; gap:8px;
+    }
+    .alink{
+      text-decoration:none;
+      display:flex; align-items:center; justify-content:center;
+      padding:11px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.05);
+      color:#fff;
+      font-weight:1000;
+    }
+    .alink.danger{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.30)}
+
+    /* Main */
+    .main{padding:12px}
+    .head{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px;
+      padding:12px;
+      border-radius: var(--r);
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+    }
+    .head h1{margin:0;font-size:16px;font-weight:1000}
+    .head p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.7}
+    .head .right{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+
+    .section{display:none; margin-top:12px}
+    .section.active{display:block}
+
+    /* Blocks */
+    .block{
+      padding:12px;
+      border-radius: var(--r);
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+    }
+    .block + .block{margin-top:12px}
+    .btitle{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .btitle b{font-size:14px;font-weight:1000}
+    .btitle span{font-size:12px;color:var(--muted)}
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media(max-width:760px){ .grid{grid-template-columns:1fr} }
+    .field label{font-size:12px;color:var(--muted);font-weight:900}
+    .field input{
+      width:100%;
+      margin-top:7px;
+      padding:11px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color:#fff;
+      outline:none;
+      font-size:13px;
+    }
+
+    /* Tables */
+    .tableWrap{
+      border-radius: var(--r);
+      border:1px solid var(--line);
+      overflow:auto;
+      background: rgba(0,0,0,.18);
+    }
+    table{width:100%; border-collapse:collapse; min-width:980px}
+    th,td{
+      padding:11px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-align:right;
+      font-size:13px;
+      vertical-align:top;
+    }
+    thead th{
+      position:sticky; top:0; z-index:2;
+      background: rgba(7,11,20,.92);
+      backdrop-filter: blur(8px);
+      font-weight:1000;
+    }
+    tbody tr:hover{background: rgba(255,255,255,.04)}
+    .muted{color:var(--muted);font-size:12px}
+    .rowBtns{display:flex; gap:8px; flex-wrap:wrap}
+
+    .tag{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      font-weight:1000;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .tag.ok{background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.30)}
+    .tag.bad{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.30)}
+    .tag.warn{background: rgba(245,158,11,.14); border-color: rgba(245,158,11,.30)}
+
+    /* Switch */
+    .sw{display:inline-flex; align-items:center; gap:10px; user-select:none; white-space:nowrap}
+    .switch{
+      width:52px;height:28px;border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.10);
+      position:relative; cursor:pointer;
+    }
+    .knob{
+      width:22px;height:22px;border-radius:999px;
+      background: rgba(255,255,255,.92);
+      position:absolute; top:2px; right:2px;
+      transition: transform .18s ease;
+    }
+    .switch.on{background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.28)}
+    .switch.on .knob{transform: translateX(-24px)}
+    .miniInput{
+      width:100%;
+      padding:10px 10px;
+      border-radius: 12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.22);
+      color:#fff;
+      outline:none;
+      font-size:13px;
+    }
+
+    /* Toast */
     .toast{
       position:fixed;
-      bottom:22px;
+      bottom:18px;
       left:50%;
-      transform:translateX(-50%);
-      background:rgba(2,6,23,.92);
-      border:1px solid rgba(255,255,255,.14);
-      box-shadow:0 18px 60px rgba(0,0,0,.45);
-      padding:12px 16px;
+      transform: translateX(-50%);
+      padding:11px 14px;
       border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(7,11,20,.92);
+      box-shadow: var(--shadow);
       display:none;
       z-index:9999;
       max-width:92vw;
       text-align:center;
-      backdrop-filter: blur(12px);
-      font-weight:900;
+      font-weight:1000;
       font-size:13px;
+      backdrop-filter: blur(10px);
     }
     .toast.show{display:block}
-
-    /* ---------- Page Layout ---------- */
-    .page{
-      max-width:1320px;
-      margin:auto;
-      padding:18px;
-      padding-bottom:110px;
-      display:grid;
-      grid-template-columns: 300px 1fr;
-      gap:14px;
-    }
-    @media(max-width:1060px){
-      .page{grid-template-columns:1fr}
-    }
-
-    .panel{
-      background:var(--glass);
-      border:1px solid var(--border);
-      border-radius:var(--r28);
-      padding:16px;
-      box-shadow:var(--shadow2);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-    }
-
-    /* ---------- Topbar ---------- */
-    .topbar{
-      max-width:1320px;
-      margin:16px auto 0;
-      padding:0 18px;
-    }
-    .topbarInner{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:12px 14px;
-      border-radius:var(--r28);
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      box-shadow: var(--shadow2);
-      backdrop-filter: blur(18px);
-    }
-    .topLeft{
-      display:flex;align-items:center;gap:12px;min-width:0;
-    }
-    .mark{
-      width:46px;height:46px;border-radius:18px;
-      background: var(--grad2);
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow: 0 16px 46px rgba(0,0,0,.30);
-      display:flex;align-items:center;justify-content:center;
-      color:#031018;font-weight:1000;
-      flex:0 0 auto;
-      overflow:hidden;
-    }
-    .mark img{width:100%;height:100%;object-fit:cover;display:block}
-    .topTxt{min-width:0}
-    .topTxt b{
-      display:block;
-      font-size:14px;
-      font-weight:1000;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .topTxt span{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin-top:3px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .topRight{
-      display:flex;align-items:center;gap:10px;flex:0 0 auto;flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:10px 12px;border-radius:999px;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      color:#fff;
-      font-weight:1000;
-      font-size:12px;
-      white-space:nowrap;
-    }
-    .pill.ok{background: var(--ok); border-color: var(--okb)}
-    .pill.warn{background: var(--warn); border-color: var(--warnb)}
-    .pill.bad{background: var(--bad); border-color: var(--badb)}
-    .btnPill{
-      border:none;cursor:pointer;
-      padding:10px 12px;border-radius:999px;
-      background: var(--grad);
-      color:#071026;
-      font-weight:1000;
-      box-shadow:0 14px 40px rgba(59,130,246,.18);
-      transition: transform .12s ease, filter .2s ease;
-    }
-    .btnPill:hover{filter:brightness(1.04)}
-    .btnPill:active{transform: translateY(1px) scale(.99)}
-    .btnPill.ghost{
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      color:#fff;
-      box-shadow:none;
-    }
-
-    /* ---------- Sidebar ---------- */
-    .sideHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:12px;
-    }
-    .brand{
-      display:flex;align-items:center;gap:10px;
-      min-width:0;
-    }
-    .logo{
-      width:44px;height:44px;border-radius:18px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.16);
-      overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 14px 40px rgba(0,0,0,.28);
-      flex:0 0 auto;
-    }
-    .logo img{width:100%;height:100%;object-fit:cover;display:block}
-    .btxt{min-width:0}
-    .btxt .t{font-weight:1000;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .btxt .s{font-size:12px;color:var(--muted);margin-top:2px}
-
-    .chip{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:10px 12px;
-      border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      color:#fff;
-      font-weight:1000;
-      font-size:12px;
-      white-space:nowrap;
-    }
-
-    .navTabs{
-      display:grid;
-      gap:10px;
-      margin-top:10px;
-    }
-    .tabBtn{
-      display:flex;align-items:center;justify-content:space-between;
-      gap:10px;
-      width:100%;
-      padding:12px 12px;
-      border-radius:var(--r20);
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.08);
-      color:#fff;
-      cursor:pointer;
-      font-weight:1000;
-      transition:transform .12s ease, background .2s ease, border-color .2s ease;
-      text-align:right;
-    }
-    .tabBtn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
-    .tabBtn:active{transform:translateY(1px)}
-    .tabBtn.active{
-      background:var(--grad);
-      border-color:transparent;
-      color:#071026;
-      box-shadow:0 14px 38px rgba(59,130,246,.20);
-    }
-    .tabBtn .left{
-      display:flex;align-items:center;gap:10px;min-width:0;
-    }
-    .tabIco{
-      width:38px;height:38px;border-radius:16px;
-      display:flex;align-items:center;justify-content:center;
-      background:rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.14);
-      font-size:18px;
-      flex:0 0 auto;
-    }
-    .tabBtn.active .tabIco{background:rgba(2,6,23,.12);border-color:rgba(2,6,23,.10)}
-    .tabTxt{min-width:0}
-    .tabTxt b{display:block}
-    .tabTxt span{
-      display:block;font-size:12px;opacity:.86;
-      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px
-    }
-    .countPill{
-      padding:8px 10px;border-radius:999px;
-      background:rgba(0,0,0,.25);
-      border:1px solid rgba(255,255,255,.18);
-      font-size:12px;font-weight:1000;
-      white-space:nowrap;
-    }
-    .tabBtn.active .countPill{background:rgba(2,6,23,.10);border-color:rgba(2,6,23,.10)}
-
-    .searchBox{
-      margin-top:12px;
-      padding:12px;
-      border-radius:var(--r24);
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-    }
-    .searchBox label{font-size:12px;color:var(--muted);font-weight:1000}
-    .searchBox input{
-      width:100%;
-      margin-top:8px;
-      padding:12px 12px;
-      border-radius:var(--r18);
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(0,0,0,.35);
-      color:#fff;
-      outline:none;
-      font-size:13px;
-    }
-    .searchBox input:focus{
-      border-color: rgba(147,197,253,.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.14);
-    }
-
-    .sideActions{
-      display:grid;gap:10px;margin-top:12px
-    }
-    .linkBtn{
-      display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      padding:12px 14px;border-radius:var(--r20);
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      color:#fff;text-decoration:none;
-      font-weight:1000;
-      transition:transform .12s ease, background .2s ease, border-color .2s ease;
-    }
-    .linkBtn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
-    .linkBtn:active{transform:translateY(1px)}
-    .linkBtn.danger{
-      background: var(--bad);
-      border-color: var(--badb);
-    }
-    .linkBtn.danger:hover{background: rgba(239,68,68,.26); border-color: rgba(239,68,68,.48)}
-
-    /* ---------- Main ---------- */
-    .mainTop{
-      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-      margin-bottom:12px;
-    }
-    .mainTop h1{
-      margin:0;
-      font-size:18px;
-      font-weight:1000;
-      letter-spacing:.2px;
-    }
-    .mainTop .small{
-      color:var(--muted);
-      font-size:12px;
-      margin-top:6px;
-      line-height:1.6;
-    }
-
-    .section{display:none;}
-    .section.active{display:block;}
-
-    .cardBlock{
-      margin-top:10px;
-      border-radius:var(--r28);
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      box-shadow: 0 18px 55px rgba(0,0,0,.18);
-      padding:14px;
-    }
-
-    .secHeader{
-      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-      margin-bottom:12px;
-    }
-    .secHeader .title{
-      font-size:15px;
-      font-weight:1000;
-      margin:0;
-    }
-    .secHeader .desc{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:5px;
-      line-height:1.7;
-    }
-    .secTools{
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .btnX{
-      border:none;cursor:pointer;
-      border-radius:999px;
-      padding:11px 14px;
-      font-weight:1000;
-      background:var(--grad);
-      color:#071026;
-      box-shadow:0 16px 45px rgba(59,130,246,.18);
-      transition:transform .12s ease, filter .2s ease;
-      white-space:nowrap;
-      font-size:13px;
-    }
-    .btnX:hover{filter:brightness(1.04)}
-    .btnX:active{transform:translateY(1px) scale(.99)}
-    .btnX.ghost{
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      color:#fff;
-      box-shadow:none;
-    }
-    .btnX.danger{
-      background: var(--bad);
-      border:1px solid var(--badb);
-      color:#fff;
-      box-shadow:none;
-    }
-
-    /* ---------- Forms ---------- */
-    .formGrid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:10px;
-    }
-    @media(max-width:700px){ .formGrid{grid-template-columns:1fr} }
-
-    .field label{font-size:12px;color:var(--muted);font-weight:1000}
-    .field input, .field select{
-      width:100%;
-      margin-top:8px;
-      padding:12px 12px;
-      border-radius:var(--r18);
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(0,0,0,.35);
-      color:#fff;
-      outline:none;
-      font-size:13px;
-    }
-    .field input:focus, .field select:focus{
-      border-color: rgba(147,197,253,.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.14);
-    }
-
-    /* ---------- Tables ---------- */
-    .tableWrap{
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:var(--r28);
-      overflow:auto;
-      box-shadow:0 18px 55px rgba(0,0,0,.18);
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      min-width:1100px;
-    }
-    th, td{
-      padding:12px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      vertical-align:top;
-      text-align:right;
-      font-size:13px;
-    }
-    thead th{
-      position:sticky;
-      top:0;
-      background:rgba(2,6,23,.90);
-      backdrop-filter: blur(10px);
-      font-weight:1000;
-      z-index:2;
-    }
-    tbody tr:hover{background:rgba(255,255,255,.04)}
-    .muted{color:var(--muted);font-size:12px}
-
-    .tag{
-      display:inline-flex;align-items:center;justify-content:center;
-      padding:8px 10px;border-radius:999px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      font-weight:1000;
-      font-size:12px;
-      white-space:nowrap;
-    }
-    .tag.ok{background: var(--ok); border-color: var(--okb)}
-    .tag.warn{background: var(--warn); border-color: var(--warnb)}
-    .tag.bad{background: var(--bad); border-color: var(--badb)}
-
-    .miniInput{
-      width:100%;
-      padding:10px 10px;
-      border-radius:var(--r16);
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(0,0,0,.35);
-      color:#fff;
-      outline:none;
-      font-size:13px;
-    }
-    .miniInput:focus{
-      border-color: rgba(147,197,253,.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.14);
-    }
-    .rowBtns{
-      display:flex;gap:8px;flex-wrap:wrap;
-      justify-content:flex-start;
-    }
-
-    /* ---------- Switch ---------- */
-    .sw{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .switch{
-      position:relative;
-      width:54px;
-      height:30px;
-      border-radius:999px;
-      background: rgba(255,255,255,.12);
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow: 0 10px 20px rgba(0,0,0,.18);
-      cursor:pointer;
-      transition: background .2s ease, border-color .2s ease, filter .2s ease;
-    }
-    .switch input{
-      position:absolute;
-      inset:0;
-      opacity:0;
-      cursor:pointer;
-    }
-    .knob{
-      position:absolute;
-      top:3px;
-      right:3px;
-      width:24px;
-      height:24px;
-      border-radius:999px;
-      background: rgba(255,255,255,.88);
-      transition: transform .18s ease;
-      box-shadow: 0 10px 18px rgba(0,0,0,.20);
-    }
-    .switch.on{
-      background: rgba(34,197,94,.22);
-      border-color: rgba(34,197,94,.35);
-    }
-    .switch.on .knob{
-      transform: translateX(-24px); /* RTL */
-      background: rgba(255,255,255,.96);
-    }
-    .sw small{
-      font-size:12px;
-      color: var(--muted);
-      font-weight:1000;
-    }
-
-    /* ---------- Schedule mini UI ---------- */
-    .dtMini{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      justify-content:flex-start;
-      flex-wrap:wrap;
-    }
-    .dtMini input[type="datetime-local"]{
-      width: 190px;
-      max-width: 100%;
-      padding:9px 10px;
-      border-radius: var(--r16);
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.35);
-      color:#fff;
-      outline:none;
-      font-size:12px;
-    }
-    .miniBtn{
-      border:none;
-      cursor:pointer;
-      padding:9px 10px;
-      border-radius:999px;
-      font-weight:1000;
-      font-size:12px;
-      background: rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.14);
-      color:#fff;
-      transition: transform .12s ease, background .2s ease, border-color .2s ease;
-    }
-    .miniBtn:hover{background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.20)}
-    .miniBtn:active{transform: translateY(1px) scale(.99)}
-    .miniBtn.ok{background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.30)}
-    .miniBtn.bad{background: rgba(239,68,68,.16); border-color: rgba(239,68,68,.32)}
-    .miniBtn.warn{background: rgba(245,158,11,.16); border-color: rgba(245,158,11,.30)}
-
-    /* ---------- Schedule panel list ---------- */
-    .schedBox{
-      margin-top:14px;
-      border-radius: var(--r28);
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      padding:12px;
-    }
-    .schedHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .schedHead b{font-size:13px;font-weight:1000}
-    .schedList{
-      margin-top:10px;
-      display:grid;
-      gap:8px;
-    }
-    .schedRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.10);
-    }
-    .schedRow .l{min-width:0}
-    .schedRow .l b{display:block;font-size:12px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .schedRow .l span{display:block;font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .schedRow .r{display:flex;gap:8px;align-items:center;flex:0 0 auto}
-
-    /* ---------- Bottom nav ---------- */
-    .nav{
-      position:fixed;left:0;right:0;bottom:0;
-      background:rgba(0,0,0,.65);
-      border-top:1px solid rgba(255,255,255,.14);
-      backdrop-filter:blur(12px);
-      z-index:999;
-    }
-    .nav .inner{
-      max-width:1320px;margin:auto;
-      display:flex;justify-content:space-around;align-items:center;
-      padding:10px;
-      gap:10px;
-    }
-    .nav a, .nav button{
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      gap:4px;min-width:90px;
-      padding:10px 12px;border-radius:16px;
-      color:#fff;text-decoration:none;font-weight:1000;
-      background:rgba(255,255,255,.10);
-      border:1px solid rgba(255,255,255,.18);
-      cursor:pointer;
-      user-select:none;
-    }
-    .nav .ico{font-size:20px;line-height:1}
-    .nav .txt{font-size:11px;opacity:.9}
-    .nav form{margin:0}
-
-    @media(max-width:1060px){
-      .topbar{padding:0 14px}
-      .page{padding:14px}
-      .navTabs{
-        display:flex;
-        overflow:auto;
-        gap:10px;
-        padding-bottom:6px;
-      }
-      .tabBtn{min-width:260px}
-      .searchBox{display:none}
-    }
   </style>
 </head>
 
 <body>
   <div class="toast" id="toast"></div>
 
-  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbarInner">
-      <div class="topLeft">
-        <div class="mark">A</div>
-        <div class="topTxt">
+    <div class="topinner">
+      <div class="brand">
+        <div class="logo">A</div>
+        <div class="btxt">
           <b id="tbTitle">لوحة تحكم المدير</b>
-          <span id="tbSub">MRP Logistic • تحكم شامل و سريع</span>
+          <span id="tbSub">MRP Logistic • Admin Panel</span>
         </div>
       </div>
-      <div class="topRight">
-        <div class="pill ok" id="lastSync">🔄 جاهز</div>
-        <button class="btnPill ghost" onclick="refreshCurrent()">↻ تحديث القسم</button>
-        <button class="btnPill" onclick="init()">⚡ تحديث الكل</button>
+      <div class="actions">
+        <div class="pill" id="syncPill">🟢 جاهز</div>
+        <button class="btn" onclick="refreshCurrent()">↻ تحديث القسم</button>
+        <button class="btn primary" onclick="initAll()">⚡ تحديث الكل</button>
       </div>
     </div>
   </div>
 
-  <div class="page">
-    <!-- SIDEBAR -->
-    <aside class="panel">
-      <div class="sideHeader">
-        <div class="brand">
-          <div class="logo">
-            <img src="https://reduced-maroon-xf3kajtb8g.edgeone.app/WhatsApp%20Image%202026-02-28%20at%2012.54.14.jpeg" alt="MRP"/>
-          </div>
-          <div class="btxt">
-            <div class="t">MRP Logistic</div>
-            <div class="s">لوحة المدير — تحكم شامل</div>
-          </div>
-        </div>
-        <div class="chip">🛡️ Admin</div>
-      </div>
-
-      <div class="navTabs">
-        <button class="tabBtn active" id="tab_settings" onclick="openTab('settings')">
+  <div class="wrap">
+    <!-- Sidebar -->
+    <aside class="card side">
+      <div class="tabs">
+        <button class="tab active" id="tab_settings" onclick="openTab('settings')">
           <div class="left">
-            <div class="tabIco">⚙️</div>
-            <div class="tabTxt">
+            <div class="ico">⚙️</div>
+            <div class="txt">
               <b>الإعدادات</b>
               <span>تحويل + حد أدنى + تواصل</span>
             </div>
           </div>
-          <div class="countPill">Config</div>
+          <div class="count">Config</div>
         </button>
 
-        <button class="tabBtn" id="tab_requests" onclick="openTab('requests')">
+        <button class="tab" id="tab_requests" onclick="openTab('requests')">
           <div class="left">
-            <div class="tabIco">⏳</div>
-            <div class="tabTxt">
+            <div class="ico">⏳</div>
+            <div class="txt">
               <b>طلبات Pending</b>
               <span>موافقة/رفض بسرعة</span>
             </div>
           </div>
-          <div class="countPill" id="rqCount">0</div>
+          <div class="count" id="rqCount">0</div>
         </button>
 
-        <button class="tabBtn" id="tab_tasks" onclick="openTab('tasks')">
+        <button class="tab" id="tab_tasks" onclick="openTab('tasks')">
           <div class="left">
-            <div class="tabIco">✅</div>
-            <div class="tabTxt">
+            <div class="ico">✅</div>
+            <div class="txt">
               <b>المهام</b>
-              <span>تعديل/إضافة/تعطيل + جدولة</span>
+              <span>إضافة/تعديل/فتح/غلق</span>
             </div>
           </div>
-          <div class="countPill" id="taskCount">—</div>
+          <div class="count" id="taskCount">—</div>
         </button>
 
-        <button class="tabBtn" id="tab_users" onclick="openTab('users')">
+        <button class="tab" id="tab_users" onclick="openTab('users')">
           <div class="left">
-            <div class="tabIco">👤</div>
-            <div class="tabTxt">
+            <div class="ico">👤</div>
+            <div class="txt">
               <b>المستخدمون</b>
               <span>نقاط + كلمة سر + مهام</span>
             </div>
           </div>
-          <div class="countPill" id="userCount">—</div>
+          <div class="count" id="userCount">—</div>
         </button>
       </div>
 
-      <div class="searchBox">
+      <div class="search">
         <label>بحث سريع (المستخدمون/المهام)</label>
-        <input id="globalSearch" placeholder="اكتب اسم/ID/بريد/عنوان مهمة..." oninput="applySearch()"/>
+        <input id="globalSearch" placeholder="اسم/ID/إيميل/عنوان..." oninput="applySearch()"/>
       </div>
 
-      <div class="sideActions">
-        <a class="linkBtn" href="/home">🏠 رجوع للرئيسية</a>
-        <a class="linkBtn" href="/tasks">✅ صفحة المهام</a>
-        <form method="post" action="/logout">
-          <button type="submit" class="linkBtn danger" style="width:100%">🚪 تسجيل الخروج</button>
+      <div class="links">
+        <a class="alink" href="/home">🏠 رجوع للرئيسية</a>
+        <a class="alink" href="/tasks">✅ صفحة المهام</a>
+        <form method="post" action="/logout" style="margin:0">
+          <button class="alink danger" style="width:100%;cursor:pointer;border:none" type="submit">🚪 تسجيل الخروج</button>
         </form>
       </div>
     </aside>
 
-    <!-- MAIN -->
-    <main class="panel">
-      <div class="mainTop">
+    <!-- Main -->
+    <main class="card main">
+      <div class="head">
         <div>
           <h1 id="mainTitle">الإعدادات</h1>
-          <div class="small" id="mainDesc">تحكم في الحد الأدنى للإيداع/السحب + تحويل الدولار إلى نقاط + وسائل التواصل.</div>
+          <p id="mainDesc">تحكم في التحويل + الحد الأدنى + وسائل التواصل.</p>
         </div>
-        <div class="chip" id="miniSync">✨ تصميم جديد</div>
+        <div class="right">
+          <button class="btn" onclick="refreshCurrent()">↻ تحديث</button>
+          <button class="btn primary" onclick="initAll()">تحديث الكل</button>
+        </div>
       </div>
 
       <!-- SETTINGS -->
       <section class="section active" id="sec_settings">
-        <div class="cardBlock">
-          <div class="secHeader">
-            <div>
-              <div class="title">⚙️ الإعدادات</div>
-              <div class="desc">غير القيم ثم اضغط حفظ. نفس Endpoints ديال السيرفر (بدون تغيير).</div>
-            </div>
-            <div class="secTools">
-              <button class="btnX ghost" onclick="loadSettings(); toast('تم تحديث البيانات');">🔄 تحديث</button>
-              <button class="btnX" onclick="saveSettings()">💾 حفظ الإعدادات</button>
-            </div>
+        <div class="block">
+          <div class="btitle">
+            <b>⚙️ إعدادات المنصة</b>
+            <span>GET/POST /api/admin/settings</span>
           </div>
-
-          <div class="formGrid">
+          <div class="grid">
             <div class="field">
               <label>USD → Points</label>
-              <input id="usd_to_points" type="number" min="1" placeholder="مثال: 10"/>
+              <input id="usd_to_points" type="number" min="1" placeholder="مثال: 10">
             </div>
             <div class="field">
               <label>Min Deposit ($)</label>
-              <input id="min_deposit_usd" type="number" min="1" placeholder="مثال: 5"/>
+              <input id="min_deposit_usd" type="number" min="1" placeholder="مثال: 5">
             </div>
             <div class="field">
               <label>Min Withdraw ($)</label>
-              <input id="min_withdraw_usd" type="number" min="1" placeholder="مثال: 10"/>
+              <input id="min_withdraw_usd" type="number" min="1" placeholder="مثال: 10">
             </div>
             <div class="field">
               <label>WhatsApp</label>
-              <input id="whatsapp" placeholder="+2126xxxxxx"/>
+              <input id="whatsapp" placeholder="+2126xxxxxx">
             </div>
             <div class="field">
               <label>Telegram</label>
-              <input id="telegram" placeholder="@username"/>
+              <input id="telegram" placeholder="@username">
             </div>
             <div class="field">
-              <label>ملاحظة</label>
-              <input value="التغييرات تطبق مباشرة في المنصة" disabled/>
+              <label>—</label>
+              <input disabled value="التغييرات تطبق مباشرة في المنصة">
             </div>
           </div>
 
-          <div class="muted" style="margin-top:12px;line-height:1.8">
-            ✅ نصيحة: إلا بدلتي USD→Points خليه مطابق للقانون اللي عندك (مثلاً 10 نقاط = 1$).
+          <div class="rowBtns" style="margin-top:12px">
+            <button class="btn" onclick="loadSettings()">🔄 تحديث</button>
+            <button class="btn primary" onclick="saveSettings()">💾 حفظ</button>
+          </div>
+          <div class="muted" style="margin-top:10px;line-height:1.7">
+            نصيحة: خليه مطابق للقانون ديالك (مثال 10 نقاط = 1$).
           </div>
         </div>
       </section>
 
       <!-- REQUESTS -->
       <section class="section" id="sec_requests">
-        <div class="cardBlock">
-          <div class="secHeader">
-            <div>
-              <div class="title">⏳ طلبات الإيداع/السحب (Pending)</div>
-              <div class="desc">العميل كيدير الطلب، وانت كتوافق ولا كترفض. استعمل Refresh باش تشوف الجديد.</div>
-            </div>
-            <div class="secTools">
-              <button class="btnX ghost" onclick="loadRequests()">🔄 تحديث</button>
-              <button class="btnX danger" onclick="loadRequests(); toast('تمت إعادة تحميل الطلبات');">⚡ Refresh سريع</button>
-            </div>
+        <div class="block">
+          <div class="btitle">
+            <b>⏳ طلبات الإيداع/السحب (Pending)</b>
+            <span>GET /api/admin/requests</span>
+          </div>
+
+          <div class="rowBtns" style="margin-bottom:10px">
+            <button class="btn" onclick="loadRequests()">🔄 تحديث</button>
           </div>
 
           <div class="tableWrap">
             <table>
               <thead>
                 <tr>
-                  <th>#</th><th>المستخدم</th><th>النوع</th><th>$</th><th>النقاط</th><th>الحالة</th><th>إجراء</th>
+                  <th>#</th>
+                  <th>المستخدم</th>
+                  <th>النوع</th>
+                  <th>$</th>
+                  <th>النقاط</th>
+                  <th>الحالة</th>
+                  <th>إجراء</th>
                 </tr>
               </thead>
               <tbody id="rq"></tbody>
@@ -832,19 +527,16 @@
 
       <!-- TASKS -->
       <section class="section" id="sec_tasks">
-        <div class="cardBlock">
-          <div class="secHeader">
-            <div>
-              <div class="title">✅ التحكم في المهام</div>
-              <div class="desc">
-                سويتش فتح/غلق (is_active) + حفظ لكل سطر + فتح/غلق الكل + جدولة فتح/غلق بتاريخ/ساعة (محفوظة فمتصفح الأدمن).
-              </div>
-            </div>
-            <div class="secTools">
-              <button class="btnX ghost" onclick="loadTasks()">🔄 تحديث</button>
-              <button class="btnX ghost" onclick="openAllTasks()">🔓 فتح الكل</button>
-              <button class="btnX danger" onclick="closeAllTasks()">🔒 غلق الكل</button>
-            </div>
+        <div class="block">
+          <div class="btitle">
+            <b>✅ إدارة المهام</b>
+            <span>GET/POST /api/admin/tasks</span>
+          </div>
+
+          <div class="rowBtns" style="margin-bottom:10px">
+            <button class="btn" onclick="loadTasks()">🔄 تحديث</button>
+            <button class="btn" onclick="openAllTasks()">🔓 فتح الكل</button>
+            <button class="btn danger" onclick="closeAllTasks()">🔒 غلق الكل</button>
           </div>
 
           <div class="tableWrap">
@@ -856,52 +548,35 @@
                   <th>Reward</th>
                   <th>Wait(s)</th>
                   <th>الحالة</th>
-                  <th>جدولة</th>
                   <th>حفظ</th>
                 </tr>
               </thead>
               <tbody id="tasks"></tbody>
             </table>
           </div>
+        </div>
 
-          <div class="schedBox">
-            <div class="schedHead">
-              <b>⏰ الجدولة الحالية (Browser)</b>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-                <button class="miniBtn warn" onclick="runDueSchedules()">⚡ نفّذ اللي فات</button>
-                <button class="miniBtn bad" onclick="clearAllSchedules()">🧹 مسح الكل</button>
-              </div>
-            </div>
-            <div class="muted" style="margin-top:6px;line-height:1.7">
-              ملاحظة: هاد الجدولة كتتخزن فـ localStorage ديال المتصفح ديال الأدمن فقط.
-            </div>
-            <div class="schedList" id="schedList"></div>
+        <div class="block">
+          <div class="btitle">
+            <b>➕ إضافة مهمة جديدة</b>
+            <span>POST /api/admin/tasks/create</span>
           </div>
 
-          <div style="height:14px"></div>
-
-          <div class="secHeader" style="margin-top:10px">
-            <div>
-              <div class="title">➕ إضافة مهمة جديدة</div>
-              <div class="desc">عبّي البيانات و ضغط إضافة.</div>
-            </div>
-          </div>
-
-          <div class="formGrid" style="grid-template-columns:2fr 1fr 1fr 1fr">
+          <div class="grid" style="grid-template-columns: 2fr 1fr 1fr 1fr">
             <div class="field" style="grid-column:1/2">
               <label>عنوان المهمة</label>
-              <input id="new_title" placeholder="عنوان مهمة جديدة"/>
+              <input id="new_title" placeholder="عنوان مهمة جديدة">
             </div>
             <div class="field">
               <label>Reward</label>
-              <input id="new_reward" type="number" min="0" value="15"/>
+              <input id="new_reward" type="number" min="0" value="15">
             </div>
             <div class="field">
               <label>Wait(s)</label>
-              <input id="new_wait" type="number" min="1" value="10"/>
+              <input id="new_wait" type="number" min="1" value="10">
             </div>
             <div class="field" style="display:flex;align-items:end">
-              <button class="btnX" style="width:100%" onclick="createTask()">إضافة</button>
+              <button class="btn primary" style="width:100%" onclick="createTask()">إضافة</button>
             </div>
           </div>
         </div>
@@ -909,15 +584,14 @@
 
       <!-- USERS -->
       <section class="section" id="sec_users">
-        <div class="cardBlock">
-          <div class="secHeader">
-            <div>
-              <div class="title">👤 المستخدمون</div>
-              <div class="desc">تغيير النقاط + إعادة تعيين كلمة السر + زر تشغيل/إيقاف جميع المهام لكل مستخدم.</div>
-            </div>
-            <div class="secTools">
-              <button class="btnX ghost" onclick="loadUsers()">🔄 تحديث</button>
-            </div>
+        <div class="block">
+          <div class="btitle">
+            <b>👤 المستخدمون</b>
+            <span>GET /api/admin/users</span>
+          </div>
+
+          <div class="rowBtns" style="margin-bottom:10px">
+            <button class="btn" onclick="loadUsers()">🔄 تحديث</button>
           </div>
 
           <div class="tableWrap">
@@ -930,46 +604,70 @@
                   <th>نقاط</th>
                   <th>المهام</th>
                   <th>كلمة سر جديدة</th>
-                  <th>حفظ</th>
+                  <th>إجراءات</th>
                 </tr>
               </thead>
               <tbody id="us"></tbody>
             </table>
           </div>
         </div>
+
+        <!-- OPTIONAL: create user (works only if endpoint exists) -->
+        <div class="block">
+          <div class="btitle">
+            <b>➕ إنشاء مستخدم (اختياري)</b>
+            <span>POST /api/admin/users/create (إذا موجود)</span>
+          </div>
+
+          <div class="grid" style="grid-template-columns: 2fr 2fr 2fr 1fr">
+            <div class="field">
+              <label>الاسم</label>
+              <input id="cu_name" placeholder="Full name">
+            </div>
+            <div class="field">
+              <label>البريد</label>
+              <input id="cu_email" placeholder="email@example.com">
+            </div>
+            <div class="field">
+              <label>كلمة السر</label>
+              <input id="cu_pass" type="password" placeholder="******">
+            </div>
+            <div class="field" style="display:flex;align-items:end">
+              <button class="btn primary" style="width:100%" onclick="createUser()">إنشاء</button>
+            </div>
+          </div>
+          <div class="muted" style="margin-top:10px;line-height:1.7">
+            إذا السيرفر ما فيهش هاد endpoint، غادي يعطيك رسالة "غير مدعوم" بلا ما يطيّح الصفحة.
+          </div>
+        </div>
       </section>
     </main>
   </div>
 
-  <!-- bottom nav -->
-  <div class="nav">
-    <div class="inner">
-      <a href="/home"><span class="ico">🏠</span><span class="txt">الرئيسية</span></a>
-      <a href="/tasks"><span class="ico">✅</span><span class="txt">المهام</span></a>
-      <a href="/profile"><span class="ico">👤</span><span class="txt">بروفايل</span></a>
-      <form method="post" action="/logout">
-        <button type="submit"><span class="ico">🚪</span><span class="txt">خروج</span></button>
-      </form>
-    </div>
-  </div>
-
-  <script src="/public/app.js"></script>
   <script>
-    function setSync(txt){
-      const el=document.getElementById("lastSync");
-      if(el) el.textContent=txt;
-      const el2=document.getElementById("miniSync");
-      if(el2) el2.textContent=txt;
-    }
-
+    // ---------- tiny helpers ----------
     function toast(msg){
-      const t=document.getElementById("toast");
-      t.textContent=msg;
+      const t = document.getElementById("toast");
+      t.textContent = msg;
       t.classList.add("show");
-      setTimeout(()=>t.classList.remove("show"),2600);
+      setTimeout(()=>t.classList.remove("show"), 2600);
     }
-
-    function typeLabel(t){ return t==="deposit" ? "إيداع" : "سحب"; }
+    function setSync(txt){
+      const p = document.getElementById("syncPill");
+      if(p) p.textContent = txt;
+    }
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[m]));
+    }
+    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+    function formatUsd(n){
+      const x = Number(n);
+      if(!Number.isFinite(x)) return "-";
+      return "$" + x.toFixed(2);
+    }
+    function typeLabel(t){ return String(t)==="deposit" ? "إيداع" : "سحب"; }
     function statusTag(s){
       const v = String(s||"").toLowerCase();
       if(v.includes("approved")) return '<span class="tag ok">Approved</span>';
@@ -977,12 +675,19 @@
       return '<span class="tag warn">Pending</span>';
     }
 
-    function formatUsd(n){
-      const x = Number(n);
-      if(!Number.isFinite(x)) return "-";
-      return "$" + x.toFixed(2);
-    }
+    // ---------- API wrapper (works even if /public/app.js is missing) ----------
+    window.api = window.api || (async function api(url, method="GET", body){
+      const opt = { method, headers: { "Content-Type":"application/json" } };
+      if(method !== "GET" && method !== "HEAD") opt.body = JSON.stringify(body || {});
+      const r = await fetch(url, opt);
+      const data = await r.json().catch(()=> ({}));
+      if(!r.ok || data?.ok === false){
+        throw new Error(data?.message || ("HTTP " + r.status));
+      }
+      return data;
+    });
 
+    // ---------- Tabs ----------
     function openTab(key){
       const keys=["settings","requests","tasks","users"];
       for(const k of keys){
@@ -992,32 +697,24 @@
       document.getElementById("tab_"+key)?.classList.add("active");
       document.getElementById("sec_"+key)?.classList.add("active");
 
-      const mainTitle = document.getElementById("mainTitle");
-      const mainDesc  = document.getElementById("mainDesc");
-
       const map = {
         settings:{t:"الإعدادات", d:"تحكم في التحويل + الحد الأدنى + وسائل التواصل."},
         requests:{t:"طلبات Pending", d:"موافقة أو رفض الطلبات بسرعة."},
-        tasks:{t:"التحكم في المهام", d:"تعديل/إضافة/تعطيل + جدولة (بدون تغيير السيرفر)."},
-        users:{t:"المستخدمون", d:"تغيير النقاط + كلمة السر + تشغيل/إيقاف مهام المستخدم."},
+        tasks:{t:"المهام", d:"تعديل/إضافة/فتح/غلق (بدون تغيير السيرفر)."},
+        users:{t:"المستخدمون", d:"نقاط + كلمة السر + تشغيل/إيقاف المهام."},
       };
-      if(mainTitle) mainTitle.textContent = map[key].t;
-      if(mainDesc)  mainDesc.textContent  = map[key].d;
-
-      const tbTitle = document.getElementById("tbTitle");
-      const tbSub   = document.getElementById("tbSub");
-      if(tbTitle) tbTitle.textContent = map[key].t;
-      if(tbSub) tbSub.textContent = map[key].d;
+      document.getElementById("mainTitle").textContent = map[key].t;
+      document.getElementById("mainDesc").textContent  = map[key].d;
+      document.getElementById("tbTitle").textContent   = map[key].t;
+      document.getElementById("tbSub").textContent     = map[key].d;
     }
-
     function currentTab(){
-      const btns = ["settings","requests","tasks","users"];
+      const btns=["settings","requests","tasks","users"];
       for(const k of btns){
         if(document.getElementById("tab_"+k)?.classList.contains("active")) return k;
       }
       return "settings";
     }
-
     async function refreshCurrent(){
       const t = currentTab();
       if(t==="settings") return loadSettings();
@@ -1026,17 +723,22 @@
       if(t==="users") return loadUsers();
     }
 
-    // -------- SETTINGS ----------
+    // ---------- SETTINGS ----------
     async function loadSettings(){
-      setSync("🔄 تحميل...");
-      const r = await api("/api/admin/settings");
-      const s = r.settings;
-      document.getElementById("usd_to_points").value = s.usd_to_points;
-      document.getElementById("min_deposit_usd").value = s.min_deposit_usd;
-      document.getElementById("min_withdraw_usd").value = s.min_withdraw_usd;
-      document.getElementById("whatsapp").value = s.manager_contact?.whatsapp || "";
-      document.getElementById("telegram").value = s.manager_contact?.telegram || "";
-      setSync("✅ تم التحديث");
+      try{
+        setSync("🔄 تحميل...");
+        const r = await api("/api/admin/settings");
+        const s = r.settings || {};
+        document.getElementById("usd_to_points").value = s.usd_to_points ?? "";
+        document.getElementById("min_deposit_usd").value = s.min_deposit_usd ?? "";
+        document.getElementById("min_withdraw_usd").value = s.min_withdraw_usd ?? "";
+        document.getElementById("whatsapp").value = s.manager_contact?.whatsapp || "";
+        document.getElementById("telegram").value = s.manager_contact?.telegram || "";
+        setSync("🟢 جاهز");
+      }catch(e){
+        setSync("🔴 خطأ");
+        toast(e.message || "وقع خطأ");
+      }
     }
 
     async function saveSettings(){
@@ -1050,47 +752,55 @@
           telegram: document.getElementById("telegram").value
         });
         toast("تم حفظ الإعدادات ✅");
-        setSync("✅ محفوظ");
+        setSync("🟢 محفوظ");
       }catch(e){
+        setSync("🔴 خطأ");
         toast(e.message || "وقع خطأ");
-        setSync("⚠️ خطأ");
       }
     }
 
-    // -------- REQUESTS ----------
+    // ---------- REQUESTS ----------
     async function loadRequests(){
-      setSync("🔄 تحميل الطلبات...");
-      const reqs = await api("/api/admin/requests");
-      const rq = document.getElementById("rq");
-      rq.innerHTML = "";
+      try{
+        setSync("🔄 تحميل الطلبات...");
+        const reqs = await api("/api/admin/requests");
+        const rows = reqs.rows || [];
+        document.getElementById("rqCount").textContent = rows.length;
 
-      document.getElementById("rqCount").textContent = (reqs.rows||[]).length;
+        const rq = document.getElementById("rq");
+        rq.innerHTML = "";
 
-      for(const r of (reqs.rows||[])){
-        rq.innerHTML += `
-          <tr data-row="rq">
-            <td>${r.id}</td>
-            <td>
-              <b>${escapeHtml(r.full_name || "-")}</b>
-              <div class="muted">${escapeHtml((r.email || r.phone || ""))}</div>
-            </td>
-            <td><span class="tag">${typeLabel(r.type)}</span></td>
-            <td>${formatUsd(r.amount_usd)}</td>
-            <td><b>${escapeHtml(r.points_delta)}</b></td>
-            <td>${statusTag(r.status || "pending")}</td>
-            <td>
-              <div class="rowBtns">
-                <button class="btnX ghost" onclick="approve('${r.id}')">✅ موافقة</button>
-                <button class="btnX danger" onclick="reject('${r.id}')">⛔ رفض</button>
-              </div>
-            </td>
-          </tr>
-        `;
+        for(const r of rows){
+          rq.insertAdjacentHTML("beforeend", `
+            <tr data-row="rq">
+              <td>${escapeHtml(r.id)}</td>
+              <td>
+                <b>${escapeHtml(r.full_name || "-")}</b>
+                <div class="muted">${escapeHtml(r.email || r.phone || "")}</div>
+              </td>
+              <td><span class="tag">${typeLabel(r.type)}</span></td>
+              <td>${formatUsd(r.amount_usd)}</td>
+              <td><b>${escapeHtml(r.points_delta)}</b></td>
+              <td>${statusTag(r.status || "pending")}</td>
+              <td>
+                <div class="rowBtns">
+                  <button class="btn" onclick="approve('${escapeAttr(r.id)}')">✅ موافقة</button>
+                  <button class="btn danger" onclick="reject('${escapeAttr(r.id)}')">⛔ رفض</button>
+                </div>
+              </td>
+            </tr>
+          `);
+        }
+
+        if(!rows.length){
+          rq.innerHTML = `<tr><td colspan="7" class="muted" style="padding:14px">لا توجد طلبات Pending.</td></tr>`;
+        }
+
+        setSync("🟢 جاهز");
+      }catch(e){
+        setSync("🔴 خطأ");
+        toast(e.message || "وقع خطأ");
       }
-      if((reqs.rows||[]).length===0){
-        rq.innerHTML = `<tr><td colspan="7" class="muted" style="padding:16px">لا توجد طلبات Pending.</td></tr>`;
-      }
-      setSync("✅ تم التحديث");
     }
 
     async function approve(id){
@@ -1108,198 +818,57 @@
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
-    // -------- TASKS ----------
+    // ---------- TASKS ----------
     let CACHE_TASKS = [];
 
-    const SCHED_KEY = "mrp_task_schedules_v1";
-    let SCHED = [];
-    let SCHED_TIMERS = {};
-
-    function loadSchedFromLS(){
-      try{
-        const raw = localStorage.getItem(SCHED_KEY);
-        const arr = raw ? JSON.parse(raw) : [];
-        SCHED = Array.isArray(arr) ? arr : [];
-      }catch(e){
-        SCHED = [];
-      }
-    }
-    function saveSchedToLS(){
-      localStorage.setItem(SCHED_KEY, JSON.stringify(SCHED));
-    }
-    function fmtLocal(dtMs){
-      const d = new Date(dtMs);
-      if(!Number.isFinite(d.getTime())) return "-";
-      return d.toLocaleString();
-    }
-    function taskTitleById(id){
-      const t = (CACHE_TASKS||[]).find(x => Number(x.id) === Number(id));
-      return t?.title || ("Task #" + id);
-    }
-
-    function renderSchedules(){
-      const box = document.getElementById("schedList");
-      if(!box) return;
-      box.innerHTML = "";
-
-      if(!SCHED.length){
-        box.innerHTML = `<div class="muted" style="padding:10px">لا توجد جدولة.</div>`;
-        return;
-      }
-
-      const sorted = [...SCHED].sort((a,b)=> (a.at_ms||0)-(b.at_ms||0));
-      for(const it of sorted){
-        const when = fmtLocal(it.at_ms);
-        const act = it.action === "open" ? "🔓 فتح" : "🔒 غلق";
-        box.insertAdjacentHTML("beforeend", `
-          <div class="schedRow">
-            <div class="l">
-              <b>${escapeHtml(taskTitleById(it.task_id))} • ${act}</b>
-              <span>${escapeHtml(when)} • id: ${escapeHtml(it.id)}</span>
-            </div>
-            <div class="r">
-              <button class="miniBtn warn" onclick="runOneSchedule('${it.id}')">⚡ تنفيذ</button>
-              <button class="miniBtn bad" onclick="removeSchedule('${it.id}')">🗑️ حذف</button>
-            </div>
-          </div>
-        `);
-      }
-    }
-
-    function removeSchedule(id){
-      SCHED = (SCHED||[]).filter(x => x.id !== id);
-      if(SCHED_TIMERS[id]) { clearTimeout(SCHED_TIMERS[id]); delete SCHED_TIMERS[id]; }
-      saveSchedToLS();
-      renderSchedules();
-      toast("تم حذف الجدولة ✅");
-    }
-
-    function clearAllSchedules(){
-      for(const k in SCHED_TIMERS){ clearTimeout(SCHED_TIMERS[k]); }
-      SCHED_TIMERS = {};
-      SCHED = [];
-      saveSchedToLS();
-      renderSchedules();
-      toast("تم مسح جميع الجدولة ✅");
-    }
-
-    async function setTaskActive(taskId, isActive){
-      return api(`/api/admin/tasks/${taskId}/update`, "POST", { is_active: !!isActive });
-    }
-
-    async function runOneSchedule(id){
-      const it = (SCHED||[]).find(x => x.id === id);
-      if(!it) return;
-
-      try{
-        await setTaskActive(it.task_id, it.action === "open");
-        toast("تم تنفيذ الجدولة ✅");
-      }catch(e){
-        toast(e.message || "فشل تنفيذ الجدولة");
-        return;
-      }
-
-      removeSchedule(id);
-      await loadTasks();
-    }
-
-    async function runDueSchedules(){
-      const now = Date.now();
-      const due = (SCHED||[]).filter(x => (x.at_ms||0) <= now);
-      if(!due.length){
-        return;
-      }
-      for(const it of due){
-        await runOneSchedule(it.id);
-      }
-    }
-
-    function scheduleTimers(){
-      for(const k in SCHED_TIMERS){ clearTimeout(SCHED_TIMERS[k]); }
-      SCHED_TIMERS = {};
-
-      const now = Date.now();
-      for(const it of (SCHED||[])){
-        const ms = (it.at_ms||0) - now;
-        if(ms <= 0) continue;
-        SCHED_TIMERS[it.id] = setTimeout(()=>runOneSchedule(it.id), Math.min(ms, 2147483000));
-      }
-    }
-
-    function addSchedule(taskId, action, dtValue){
-      if(!dtValue){
-        toast("حدد التاريخ والساعة");
-        return;
-      }
-      const at = new Date(dtValue).getTime();
-      if(!Number.isFinite(at)){
-        toast("تاريخ غير صالح");
-        return;
-      }
-      const id = String(Date.now()) + "-" + Math.floor(Math.random()*99999);
-      SCHED.push({ id, task_id: Number(taskId), action, at_ms: at });
-      saveSchedToLS();
-      renderSchedules();
-      scheduleTimers();
-      toast("تمت إضافة جدولة ✅");
-    }
-
     async function loadTasks(){
-      setSync("🔄 تحميل المهام...");
-      const r = await api("/api/admin/tasks");
-      CACHE_TASKS = r.rows || [];
-      document.getElementById("taskCount").textContent = CACHE_TASKS.length || 0;
+      try{
+        setSync("🔄 تحميل المهام...");
+        const r = await api("/api/admin/tasks");
+        CACHE_TASKS = r.rows || [];
+        document.getElementById("taskCount").textContent = CACHE_TASKS.length;
 
-      const tb = document.getElementById("tasks");
-      tb.innerHTML = "";
+        const tb = document.getElementById("tasks");
+        tb.innerHTML = "";
 
-      for(const t of CACHE_TASKS){
-        const on = !!t.is_active;
-        tb.innerHTML += `
-          <tr data-row="task" data-search="${escapeHtml((t.title||"")+" "+t.id+" "+t.order_index)}">
-            <td><b>${t.order_index}</b><div class="muted">id: ${t.id}</div></td>
-            <td><input class="miniInput" id="t_title_${t.id}" value="${escapeAttr(t.title)}"/></td>
-            <td><input class="miniInput" type="number" min="0" id="t_reward_${t.id}" value="${t.reward_points}"/></td>
-            <td><input class="miniInput" type="number" min="1" id="t_wait_${t.id}" value="${t.wait_seconds}"/></td>
+        for(const t of CACHE_TASKS){
+          const on = !!t.is_active;
+          tb.insertAdjacentHTML("beforeend", `
+            <tr data-row="task" data-search="${escapeHtml((t.title||"")+" "+t.id+" "+t.order_index)}">
+              <td><b>${escapeHtml(t.order_index)}</b><div class="muted">id: ${escapeHtml(t.id)}</div></td>
 
-            <td>
-              <div class="sw">
-                <div class="switch ${on ? "on":""}" id="sw_${t.id}" onclick="toggleSwitch(${t.id})" title="فتح/غلق">
-                  <input type="checkbox" ${on ? "checked":""} aria-label="Active"/>
-                  <div class="knob"></div>
+              <td><input class="miniInput" id="t_title_${t.id}" value="${escapeAttr(t.title)}"/></td>
+              <td><input class="miniInput" type="number" min="0" id="t_reward_${t.id}" value="${escapeAttr(t.reward_points)}"/></td>
+              <td><input class="miniInput" type="number" min="1" id="t_wait_${t.id}" value="${escapeAttr(t.wait_seconds)}"/></td>
+
+              <td>
+                <div class="sw">
+                  <div class="switch ${on ? "on":""}" id="sw_${t.id}" onclick="toggleTaskSwitch(${t.id})">
+                    <div class="knob"></div>
+                  </div>
+                  <small class="muted" id="swlbl_${t.id}">${on ? "مفتوحة" : "مغلقة"}</small>
+                  <input type="hidden" id="t_active_${t.id}" value="${on ? "true":"false"}"/>
                 </div>
-                <small id="swlbl_${t.id}">${on ? "مفتوحة": "مغلقة"}</small>
-                <input type="hidden" id="t_active_${t.id}" value="${on ? "true":"false"}"/>
-              </div>
-            </td>
+              </td>
 
-            <td>
-              <div class="dtMini">
-                <input type="datetime-local" id="dt_${t.id}" />
-                <button class="miniBtn ok" onclick="scheduleFromRow(${t.id}, 'open')">🔓 فتح</button>
-                <button class="miniBtn bad" onclick="scheduleFromRow(${t.id}, 'close')">🔒 غلق</button>
-              </div>
-              <div class="muted" style="margin-top:6px">كتتخزن فـ Browser</div>
-            </td>
+              <td>
+                <div class="rowBtns">
+                  <button class="btn" onclick="saveTask(${t.id})">💾 حفظ</button>
+                </div>
+              </td>
+            </tr>
+          `);
+        }
 
-            <td>
-              <div class="rowBtns">
-                <button class="btnX ghost" onclick="saveTask(${t.id})">💾 حفظ</button>
-              </div>
-            </td>
-          </tr>
-        `;
+        applySearch();
+        setSync("🟢 جاهز");
+      }catch(e){
+        setSync("🔴 خطأ");
+        toast(e.message || "وقع خطأ");
       }
-
-      setSync("✅ تم التحديث");
-      applySearch();
-
-      loadSchedFromLS();
-      renderSchedules();
-      scheduleTimers();
     }
 
-    function toggleSwitch(id){
+    function toggleTaskSwitch(id){
       const sw = document.getElementById("sw_"+id);
       const hid = document.getElementById("t_active_"+id);
       const lbl = document.getElementById("swlbl_"+id);
@@ -1308,16 +877,9 @@
       const isOn = sw.classList.contains("on");
       const next = !isOn;
 
-      if(next) sw.classList.add("on");
-      else sw.classList.remove("on");
-
+      sw.classList.toggle("on", next);
       hid.value = next ? "true" : "false";
       if(lbl) lbl.textContent = next ? "مفتوحة" : "مغلقة";
-    }
-
-    function scheduleFromRow(taskId, action){
-      const dt = document.getElementById("dt_"+taskId)?.value || "";
-      addSchedule(taskId, action, dt);
     }
 
     async function saveTask(id){
@@ -1329,7 +891,7 @@
           is_active: document.getElementById(`t_active_${id}`).value === "true"
         });
         toast("تم تحديث المهمة ✅");
-        await loadTasks();
+        loadTasks();
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
@@ -1337,32 +899,26 @@
       if(!confirm("فتح جميع المهام؟")) return;
       try{
         setSync("🔓 فتح الكل...");
-        for(const t of (CACHE_TASKS||[])){
+        for(const t of CACHE_TASKS){
           await api(`/api/admin/tasks/${t.id}/update`,"POST",{ is_active:true });
         }
         toast("تم فتح الكل ✅");
-        await loadTasks();
-      }catch(e){
-        toast(e.message || "وقع خطأ");
-      }finally{
-        setSync("✅");
-      }
+        loadTasks();
+      }catch(e){ toast(e.message || "وقع خطأ"); }
+      finally{ setSync("🟢 جاهز"); }
     }
 
     async function closeAllTasks(){
       if(!confirm("غلق جميع المهام؟")) return;
       try{
         setSync("🔒 غلق الكل...");
-        for(const t of (CACHE_TASKS||[])){
+        for(const t of CACHE_TASKS){
           await api(`/api/admin/tasks/${t.id}/update`,"POST",{ is_active:false });
         }
         toast("تم غلق الكل ✅");
-        await loadTasks();
-      }catch(e){
-        toast(e.message || "وقع خطأ");
-      }finally{
-        setSync("✅");
-      }
+        loadTasks();
+      }catch(e){ toast(e.message || "وقع خطأ"); }
+      finally{ setSync("🟢 جاهز"); }
     }
 
     async function createTask(){
@@ -1374,11 +930,11 @@
         });
         toast("تمت إضافة مهمة ✅");
         document.getElementById("new_title").value = "";
-        await loadTasks();
+        loadTasks();
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
-    // -------- USERS ----------
+    // ---------- USERS ----------
     let CACHE_USERS = [];
 
     function setUserSwitchUI(userId, enabled){
@@ -1387,15 +943,9 @@
       const hid = document.getElementById("ut_val_"+userId);
       if(!sw || !lbl || !hid) return;
 
-      if(enabled){
-        sw.classList.add("on");
-        lbl.textContent = "شغالة";
-        hid.value = "true";
-      }else{
-        sw.classList.remove("on");
-        lbl.textContent = "مطفية";
-        hid.value = "false";
-      }
+      sw.classList.toggle("on", !!enabled);
+      lbl.textContent = enabled ? "شغالة" : "مطفية";
+      hid.value = enabled ? "true" : "false";
     }
 
     async function toggleUserTasks(userId){
@@ -1405,68 +955,71 @@
       const current = (hid.value === "true");
       const next = !current;
 
-      // UI optimistic
-      setUserSwitchUI(userId, next);
+      setUserSwitchUI(userId, next); // optimistic
 
       try{
         const r = await api(`/api/admin/users/${userId}/tasks-enabled`, "POST", { enabled: next });
-        // sync from server response
         setUserSwitchUI(userId, r.tasks_enabled !== false);
         toast(next ? "تم تشغيل المهام ✅" : "تم إيقاف المهام ✅");
       }catch(e){
-        // rollback
         setUserSwitchUI(userId, current);
         toast(e.message || "وقع خطأ");
       }
     }
 
     async function loadUsers(){
-      setSync("🔄 تحميل المستخدمين...");
-      const users = await api("/api/admin/users");
-      CACHE_USERS = users.rows || [];
-      document.getElementById("userCount").textContent = CACHE_USERS.length || 0;
+      try{
+        setSync("🔄 تحميل المستخدمين...");
+        const users = await api("/api/admin/users");
+        CACHE_USERS = users.rows || [];
+        document.getElementById("userCount").textContent = CACHE_USERS.length;
 
-      const us = document.getElementById("us");
-      us.innerHTML = "";
+        const us = document.getElementById("us");
+        us.innerHTML = "";
 
-      for(const u of CACHE_USERS){
-        const contact = u.email || u.phone || "-";
-        const enabled = (u.tasks_enabled !== false);
+        for(const u of CACHE_USERS){
+          const contact = u.email || u.phone || "-";
+          const enabled = (u.tasks_enabled !== false);
 
-        us.innerHTML += `
-          <tr data-row="user" data-search="${escapeHtml((u.full_name||"")+" "+(u.id||"")+" "+contact)}">
-            <td><b>${escapeHtml(u.id)}</b></td>
-            <td>${escapeHtml(u.full_name || "-")}</td>
-            <td class="muted">${escapeHtml(contact)}</td>
+          us.insertAdjacentHTML("beforeend", `
+            <tr data-row="user" data-search="${escapeHtml((u.full_name||"")+" "+(u.id||"")+" "+contact)}">
+              <td><b>${escapeHtml(u.id)}</b></td>
+              <td>${escapeHtml(u.full_name || "-")}</td>
+              <td class="muted">${escapeHtml(contact)}</td>
 
-            <td><input class="miniInput" style="max-width:140px" id="p_${u.id}" value="${escapeAttr(u.points_balance)}"/></td>
+              <td><input class="miniInput" style="max-width:140px" id="p_${u.id}" value="${escapeAttr(u.points_balance)}"/></td>
 
-            <td>
-              <div class="sw">
-                <div class="switch ${enabled ? "on":""}" id="ut_sw_${u.id}" onclick="toggleUserTasks('${u.id}')" title="تشغيل/إيقاف جميع المهام">
-                  <input type="checkbox" ${enabled ? "checked":""} aria-label="Tasks enabled"/>
-                  <div class="knob"></div>
+              <td>
+                <div class="sw">
+                  <div class="switch ${enabled ? "on":""}" id="ut_sw_${u.id}" onclick="toggleUserTasks('${u.id}')">
+                    <div class="knob"></div>
+                  </div>
+                  <small class="muted" id="ut_lbl_${u.id}">${enabled ? "شغالة" : "مطفية"}</small>
+                  <input type="hidden" id="ut_val_${u.id}" value="${enabled ? "true":"false"}"/>
                 </div>
-                <small id="ut_lbl_${u.id}">${enabled ? "شغالة" : "مطفية"}</small>
-                <input type="hidden" id="ut_val_${u.id}" value="${enabled ? "true":"false"}"/>
-              </div>
-              <div class="muted" style="margin-top:6px">كتمنع /tasks و start/finish</div>
-            </td>
+                <div class="muted" style="margin-top:6px">كتمنع /tasks و start/finish</div>
+              </td>
 
-            <td><input class="miniInput" style="max-width:180px" id="pw_${u.id}" type="password" placeholder="كلمة سر جديدة"/></td>
+              <td><input class="miniInput" style="max-width:180px" id="pw_${u.id}" type="password" placeholder="كلمة سر جديدة"/></td>
 
-            <td>
-              <div class="rowBtns">
-                <button class="btnX ghost" onclick="setPoints('${u.id}')">💠 نقاط</button>
-                <button class="btnX" onclick="setPassword('${u.id}')">🔒 كلمة السر</button>
-              </div>
-            </td>
-          </tr>
-        `;
+              <td>
+                <div class="rowBtns">
+                  <button class="btn" onclick="setPoints('${u.id}')">💠 نقاط</button>
+                  <button class="btn primary" onclick="setPassword('${u.id}')">🔒 كلمة السر</button>
+                  <button class="btn" onclick="resetTasks('${u.id}')">♻️ Reset مهام</button>
+                  <button class="btn danger" onclick="deleteUser('${u.id}')">🗑️ حذف</button>
+                </div>
+              </td>
+            </tr>
+          `);
+        }
+
+        applySearch();
+        setSync("🟢 جاهز");
+      }catch(e){
+        setSync("🔴 خطأ");
+        toast(e.message || "وقع خطأ");
       }
-
-      setSync("✅ تم التحديث");
-      applySearch();
     }
 
     async function setPoints(userId){
@@ -1492,7 +1045,49 @@
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
-    // -------- SEARCH ----------
+    async function resetTasks(userId){
+      if(!confirm("إعادة تعيين تقدم المهام لهذا المستخدم؟")) return;
+      try{
+        await api(`/api/admin/users/${userId}/reset-tasks`, "POST", {});
+        toast("تم Reset المهام ✅");
+      }catch(e){ toast(e.message || "وقع خطأ"); }
+    }
+
+    // OPTIONAL delete (works only if endpoint exists)
+    async function deleteUser(userId){
+      if(!confirm("حذف هذا المستخدم؟")) return;
+      try{
+        await api(`/api/admin/users/${userId}/delete`, "POST", {});
+        toast("تم حذف المستخدم ✅");
+        loadUsers();
+      }catch(e){
+        // إذا ماكايناش فالـ server
+        toast(e.message.includes("404") ? "الحذف غير مدعوم فالسيرفر الحالي" : (e.message || "وقع خطأ"));
+      }
+    }
+
+    // OPTIONAL create (works only if endpoint exists)
+    async function createUser(){
+      const full_name = document.getElementById("cu_name").value.trim();
+      const email = document.getElementById("cu_email").value.trim();
+      const password = document.getElementById("cu_pass").value.trim();
+      if(!full_name || !email || password.length < 6){
+        toast("عطِ الاسم + البريد + كلمة سر 6+");
+        return;
+      }
+      try{
+        await api("/api/admin/users/create", "POST", { full_name, email, password });
+        toast("تم إنشاء المستخدم ✅");
+        document.getElementById("cu_name").value="";
+        document.getElementById("cu_email").value="";
+        document.getElementById("cu_pass").value="";
+        loadUsers();
+      }catch(e){
+        toast(e.message.includes("404") ? "الإنشاء غير مدعوم فالسيرفر الحالي" : (e.message || "وقع خطأ"));
+      }
+    }
+
+    // ---------- SEARCH ----------
     function applySearch(){
       const q = (document.getElementById("globalSearch")?.value || "").trim().toLowerCase();
       const rows = document.querySelectorAll('tr[data-search]');
@@ -1502,23 +1097,9 @@
       }
     }
 
-    // -------- Helpers ----------
-    function escapeHtml(s){
-      return String(s ?? "").replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      }[m]));
-    }
-    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
-
-    // -------- INIT ----------
-    async function init(){
+    // ---------- Init ----------
+    async function initAll(){
       openTab("settings");
-
-      loadSchedFromLS();
-      renderSchedules();
-      scheduleTimers();
-      await runDueSchedules();
-
       await loadSettings();
       await loadRequests();
       await loadTasks();
@@ -1526,7 +1107,8 @@
       toast("تم تحديث كلشي ✅");
     }
 
-    init().catch(e=>toast(e.message || "وقع خطأ"));
+    // start
+    initAll().catch(e=>toast(e.message || "وقع خطأ"));
   </script>
 </body>
 </html>
