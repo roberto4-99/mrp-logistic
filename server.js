@@ -4,6 +4,14 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
 
+// ✅ NEW
+let Pool = null;
+try {
+  ({ Pool } = require("pg"));
+} catch (e) {
+  // pg may not be installed locally yet
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -11,51 +19,6 @@ const DB_FILE = path.join(__dirname, "db.json");
 
 /* ---------------- Helpers ---------------- */
 function nowISO() { return new Date().toISOString(); }
-
-function ensureDbFile() {
-  if (!fs.existsSync(DB_FILE)) {
-    const init = {
-      settings: {
-        app_name: "MRP Logistic",
-        usd_to_points: 10,
-        min_deposit_usd: 5,
-        min_withdraw_usd: 10,
-        manager_contact: {
-          title: "تواصل مع المدير لإتمام العملية",
-          whatsapp: "+212619692685",
-          telegram: "@Mrp_logistic"
-        },
-        referral: {
-          signup_bonus_points: 1,
-          deposit_bonus_points: 30
-        }
-      },
-      meta: { next_user_id: 555555 },
-      users: [],
-      wallet_transactions: [],
-      tasks: [
-        { id: 1, title: "مهمة 1", order_index: 1, reward_points: 15, wait_seconds: 10, is_active: true },
-        { id: 2, title: "مهمة 2", order_index: 2, reward_points: 15, wait_seconds: 10, is_active: true },
-        { id: 3, title: "مهمة 3", order_index: 3, reward_points: 15, wait_seconds: 10, is_active: true },
-        { id: 4, title: "مهمة 4", order_index: 4, reward_points: 15, wait_seconds: 10, is_active: true },
-        { id: 5, title: "مهمة 5", order_index: 5, reward_points: 15, wait_seconds: 10, is_active: true }
-      ],
-      user_tasks: [],
-      task_runs: [],
-      referrals: []
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(init, null, 2), "utf8");
-  }
-}
-
-function readDb() {
-  ensureDbFile();
-  return JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-}
-
-function writeDb(db) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf8");
-}
 
 function parseUsd(v) {
   const x = Number(String(v ?? "").replace(",", ".").trim());
@@ -71,6 +34,125 @@ function makeReferralCode(userId){
   return "U" + String(userId);
 }
 
+/* ---------------- Default DB ---------------- */
+function defaultDb() {
+  return {
+    settings: {
+      app_name: "MRP Logistic",
+      usd_to_points: 10,
+      min_deposit_usd: 5,
+      min_withdraw_usd: 10,
+      manager_contact: {
+        title: "تواصل مع المدير لإتمام العملية",
+        whatsapp: "+212619692685",
+        telegram: "@Mrp_logistic"
+      },
+      referral: {
+        signup_bonus_points: 1,
+        deposit_bonus_points: 30
+      }
+    },
+    meta: { next_user_id: 555555 },
+    users: [],
+    wallet_transactions: [],
+    tasks: [
+      { id: 1, title: "مهمة 1", order_index: 1, reward_points: 15, wait_seconds: 10, is_active: true },
+      { id: 2, title: "مهمة 2", order_index: 2, reward_points: 15, wait_seconds: 10, is_active: true },
+      { id: 3, title: "مهمة 3", order_index: 3, reward_points: 15, wait_seconds: 10, is_active: true },
+      { id: 4, title: "مهمة 4", order_index: 4, reward_points: 15, wait_seconds: 10, is_active: true },
+      { id: 5, title: "مهمة 5", order_index: 5, reward_points: 15, wait_seconds: 10, is_active: true }
+    ],
+    user_tasks: [],
+    task_runs: [],
+    referrals: []
+  };
+}
+
+/* ---------------- Storage Layer ----------------
+   ✅ If DATABASE_URL exists -> store whole db as JSONB in Postgres
+   ✅ Else -> use db.json file (local dev)
+--------------------------------------------------*/
+
+const USE_PG = !!process.env.DATABASE_URL && !!Pool;
+const PG_TABLE = "app_kv";
+const PG_KEY = "db";
+
+const pool = (USE_PG)
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL?.includes("railway") ? { rejectUnauthorized: false } : false,
+    })
+  : null;
+
+function ensureDbFile() {
+  if (!fs.existsSync(DB_FILE)) {
+    fs.writeFileSync(DB_FILE, JSON.stringify(defaultDb(), null, 2), "utf8");
+  }
+}
+
+function readDbFile() {
+  ensureDbFile();
+  return JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+}
+
+function writeDbFile(db) {
+  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf8");
+}
+
+async function ensurePg() {
+  // Create KV table once
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS ${PG_TABLE} (
+      k TEXT PRIMARY KEY,
+      v JSONB NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+}
+
+async function pgGetDb() {
+  const r = await pool.query(`SELECT v FROM ${PG_TABLE} WHERE k=$1 LIMIT 1`, [PG_KEY]);
+  return r.rows[0]?.v || null;
+}
+
+async function pgSetDb(db) {
+  await pool.query(
+    `INSERT INTO ${PG_TABLE} (k, v, updated_at)
+     VALUES ($1, $2, NOW())
+     ON CONFLICT (k) DO UPDATE SET v=EXCLUDED.v, updated_at=NOW()`,
+    [PG_KEY, db]
+  );
+}
+
+async function readDb() {
+  if (!USE_PG) return readDbFile();
+
+  await ensurePg();
+  let db = await pgGetDb();
+
+  // ✅ First time: if Postgres empty, import from db.json if exists, else create default
+  if (!db) {
+    if (fs.existsSync(DB_FILE)) {
+      try {
+        db = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+      } catch {
+        db = defaultDb();
+      }
+    } else {
+      db = defaultDb();
+    }
+    await pgSetDb(db);
+  }
+
+  return db;
+}
+
+async function writeDb(db) {
+  if (!USE_PG) return writeDbFile(db);
+  await pgSetDb(db);
+}
+
+/* ---------------- Logic helpers (unchanged) ---------------- */
 function ensureAdmin(db) {
   db.users = db.users || [];
   const exists = db.users.some(u => u.is_admin === true);
@@ -96,7 +178,7 @@ function ensureAdmin(db) {
     created_at: nowISO(),
     last_login_at: null,
     referral_code: makeReferralCode(adminId),
-    tasks_enabled: true // ✅ add (even admin)
+    tasks_enabled: true
   };
 
   db.users.push(admin);
@@ -177,9 +259,10 @@ function resetUserProgress(db, userId) {
   }
 }
 
-/* ---------------- Init ---------------- */
-(function init() {
-  const db = readDb();
+/* ---------------- Init (async) ---------------- */
+async function init() {
+  const db = await readDb();
+
   db.settings = db.settings || {};
   db.settings.referral = db.settings.referral || { signup_bonus_points: 1, deposit_bonus_points: 30 };
 
@@ -193,13 +276,12 @@ function resetUserProgress(db, userId) {
 
   ensureAdmin(db);
 
-  // ✅ Migration: add missing fields for old users without losing data
+  // Migration: add missing fields
   for (const u of db.users) {
     if (!u.referral_code) u.referral_code = makeReferralCode(u.id);
-    if (u.tasks_enabled === undefined) u.tasks_enabled = true; // ✅ NEW per-user switch
+    if (u.tasks_enabled === undefined) u.tasks_enabled = true;
   }
 
-  // ✅ Only sync tasks for users who have tasks_enabled = true
   for (const u of db.users) {
     if (!u.is_admin && u.tasks_enabled !== false) {
       ensureUserTasks(db, u.id);
@@ -207,16 +289,14 @@ function resetUserProgress(db, userId) {
     }
   }
 
-  writeDb(db);
-})();
+  await writeDb(db);
+}
 
 /* ---------------- Middleware ---------------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.set("trust proxy", 1);
-
-// ✅ FIX: session cookie works both in Railway(https) and local(http)
 const isProd = process.env.NODE_ENV === "production";
 
 app.use(session({
@@ -232,11 +312,13 @@ app.use(session({
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-/* ---------------- Guards ---------------- */
-function requireAuth(req, res, next) {
-  const db = readDb();
-  const u = (db.users || []).find(x => x.id === req.session.userId);
+/* ---------------- Async wrapper ---------------- */
+const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
+/* ---------------- Guards ---------------- */
+const requireAuth = wrap(async (req, res, next) => {
+  const db = await readDb();
+  const u = (db.users || []).find(x => x.id === req.session.userId);
   const isApi = req.path.startsWith("/api/");
 
   if (!u || u.status !== "active") {
@@ -247,7 +329,7 @@ function requireAuth(req, res, next) {
   req.user = u;
   req._db = db;
   next();
-}
+});
 
 function requireAdmin(req, res, next) {
   const isApi = req.path.startsWith("/api/");
@@ -259,9 +341,8 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// ✅ NEW helper: block tasks if user tasks are disabled
 function requireTasksEnabled(req, res, next){
-  if (req.user?.is_admin) return next(); // admin not affected
+  if (req.user?.is_admin) return next();
   if (req.user?.tasks_enabled === false) {
     return res.status(403).json({ ok: false, message: "تم إيقاف المهام لهذا الحساب." });
   }
@@ -281,7 +362,7 @@ app.get("/withdraw", requireAuth, (req, res) => res.sendFile(path.join(__dirname
 app.get("/deposit", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/deposit.html")));
 
 /* ---------------- Referral API ---------------- */
-app.get("/api/referral/me", requireAuth, (req, res) => {
+app.get("/api/referral/me", requireAuth, wrap(async (req, res) => {
   const db = req._db;
   db.referrals = db.referrals || [];
 
@@ -291,13 +372,13 @@ app.get("/api/referral/me", requireAuth, (req, res) => {
   const base = `${req.protocol}://${req.get("host")}`;
   const link = `${base}/register?ref=${encodeURIComponent(code)}`;
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true, code, link, total });
-});
+}));
 
 /* ---------------- Auth APIs ---------------- */
-app.post("/api/register", (req, res) => {
-  const db = readDb();
+app.post("/api/register", wrap(async (req, res) => {
+  const db = await readDb();
   const { full_name, email, phone, password, ref_code } = req.body;
 
   const pw = String(password || "").trim();
@@ -330,7 +411,7 @@ app.post("/api/register", (req, res) => {
     created_at: nowISO(),
     last_login_at: null,
     referral_code: makeReferralCode(newId),
-    tasks_enabled: true // ✅ NEW
+    tasks_enabled: true
   };
 
   db.users.push(user);
@@ -359,18 +440,17 @@ app.post("/api/register", (req, res) => {
     }
   }
 
-  // ✅ create tasks only if tasks_enabled
   if (user.tasks_enabled !== false) {
     ensureUserTasks(db, user.id);
     resetUserProgress(db, user.id);
   }
 
-  writeDb(db);
+  await writeDb(db);
   return res.json({ ok: true });
-});
+}));
 
-app.post("/api/login", (req, res) => {
-  const db = readDb();
+app.post("/api/login", wrap(async (req, res) => {
+  const db = await readDb();
   const keyRaw = String(req.body.emailOrPhone || "").trim();
   const keyLower = keyRaw.toLowerCase();
   const password = String(req.body.password || "");
@@ -389,19 +469,19 @@ app.post("/api/login", (req, res) => {
   if (u.status !== "active") return res.status(403).json({ ok: false, message: "الحساب غير نشط." });
 
   u.last_login_at = nowISO();
-  writeDb(db);
+  await writeDb(db);
 
   req.session.userId = u.id;
   return res.json({ ok: true, is_admin: !!u.is_admin });
-});
+}));
 
-app.get("/api/me", requireAuth, (req, res) => {
+app.get("/api/me", requireAuth, wrap(async (req, res) => {
   const db = req._db;
 
   if (!req.user.is_admin && req.user.tasks_enabled !== false) {
     ensureUserTasks(db, req.user.id);
     syncLocks(db, req.user.id);
-    writeDb(db);
+    await writeDb(db);
   }
 
   const activeTasks = (db.tasks || []).filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
@@ -415,15 +495,15 @@ app.get("/api/me", requireAuth, (req, res) => {
       full_name: req.user.full_name,
       points_balance: req.user.points_balance,
       is_admin: !!req.user.is_admin,
-      tasks_enabled: req.user.tasks_enabled !== false // ✅ NEW
+      tasks_enabled: req.user.tasks_enabled !== false
     },
     settings: db.settings,
     tasks: { total: activeTasks.length, done }
   });
-});
+}));
 
 /* ---------------- Wallet ---------------- */
-app.post("/api/wallet/request", requireAuth, (req, res) => {
+app.post("/api/wallet/request", requireAuth, wrap(async (req, res) => {
   const db = req._db;
   const { type, amount_usd } = req.body;
 
@@ -456,9 +536,9 @@ app.post("/api/wallet/request", requireAuth, (req, res) => {
     processed_at: null
   });
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true, message: "تم إرسال الطلب.", manager: db.settings.manager_contact });
-});
+}));
 
 app.get("/api/wallet/my", requireAuth, (req, res) => {
   const db = req._db;
@@ -467,7 +547,7 @@ app.get("/api/wallet/my", requireAuth, (req, res) => {
 });
 
 /* ---------------- Tasks (User) ---------------- */
-app.get("/api/tasks", requireAuth, requireTasksEnabled, (req, res) => {
+app.get("/api/tasks", requireAuth, requireTasksEnabled, wrap(async (req, res) => {
   const db = req._db;
 
   ensureUserTasks(db, req.user.id);
@@ -488,11 +568,11 @@ app.get("/api/tasks", requireAuth, requireTasksEnabled, (req, res) => {
       };
     });
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true, rows });
-});
+}));
 
-app.post("/api/tasks/start", requireAuth, requireTasksEnabled, (req, res) => {
+app.post("/api/tasks/start", requireAuth, requireTasksEnabled, wrap(async (req, res) => {
   const db = req._db;
 
   ensureUserTasks(db, req.user.id);
@@ -525,11 +605,11 @@ app.post("/api/tasks/start", requireAuth, requireTasksEnabled, (req, res) => {
     status: "running"
   });
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true, run_token: token, wait_seconds: pick.t.wait_seconds });
-});
+}));
 
-app.post("/api/tasks/finish", requireAuth, requireTasksEnabled, (req, res) => {
+app.post("/api/tasks/finish", requireAuth, requireTasksEnabled, wrap(async (req, res) => {
   const db = req._db;
   ensureUserTasks(db, req.user.id);
 
@@ -562,9 +642,9 @@ app.post("/api/tasks/finish", requireAuth, requireTasksEnabled, (req, res) => {
   run.status = "completed";
   run.finished_at = nowISO();
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true, message: "لقد اكتملت المهمة ✅ وتمت إضافة المكافأة." });
-});
+}));
 
 /* ---------------- ADMIN: Pending Requests ---------------- */
 app.get("/api/admin/requests", requireAuth, requireAdmin, (req, res) => {
@@ -580,7 +660,7 @@ app.get("/api/admin/requests", requireAuth, requireAdmin, (req, res) => {
   res.json({ ok: true, rows });
 });
 
-app.post("/api/admin/requests/:id/approve", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/requests/:id/approve", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const id = req.params.id;
 
@@ -608,11 +688,11 @@ app.post("/api/admin/requests/:id/approve", requireAuth, requireAdmin, (req, res
     }
   }
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true });
-});
+}));
 
-app.post("/api/admin/requests/:id/reject", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/requests/:id/reject", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const id = req.params.id;
 
@@ -622,19 +702,18 @@ app.post("/api/admin/requests/:id/reject", requireAuth, requireAdmin, (req, res)
   row.status = "rejected";
   row.processed_at = nowISO();
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true });
-});
+}));
 
 /* ---------------- ADMIN: Users ---------------- */
-app.get("/api/admin/users", requireAuth, requireAdmin, (req, res) => {
+app.get("/api/admin/users", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
 
-  // ✅ Ensure migration for old users on-demand too
   for (const u of (db.users || [])) {
     if (u.tasks_enabled === undefined) u.tasks_enabled = true;
   }
-  writeDb(db);
+  await writeDb(db);
 
   const rows = (db.users || [])
     .filter(u => !u.is_admin)
@@ -642,9 +721,9 @@ app.get("/api/admin/users", requireAuth, requireAdmin, (req, res) => {
     .reverse();
 
   res.json({ ok: true, rows });
-});
+}));
 
-app.post("/api/admin/users/:id/points", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/users/:id/points", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const userId = Number(req.params.id);
   const points = Number(req.body.points);
@@ -655,11 +734,11 @@ app.post("/api/admin/users/:id/points", requireAuth, requireAdmin, (req, res) =>
   if (!u) return res.status(400).json({ ok: false, message: "مستخدم غير موجود." });
 
   u.points_balance = Math.floor(points);
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true });
-});
+}));
 
-app.post("/api/admin/users/:id/password", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/users/:id/password", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const userId = Number(req.params.id);
 
@@ -670,11 +749,11 @@ app.post("/api/admin/users/:id/password", requireAuth, requireAdmin, (req, res) 
   if (!u) return res.status(400).json({ ok: false, message: "مستخدم غير موجود." });
 
   u.password_hash = bcrypt.hashSync(new_password, 10);
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true });
-});
+}));
 
-app.post("/api/admin/users/:id/reset-tasks", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/users/:id/reset-tasks", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const userId = Number(req.params.id);
 
@@ -682,12 +761,11 @@ app.post("/api/admin/users/:id/reset-tasks", requireAuth, requireAdmin, (req, re
   if (!u) return res.status(404).json({ ok: false, message: "مستخدم غير موجود." });
 
   resetUserProgress(db, userId);
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true });
-});
+}));
 
-// ✅ NEW: toggle all tasks for a user
-app.post("/api/admin/users/:id/tasks-enabled", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/users/:id/tasks-enabled", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const userId = Number(req.params.id);
   const enabled = !!req.body.enabled;
@@ -697,7 +775,6 @@ app.post("/api/admin/users/:id/tasks-enabled", requireAuth, requireAdmin, (req, 
 
   u.tasks_enabled = enabled;
 
-  // optional: when disabling, expire any running task runs
   db.task_runs = db.task_runs || [];
   if (!enabled) {
     for (const r of db.task_runs) {
@@ -708,9 +785,9 @@ app.post("/api/admin/users/:id/tasks-enabled", requireAuth, requireAdmin, (req, 
     }
   }
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true, tasks_enabled: u.tasks_enabled });
-});
+}));
 
 /* ---------------- ADMIN: Settings ---------------- */
 app.get("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
@@ -718,7 +795,7 @@ app.get("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
   res.json({ ok: true, settings: db.settings });
 });
 
-app.post("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/settings", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
 
   const usd_to_points = Number(req.body.usd_to_points);
@@ -741,9 +818,9 @@ app.post("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
   if (req.body.signup_bonus_points !== undefined) db.settings.referral.signup_bonus_points = Number(req.body.signup_bonus_points) || 1;
   if (req.body.deposit_bonus_points !== undefined) db.settings.referral.deposit_bonus_points = Number(req.body.deposit_bonus_points) || 30;
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true });
-});
+}));
 
 /* ---------------- ADMIN: Tasks ---------------- */
 app.get("/api/admin/tasks", requireAuth, requireAdmin, (req, res) => {
@@ -752,7 +829,7 @@ app.get("/api/admin/tasks", requireAuth, requireAdmin, (req, res) => {
   res.json({ ok: true, rows });
 });
 
-app.post("/api/admin/tasks/create", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/tasks/create", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
 
   const title = String(req.body.title || "").trim();
@@ -784,11 +861,11 @@ app.post("/api/admin/tasks/create", requireAuth, requireAdmin, (req, res) => {
     }
   }
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true, task });
-});
+}));
 
-app.post("/api/admin/tasks/:id/update", requireAuth, requireAdmin, (req, res) => {
+app.post("/api/admin/tasks/:id/update", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const id = Number(req.params.id);
 
@@ -816,14 +893,24 @@ app.post("/api/admin/tasks/:id/update", requireAuth, requireAdmin, (req, res) =>
     }
   }
 
-  writeDb(db);
+  await writeDb(db);
   res.json({ ok: true });
-});
+}));
 
 /* ---------------- Debug ---------------- */
 app.get("/test", (req, res) => res.send("SERVER UPDATED ✅"));
 
-/* ---------------- Start ---------------- */
-app.listen(PORT, () => {
-  console.log("✅ MRP Logistic running on port", PORT);
+/* ---------------- Error Handler ---------------- */
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err);
+  res.status(500).json({ ok: false, message: "Server error", error: String(err?.message || err) });
 });
+
+/* ---------------- Start ---------------- */
+(async () => {
+  await init();
+  app.listen(PORT, () => {
+    console.log("✅ MRP Logistic running on port", PORT);
+    console.log("✅ Storage:", USE_PG ? "PostgreSQL (persistent)" : "db.json (local)");
+  });
+})();
