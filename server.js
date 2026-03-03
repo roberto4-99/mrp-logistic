@@ -897,6 +897,73 @@ app.post("/api/admin/tasks/:id/update", requireAuth, requireAdmin, wrap(async (r
   res.json({ ok: true });
 }));
 
+/* ---------------- ADMIN: Create User ---------------- */
+app.post("/api/admin/users/create", requireAuth, requireAdmin, wrap(async (req,res)=>{
+  const db = req._db;
+
+  const full_name = String(req.body.full_name || "").trim();
+  const email = String(req.body.email || "").trim();
+  const password = String(req.body.password || "").trim();
+
+  if(!full_name || !email || password.length < 6){
+    return res.status(400).json({ ok:false, message:"المعطيات غير صحيحة" });
+  }
+
+  const exists = db.users.find(u => u.email === email);
+  if(exists){
+    return res.status(400).json({ ok:false, message:"البريد مستعمل" });
+  }
+
+  const newId = db.meta.next_user_id;
+
+  const user = {
+    id:newId,
+    full_name,
+    email,
+    phone:null,
+    password_hash:bcrypt.hashSync(password,10),
+    points_balance:0,
+    is_admin:false,
+    status:"active",
+    created_at:nowISO(),
+    last_login_at:null,
+    referral_code:makeReferralCode(newId),
+    tasks_enabled:true
+  };
+
+  db.users.push(user);
+  db.meta.next_user_id++;
+
+  ensureUserTasks(db,user.id);
+  resetUserProgress(db,user.id);
+
+  await writeDb(db);
+
+  res.json({ ok:true });
+}));
+
+/* ---------------- ADMIN: Delete User ---------------- */
+app.post("/api/admin/users/:id/delete", requireAuth, requireAdmin, wrap(async (req,res)=>{
+  const db = req._db;
+  const userId = Number(req.params.id);
+
+  const index = db.users.findIndex(u => u.id === userId && !u.is_admin);
+
+  if(index === -1){
+    return res.status(404).json({ ok:false, message:"المستخدم غير موجود" });
+  }
+
+  db.users.splice(index,1);
+
+  db.user_tasks = (db.user_tasks || []).filter(x => x.user_id !== userId);
+  db.task_runs = (db.task_runs || []).filter(x => x.user_id !== userId);
+  db.wallet_transactions = (db.wallet_transactions || []).filter(x => x.user_id !== userId);
+
+  await writeDb(db);
+
+  res.json({ ok:true });
+}));
+
 /* ---------------- Debug ---------------- */
 app.get("/test", (req, res) => res.send("SERVER UPDATED ✅"));
 
