@@ -1044,10 +1044,14 @@
 
     load().catch(e=>toast(e.message));
   </script>
-  <script>
-  // كيعاود يحقن سكريبت Monetag كل مرة بغيت
-  function showAd(){
+ <script>
+
+  // ✅ Monetag: كنحمّلو السكريبت غير مرة وحدة (باش مايتعاودش ويتبلوكا)
+  function loadMonetagOnce(){
     try{
+      if (window.__monetag_loaded) return;
+      window.__monetag_loaded = true;
+
       var s = document.createElement("script");
       s.src = "https://5gvci.com/act/files/tag.min.js?z=10683065";
       s.async = true;
@@ -1056,17 +1060,17 @@
     }catch(e){}
   }
 
-  // استهداف زر "بدء" في المهام (إلى كاين بزاف ديال الأزرار)
+  // ✅ استهداف زر "بدء/ابدأ" داخل المهام
   document.addEventListener("click", function(e){
     const btn = e.target.closest("button, a, .btn");
     if(!btn) return;
 
-    // غادي يطلق الإعلان غير ملي يضغط على زر فيه كلمة "بدء"
     const t = (btn.innerText || "").trim();
     if(t.includes("بدء") || t.includes("ابدأ")){
-    showAd();
-}
+      // ملاحظة: Popunder ما كيبانش داخل الصفحة، كيفتح تبويب/نافذة (إلا ما تبلوكا)
+      loadMonetagOnce()
+    }
   });
 </script>
 </body>
-</html>
+   </html>
