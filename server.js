@@ -1,911 +1,345 @@
+/**
+ * MRP Logistic - server.js (FULL)
+ * - Storage: db.json (local) OR Railway volume
+ * - Added: Rate limit + timeouts (fix 503 max_conn) + body limit + trust proxy
+ * - Added: Per-user tasks_limit (0..5 or null=unlimited) controlled by admin panel
+ */
+
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
-
-// ✅ NEW
-let Pool = null;
-try {
-  ({ Pool } = require("pg"));
-} catch (e) {
-  // pg may not be installed locally yet
-}
+const http = require("http");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.set("trust proxy", 1); // IMPORTANT on Railway
 
+const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, "db.json");
 
+/* ---------------- Security / Limits ---------------- */
+app.use(express.json({ limit: "200kb" }));
+app.use(express.urlencoded({ extended: true, limit: "200kb" }));
+
+// Rate limits to prevent Backend.max_conn reached
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120, // 120 req/min لكل IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, message: "Too many requests" }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 25,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { ok: false, message: "Slow down" }
+});
+
+app.use("/api", apiLimiter);
+app.use("/login", authLimiter);
+app.use("/api/auth", authLimiter);
+
+/* ---------------- Sessions ---------------- */
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "mrp_logistic_secret_change_me",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false // Railway behind HTTPS, but keep false if you test local http
+    }
+  })
+);
+
+/* ---------------- Static & Views ---------------- */
+app.use("/public", express.static(path.join(__dirname, "public")));
+
+function view(name) {
+  return path.join(__dirname, "views", name);
+}
+
 /* ---------------- Helpers ---------------- */
-function nowISO() { return new Date().toISOString(); }
-
-function parseUsd(v) {
-  const x = Number(String(v ?? "").replace(",", ".").trim());
-  return (Number.isFinite(x) && x > 0) ? x : 0;
+function nowISO() {
+  return new Date().toISOString();
 }
 
-function usdToPoints(db, usd) {
-  const rate = Number(db.settings?.usd_to_points ?? 10);
-  return Math.floor(usd * rate);
-}
-
-function makeReferralCode(userId){
-  return "U" + String(userId);
-}
-
-/* ---------------- Default DB ---------------- */
-function defaultDb() {
-  return {
-    settings: {
-      app_name: "MRP Logistic",
-      usd_to_points: 10,
-      min_deposit_usd: 5,
-      min_withdraw_usd: 10,
-      manager_contact: {
-        title: "تواصل مع المدير لإتمام العملية",
-        whatsapp: "+212619692685",
-        telegram: "@Mrp_logistic"
-      },
-      referral: {
-        signup_bonus_points: 1,
-        deposit_bonus_points: 30
-      },
-
-      // ✅ NEW (اختياري): حد افتراضي لعدد المهام لكل مستخدم (null = بلا حد)
-      default_tasks_limit: null
-    },
-    meta: { next_user_id: 555555 },
-    users: [],
-    wallet_transactions: [],
-    tasks: [
-      { id: 1, title: "مهمة 1", order_index: 1, reward_points: 15, wait_seconds: 10, is_active: true },
-      { id: 2, title: "مهمة 2", order_index: 2, reward_points: 15, wait_seconds: 10, is_active: true },
-      { id: 3, title: "مهمة 3", order_index: 3, reward_points: 15, wait_seconds: 10, is_active: true },
-      { id: 4, title: "مهمة 4", order_index: 4, reward_points: 15, wait_seconds: 10, is_active: true },
-      { id: 5, title: "مهمة 5", order_index: 5, reward_points: 15, wait_seconds: 10, is_active: true }
-    ],
-    user_tasks: [],
-    task_runs: [],
-    referrals: []
+function wrap(fn) {
+  return function (req, res, next) {
+    Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
-
-/* ---------------- Storage Layer ----------------
-   ✅ If DATABASE_URL exists -> store whole db as JSONB in Postgres
-   ✅ Else -> use db.json file (local dev)
---------------------------------------------------*/
-
-const USE_PG = !!process.env.DATABASE_URL && !!Pool;
-const PG_TABLE = "app_kv";
-const PG_KEY = "db";
-
-const pool = (USE_PG)
-  ? new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.DATABASE_URL?.includes("railway") ? { rejectUnauthorized: false } : false,
-    })
-  : null;
 
 function ensureDbFile() {
   if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(defaultDb(), null, 2), "utf8");
+    const init = {
+      meta: {
+        next_user_id: 2,
+        next_request_id: 1,
+        next_wallet_tx_id: 1
+      },
+      settings: {
+        app_name: "MRP Logistic",
+        usd_to_points: 10,
+        min_deposit_usd: 5,
+        min_withdraw_usd: 10,
+        manager_contact: {
+          whatsapp: "",
+          telegram: ""
+        }
+      },
+      users: [
+        {
+          id: 1,
+          full_name: "Admin",
+          email: "admin@mrp.local",
+          phone: null,
+          password_hash: bcrypt.hashSync("admin123", 10),
+          points_balance: 0,
+          is_admin: true,
+          status: "active",
+          created_at: nowISO(),
+          last_login_at: null,
+          referral_code: "ADMIN1",
+          tasks_enabled: true,
+          tasks_limit: null // null = unlimited
+        }
+      ],
+      tasks: [
+        { id: 1, title: "مهمة 1", order_index: 1, reward_points: 15, wait_seconds: 10, is_active: true },
+        { id: 2, title: "مهمة 2", order_index: 2, reward_points: 15, wait_seconds: 10, is_active: true },
+        { id: 3, title: "مهمة 3", order_index: 3, reward_points: 15, wait_seconds: 10, is_active: true },
+        { id: 4, title: "مهمة 4", order_index: 4, reward_points: 15, wait_seconds: 10, is_active: true },
+        { id: 5, title: "مهمة 5", order_index: 5, reward_points: 15, wait_seconds: 10, is_active: true }
+      ],
+      // per-user progress/locks:
+      user_tasks: [],
+      task_runs: [],
+      wallet_transactions: [],
+      requests: []
+    };
+    fs.writeFileSync(DB_FILE, JSON.stringify(init, null, 2), "utf8");
   }
 }
 
-function readDbFile() {
+function readDb() {
   ensureDbFile();
-  return JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
+  const raw = fs.readFileSync(DB_FILE, "utf8");
+  return JSON.parse(raw);
 }
 
-function writeDbFile(db) {
+function writeDb(db) {
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), "utf8");
 }
 
-async function ensurePg() {
-  // Create KV table once
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS ${PG_TABLE} (
-      k TEXT PRIMARY KEY,
-      v JSONB NOT NULL,
-      updated_at TIMESTAMPTZ DEFAULT NOW()
-    );
-  `);
+function getUserById(db, id) {
+  return (db.users || []).find(u => u.id === id);
 }
 
-async function pgGetDb() {
-  const r = await pool.query(`SELECT v FROM ${PG_TABLE} WHERE k=$1 LIMIT 1`, [PG_KEY]);
-  return r.rows[0]?.v || null;
+function makeReferralCode(userId) {
+  return "MRP" + String(userId).padStart(4, "0");
 }
 
-async function pgSetDb(db) {
-  await pool.query(
-    `INSERT INTO ${PG_TABLE} (k, v, updated_at)
-     VALUES ($1, $2, NOW())
-     ON CONFLICT (k) DO UPDATE SET v=EXCLUDED.v, updated_at=NOW()`,
-    [PG_KEY, db]
-  );
-}
-
-async function readDb() {
-  if (!USE_PG) return readDbFile();
-
-  await ensurePg();
-  let db = await pgGetDb();
-
-  // ✅ First time: if Postgres empty, import from db.json if exists, else create default
-  if (!db) {
-    if (fs.existsSync(DB_FILE)) {
-      try {
-        db = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
-      } catch {
-        db = defaultDb();
-      }
-    } else {
-      db = defaultDb();
-    }
-    await pgSetDb(db);
-  }
-
-  return db;
-}
-
-async function writeDb(db) {
-  if (!USE_PG) return writeDbFile(db);
-  await pgSetDb(db);
-}
-
-/* ---------------- Logic helpers ---------------- */
-function ensureAdmin(db) {
-  db.users = db.users || [];
-  const exists = db.users.some(u => u.is_admin === true);
-  if (exists) return;
-
-  db.meta = db.meta || {};
-  if (!Number.isFinite(db.meta.next_user_id)) db.meta.next_user_id = 555555;
-
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@mrp.local";
-  const adminPass = process.env.ADMIN_PASSWORD || "Med@19851985";
-
-  const adminId = db.meta.next_user_id;
-
-  const admin = {
-    id: adminId,
-    full_name: "Admin",
-    email: adminEmail,
-    phone: null,
-    password_hash: bcrypt.hashSync(adminPass, 10),
-    points_balance: 0,
-    is_admin: true,
-    status: "active",
-    created_at: nowISO(),
-    last_login_at: null,
-    referral_code: makeReferralCode(adminId),
-    tasks_enabled: true,
-
-    // ✅ NEW
-    tasks_limit: null
-  };
-
-  db.users.push(admin);
-  db.meta.next_user_id += 1;
-
-  console.log("✅ Admin ensured:", adminEmail, "/", adminPass);
-}
-
-/* ✅ NEW: per-user tasks limit */
-function getTasksLimitForUser(db, userId){
-  const u = (db.users || []).find(x => x.id === userId);
-  const raw = (u && u.tasks_limit !== undefined) ? u.tasks_limit : (db.settings?.default_tasks_limit ?? null);
-
-  if (raw === null || raw === undefined || raw === "") return null;
-  const n = Number(raw);
-  if (!Number.isFinite(n)) return null;
-  if (n <= 0) return 0;
-  return Math.floor(n);
-}
-
-/* ✅ NEW: return active tasks respecting user limit */
-function getActiveTasksForUser(db, userId){
-  const all = (db.tasks || []).filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
-  const lim = getTasksLimitForUser(db, userId);
-  if (lim === null) return all;
-  return all.slice(0, lim);
-}
-
+/**
+ * Ensure user_tasks rows exist for all tasks
+ */
 function ensureUserTasks(db, userId) {
-  db.tasks = db.tasks || [];
   db.user_tasks = db.user_tasks || [];
-
-  // ⚠️ هنا ما كنحيدوش tasks، كنضمنو user_tasks لجميع المهام النشطة (باش تبقى الداتا صحيحة)
-  const active = db.tasks.filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
-
-  for (const t of active) {
-    const found = db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id);
-    if (!found) {
+  const tasks = db.tasks || [];
+  for (const t of tasks) {
+    const exists = db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id);
+    if (!exists) {
       db.user_tasks.push({
-        id: `${userId}-${t.id}`,
         user_id: userId,
         task_id: t.id,
-        status: (t.order_index === 1) ? "available" : "locked",
-        started_at: null,
-        completed_at: null,
-        earned_points: 0
+        is_locked: false,
+        done_count: 0,
+        last_done_at: null
       });
     }
   }
 }
 
-/* ✅ UPDATED: syncLocks respects per-user tasks limit */
-function syncLocks(db, userId) {
-  ensureUserTasks(db, userId);
-
-  // 🔥 هنا كنخدمو غير على tasks اللي مسموح بها لهذا المستخدم
-  const tasksAllowed = getActiveTasksForUser(db, userId);
-  const allowedIds = new Set(tasksAllowed.map(t => t.id));
-
-  // كنقفل أي user_task ديال مهمة خارج limit
-  for (const ut of (db.user_tasks || [])) {
-    if (ut.user_id !== userId) continue;
-    if (!allowedIds.has(ut.task_id)) {
-      // خارج limit => نخليه locked دائما
-      if (ut.status !== "completed") ut.status = "locked";
+/**
+ * Reset user progress (keeps tasks)
+ */
+function resetUserProgress(db, userId) {
+  db.user_tasks = db.user_tasks || [];
+  for (const ut of db.user_tasks) {
+    if (ut.user_id === userId) {
+      ut.is_locked = false;
+      ut.done_count = 0;
+      ut.last_done_at = null;
     }
   }
-
-  const uts = tasksAllowed.map(t => ({
-    t,
-    ut: db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id)
-  }));
-
-  let seenAvailable = false;
-  for (const x of uts) {
-    if (!x.ut) continue;
-    if (x.ut.status === "completed") continue;
-
-    if (x.ut.status === "available") {
-      if (!seenAvailable) seenAvailable = true;
-      else x.ut.status = "locked";
-    }
-  }
-
-  const anyAvailable = uts.some(x => x.ut?.status === "available");
-  const allCompleted = uts.every(x => x.ut?.status === "completed");
-  if (!anyAvailable && !allCompleted) {
-    const firstNot = uts.find(x => x.ut && x.ut.status !== "completed");
-    if (firstNot?.ut) firstNot.ut.status = "available";
-  }
+  // also clear runs
+  db.task_runs = (db.task_runs || []).filter(r => r.user_id !== userId);
 }
 
-/* ✅ UPDATED: reset only allowed tasks for that user */
-function resetUserProgress(db, userId) {
-  ensureUserTasks(db, userId);
-  const tasksAllowed = getActiveTasksForUser(db, userId);
+/**
+ * Sync locks based on task active + user tasks_enabled + per-user tasks_limit
+ * - If tasks_enabled=false => lock all tasks for that user
+ * - If tasks_limit is number => lock tasks with order_index > limit
+ * - If task is_active=false => lock for everyone
+ */
+function syncLocks(db, userId) {
+  const user = getUserById(db, userId);
+  if (!user || user.is_admin) return;
 
-  // reset allowed
-  for (const t of tasksAllowed) {
+  ensureUserTasks(db, userId);
+
+  const tasks = (db.tasks || []).slice().sort((a, b) => a.order_index - b.order_index);
+  const limit = (user.tasks_limit === null || user.tasks_limit === undefined || user.tasks_limit === "")
+    ? null
+    : Math.max(0, Math.floor(Number(user.tasks_limit)));
+
+  for (const t of tasks) {
     const ut = db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id);
     if (!ut) continue;
-    ut.status = (t.order_index === 1) ? "available" : "locked";
-    ut.started_at = null;
-    ut.completed_at = null;
-    ut.earned_points = 0;
-  }
 
-  // lock tasks outside limit (unless completed)
-  const allowedIds = new Set(tasksAllowed.map(t => t.id));
-  for (const ut of (db.user_tasks || [])) {
-    if (ut.user_id !== userId) continue;
-    if (!allowedIds.has(ut.task_id)) {
-      if (ut.status !== "completed") ut.status = "locked";
-    }
-  }
+    let lock = false;
 
-  db.task_runs = db.task_runs || [];
-  for (const r of db.task_runs) {
-    if (r.user_id === userId && r.status === "running") {
-      r.status = "expired";
-      r.finished_at = nowISO();
+    // global user toggle
+    if (user.tasks_enabled === false) lock = true;
+
+    // global task active
+    if (!t.is_active) lock = true;
+
+    // per-user limit (0..5)
+    if (limit !== null) {
+      if (t.order_index > limit) lock = true;
     }
+
+    ut.is_locked = !!lock;
   }
 }
 
-/* ---------------- Init (async) ---------------- */
-async function init() {
-  const db = await readDb();
+/**
+ * Return tasks list for user respecting locks/limit/active
+ */
+function getTasksForUser(db, userId) {
+  const user = getUserById(db, userId);
+  if (!user) return [];
 
-  db.settings = db.settings || {};
-  db.settings.referral = db.settings.referral || { signup_bonus_points: 1, deposit_bonus_points: 30 };
-  if (db.settings.default_tasks_limit === undefined) db.settings.default_tasks_limit = null;
+  ensureUserTasks(db, userId);
+  syncLocks(db, userId);
 
-  db.meta = db.meta || { next_user_id: 555555 };
-  db.users = db.users || [];
-  db.wallet_transactions = db.wallet_transactions || [];
-  db.tasks = db.tasks || [];
-  db.user_tasks = db.user_tasks || [];
-  db.task_runs = db.task_runs || [];
-  db.referrals = db.referrals || [];
+  const tasks = (db.tasks || []).slice().sort((a, b) => a.order_index - b.order_index);
+  const out = [];
 
-  ensureAdmin(db);
-
-  // Migration: add missing fields
-  for (const u of db.users) {
-    if (!u.referral_code) u.referral_code = makeReferralCode(u.id);
-    if (u.tasks_enabled === undefined) u.tasks_enabled = true;
-
-    // ✅ NEW migration
-    if (u.tasks_limit === undefined) u.tasks_limit = null;
+  for (const t of tasks) {
+    const ut = db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id);
+    out.push({
+      id: t.id,
+      title: t.title,
+      order_index: t.order_index,
+      reward_points: t.reward_points,
+      wait_seconds: t.wait_seconds,
+      is_active: !!t.is_active,
+      is_locked: ut ? !!ut.is_locked : true,
+      done_count: ut ? ut.done_count : 0
+    });
   }
-
-  for (const u of db.users) {
-    if (!u.is_admin && u.tasks_enabled !== false) {
-      ensureUserTasks(db, u.id);
-      syncLocks(db, u.id);
-    }
-  }
-
-  await writeDb(db);
+  return out;
 }
 
-/* ---------------- Middleware ---------------- */
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.set("trust proxy", 1);
-const isProd = process.env.NODE_ENV === "production";
-
-app.use(session({
-  name: "mrp.sid",
-  secret: process.env.SESSION_SECRET || "mrp_secret_change_me",
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax"
-  }
-}));
-
-app.use("/public", express.static(path.join(__dirname, "public")));
-
-/* ---------------- Async wrapper ---------------- */
-const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
-
-/* ---------------- Guards ---------------- */
-const requireAuth = wrap(async (req, res, next) => {
-  const db = await readDb();
-  const u = (db.users || []).find(x => x.id === req.session.userId);
-  const isApi = req.path.startsWith("/api/");
-
-  if (!u || u.status !== "active") {
-    if (isApi) return res.status(401).json({ ok: false, message: "Unauthorized" });
-    return res.redirect("/login");
-  }
-
-  req.user = u;
-  req._db = db;
+/* ---------------- DB middleware ---------------- */
+app.use((req, res, next) => {
+  req._db = readDb();
   next();
 });
 
-function requireAdmin(req, res, next) {
-  const isApi = req.path.startsWith("/api/");
-  if (!req.user?.is_admin) {
-    return isApi
-      ? res.status(403).json({ ok: false, message: "Forbidden" })
-      : res.status(403).send("Forbidden");
+/* ---------------- Auth middlewares ---------------- */
+function requireAuth(req, res, next) {
+  if (!req.session?.user_id) {
+    return res.status(401).json({ ok: false, message: "غير مسجل" });
   }
   next();
 }
 
-function requireTasksEnabled(req, res, next){
-  if (req.user?.is_admin) return next();
-  if (req.user?.tasks_enabled === false) {
-    return res.status(403).json({ ok: false, message: "تم إيقاف المهام لهذا الحساب." });
-  }
+function requireAdmin(req, res, next) {
+  const db = req._db;
+  const u = getUserById(db, Number(req.session.user_id));
+  if (!u || !u.is_admin) return res.status(403).send("Forbidden");
   next();
 }
 
 /* ---------------- Pages ---------------- */
 app.get("/", (req, res) => res.redirect("/home"));
-app.get("/login", (req, res) => res.sendFile(path.join(__dirname, "views/login.html")));
-app.get("/register", (req, res) => res.sendFile(path.join(__dirname, "views/register.html")));
-app.get("/home", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/home.html")));
-app.get("/tasks", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/tasks.html")));
-app.get("/profile", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/profile.html")));
-app.get("/admin", requireAuth, requireAdmin, (req, res) => res.sendFile(path.join(__dirname, "views/admin.html")));
-app.post("/logout", (req, res) => req.session.destroy(() => res.redirect("/login")));
-app.get("/withdraw", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/withdraw.html")));
-app.get("/deposit", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/deposit.html")));
 
-/* ---------------- Referral API ---------------- */
-app.get("/api/referral/me", requireAuth, wrap(async (req, res) => {
-  const db = req._db;
-  db.referrals = db.referrals || [];
+app.get("/login", (req, res) => res.sendFile(view("login.html")));
+app.get("/register", (req, res) => res.sendFile(view("register.html")));
 
-  const code = req.user.referral_code || makeReferralCode(req.user.id);
-  const total = db.referrals.filter(r => r.referrer_id === req.user.id).length;
+app.get("/home", (req, res) => res.sendFile(view("home.html")));
+app.get("/tasks", (req, res) => res.sendFile(view("tasks.html")));
+app.get("/deposit", (req, res) => res.sendFile(view("deposit.html")));
+app.get("/withdraw", (req, res) => res.sendFile(view("withdraw.html")));
+app.get("/profile", (req, res) => res.sendFile(view("profile.html")));
 
-  const base = `${req.protocol}://${req.get("host")}`;
-  const link = `${base}/register?ref=${encodeURIComponent(code)}`;
-
-  await writeDb(db);
-  res.json({ ok: true, code, link, total });
-}));
+app.get("/admin", requireAuth, requireAdmin, (req, res) => res.sendFile(view("admin.html")));
 
 /* ---------------- Auth APIs ---------------- */
-app.post("/api/register", wrap(async (req, res) => {
-  const db = await readDb();
-  const { full_name, email, phone, password, ref_code } = req.body;
-
-  const pw = String(password || "").trim();
-  if (pw.length < 6) return res.status(400).json({ ok: false, message: "كلمة المرور 6 أحرف على الأقل." });
-
-  const keyEmail = email ? String(email).trim() : "";
-  const keyPhone = phone ? String(phone).trim() : "";
-  if (!keyEmail && !keyPhone) return res.status(400).json({ ok: false, message: "أدخل البريد أو الهاتف." });
-
-  const exists = (db.users || []).find(u =>
-    (keyEmail && u.email && String(u.email).toLowerCase() === keyEmail.toLowerCase()) ||
-    (keyPhone && u.phone && String(u.phone) === keyPhone)
-  );
-  if (exists) return res.status(400).json({ ok: false, message: "الحساب موجود." });
-
-  db.meta = db.meta || {};
-  if (!Number.isFinite(db.meta.next_user_id)) db.meta.next_user_id = 555555;
-
-  const newId = db.meta.next_user_id;
-
-  const user = {
-    id: newId,
-    full_name: String(full_name || "").trim() || null,
-    email: keyEmail || null,
-    phone: keyPhone || null,
-    password_hash: bcrypt.hashSync(pw, 10),
-    points_balance: 0,
-    is_admin: false,
-    status: "active",
-    created_at: nowISO(),
-    last_login_at: null,
-    referral_code: makeReferralCode(newId),
-    tasks_enabled: true,
-
-    // ✅ NEW
-    tasks_limit: null
-  };
-
-  db.users.push(user);
-  db.meta.next_user_id += 1;
-
-  db.referrals = db.referrals || [];
-  const code = String(ref_code || "").trim();
-  if (code) {
-    const referrer = db.users.find(u => u.referral_code === code);
-    if (referrer && referrer.id !== user.id) {
-      const already = db.referrals.find(r => r.referred_id === user.id);
-      if (!already) {
-        const signupBonus = Number(db.settings?.referral?.signup_bonus_points ?? 1);
-        db.referrals.push({
-          id: String(Date.now()) + "-" + Math.floor(Math.random() * 99999),
-          referrer_id: referrer.id,
-          referred_id: user.id,
-          ref_code: code,
-          created_at: nowISO(),
-          signup_bonus_points: signupBonus,
-          deposit_bonus_points: Number(db.settings?.referral?.deposit_bonus_points ?? 30),
-          deposit_bonus_awarded: false
-        });
-        referrer.points_balance += signupBonus;
-      }
-    }
-  }
-
-  if (user.tasks_enabled !== false) {
-    ensureUserTasks(db, user.id);
-    resetUserProgress(db, user.id);
-    syncLocks(db, user.id);
-  }
-
-  await writeDb(db);
-  return res.json({ ok: true });
-}));
-
-app.post("/api/login", wrap(async (req, res) => {
-  const db = await readDb();
-  const keyRaw = String(req.body.emailOrPhone || "").trim();
-  const keyLower = keyRaw.toLowerCase();
-  const password = String(req.body.password || "");
-
-  const u = (db.users || []).find(x => {
-    const emailOk = x.email && String(x.email).toLowerCase() === keyLower;
-    const phoneOk = x.phone && String(x.phone).trim() === keyRaw;
-    return emailOk || phoneOk;
-  });
-
-  if (!u) return res.status(400).json({ ok: false, message: "بيانات غير صحيحة." });
-
-  const ok = bcrypt.compareSync(password, u.password_hash);
-  if (!ok) return res.status(400).json({ ok: false, message: "بيانات غير صحيحة." });
-
-  if (u.status !== "active") return res.status(403).json({ ok: false, message: "الحساب غير نشط." });
-
-  u.last_login_at = nowISO();
-  await writeDb(db);
-
-  req.session.userId = u.id;
-  return res.json({ ok: true, is_admin: !!u.is_admin });
-}));
-
-app.get("/api/me", requireAuth, wrap(async (req, res) => {
+app.post("/api/auth/login", wrap(async (req, res) => {
   const db = req._db;
+  const email = String(req.body.email || "").trim().toLowerCase();
+  const password = String(req.body.password || "").trim();
 
-  if (!req.user.is_admin && req.user.tasks_enabled !== false) {
-    ensureUserTasks(db, req.user.id);
-    syncLocks(db, req.user.id);
-    await writeDb(db);
-  }
+  const user = (db.users || []).find(u => (u.email || "").toLowerCase() === email);
+  if (!user) return res.status(400).json({ ok: false, message: "بيانات خاطئة" });
 
-  const activeTasksAllowed = getActiveTasksForUser(db, req.user.id);
-  const done = (db.user_tasks || []).filter(x => x.user_id === req.user.id && x.status === "completed").filter(x => {
-    // done within allowed set
-    return activeTasksAllowed.some(t => t.id === x.task_id);
-  }).length;
+  const ok = bcrypt.compareSync(password, user.password_hash);
+  if (!ok) return res.status(400).json({ ok: false, message: "بيانات خاطئة" });
 
+  req.session.user_id = user.id;
+  user.last_login_at = nowISO();
+  writeDb(db);
+
+  res.json({ ok: true, user: { id: user.id, full_name: user.full_name, is_admin: !!user.is_admin } });
+}));
+
+app.post("/logout", (req, res) => {
+  req.session.destroy(() => res.redirect("/login"));
+});
+
+app.get("/api/me", requireAuth, (req, res) => {
+  const db = req._db;
+  const u = getUserById(db, Number(req.session.user_id));
+  if (!u) return res.status(404).json({ ok: false, message: "Not found" });
   res.json({
     ok: true,
-    app: { name: db.settings.app_name },
     user: {
-      id: req.user.id,
-      full_name: req.user.full_name,
-      points_balance: req.user.points_balance,
-      is_admin: !!req.user.is_admin,
-      tasks_enabled: req.user.tasks_enabled !== false,
-
-      // ✅ NEW
-      tasks_limit: (req.user.tasks_limit === undefined ? null : req.user.tasks_limit)
-    },
-    settings: db.settings,
-    tasks: { total: activeTasksAllowed.length, done }
+      id: u.id,
+      full_name: u.full_name,
+      email: u.email,
+      phone: u.phone,
+      points_balance: u.points_balance,
+      is_admin: !!u.is_admin
+    }
   });
-}));
-
-/* ---------------- Wallet ---------------- */
-app.post("/api/wallet/request", requireAuth, wrap(async (req, res) => {
-  const db = req._db;
-  const { type, amount_usd } = req.body;
-
-  if (!["deposit", "withdraw"].includes(type)) return res.status(400).json({ ok: false, message: "نوع غير صحيح." });
-
-  const usd = parseUsd(amount_usd);
-  if (!usd) return res.status(400).json({ ok: false, message: "أدخل مبلغ صحيح بالدولار." });
-
-  const minDep = Number(db.settings.min_deposit_usd ?? 5);
-  const minW = Number(db.settings.min_withdraw_usd ?? 10);
-
-  if (type === "deposit" && usd < minDep) return res.status(400).json({ ok: false, message: `أقل إيداع هو ${minDep}$` });
-  if (type === "withdraw" && usd < minW) return res.status(400).json({ ok: false, message: `أقل سحب هو ${minW}$` });
-
-  const points = usdToPoints(db, usd);
-  if (type === "withdraw" && req.user.points_balance < points) {
-    return res.status(400).json({ ok: false, message: "رصيد النقاط غير كافٍ." });
-  }
-
-  db.wallet_transactions = db.wallet_transactions || [];
-  db.wallet_transactions.push({
-    id: String(Date.now()) + "-" + Math.floor(Math.random() * 9999),
-    user_id: req.user.id,
-    type,
-    amount_usd: usd,
-    rate_usd_to_points: Number(db.settings.usd_to_points ?? 10),
-    points_delta: type === "deposit" ? points : -points,
-    status: "pending",
-    created_at: nowISO(),
-    processed_at: null
-  });
-
-  await writeDb(db);
-  res.json({ ok: true, message: "تم إرسال الطلب.", manager: db.settings.manager_contact });
-}));
-
-app.get("/api/wallet/my", requireAuth, (req, res) => {
-  const db = req._db;
-  const rows = (db.wallet_transactions || []).filter(x => x.user_id === req.user.id).slice(-30).reverse();
-  res.json({ ok: true, rows });
 });
 
-/* ---------------- Tasks (User) ---------------- */
-app.get("/api/tasks", requireAuth, requireTasksEnabled, wrap(async (req, res) => {
+/* ---------------- User APIs ---------------- */
+app.get("/api/tasks", requireAuth, (req, res) => {
   const db = req._db;
+  const userId = Number(req.session.user_id);
+  const u = getUserById(db, userId);
+  if (!u) return res.status(404).json({ ok: false, message: "Not found" });
 
-  ensureUserTasks(db, req.user.id);
-  syncLocks(db, req.user.id);
-
-  const allowed = getActiveTasksForUser(db, req.user.id);
-
-  const rows = allowed
-    .sort((a, b) => a.order_index - b.order_index)
-    .map(t => {
-      const ut = (db.user_tasks || []).find(x => x.user_id === req.user.id && x.task_id === t.id);
-      return {
-        id: t.id,
-        title: t.title,
-        order_index: t.order_index,
-        reward_points: t.reward_points,
-        wait_seconds: t.wait_seconds,
-        status: ut?.status || "locked"
-      };
-    });
-
-  await writeDb(db);
-  res.json({ ok: true, rows, limit: getTasksLimitForUser(db, req.user.id) });
-}));
-
-app.post("/api/tasks/start", requireAuth, requireTasksEnabled, wrap(async (req, res) => {
-  const db = req._db;
-
-  ensureUserTasks(db, req.user.id);
-  syncLocks(db, req.user.id);
-
-  const allowedTasks = getActiveTasksForUser(db, req.user.id);
-  const allowedIds = new Set(allowedTasks.map(t => t.id));
-
-  const available = (db.user_tasks || [])
-    .filter(x => x.user_id === req.user.id && x.status === "available" && allowedIds.has(x.task_id))
-    .map(x => ({ ut: x, t: (db.tasks || []).find(tt => tt.id === x.task_id) }))
-    .filter(x => x.t && x.t.is_active && allowedIds.has(x.t.id))
-    .sort((a, b) => a.t.order_index - b.t.order_index);
-
-  const pick = available[0];
-  if (!pick) return res.status(400).json({ ok: false, message: "لا توجد مهمة جاهزة." });
-
-  db.task_runs = db.task_runs || [];
-  const running = db.task_runs.find(r => r.user_id === req.user.id && r.status === "running");
-  if (running) return res.status(400).json({ ok: false, message: "هناك مهمة قيد التنفيذ." });
-
-  const token = String(Date.now()) + "-" + Math.floor(Math.random() * 99999);
-  const expected = Date.now() + (pick.t.wait_seconds * 1000);
-
-  db.task_runs.push({
-    id: token,
-    user_id: req.user.id,
-    task_id: pick.t.id,
-    run_token: token,
-    started_at: nowISO(),
-    expected_finish_ms: expected,
-    finished_at: null,
-    status: "running"
-  });
-
-  await writeDb(db);
-  res.json({ ok: true, run_token: token, wait_seconds: pick.t.wait_seconds });
-}));
-
-app.post("/api/tasks/finish", requireAuth, requireTasksEnabled, wrap(async (req, res) => {
-  const db = req._db;
-  ensureUserTasks(db, req.user.id);
-
-  const allowedTasks = getActiveTasksForUser(db, req.user.id);
-  const allowedIds = new Set(allowedTasks.map(t => t.id));
-
-  const { run_token } = req.body;
-  const run = (db.task_runs || []).find(r => r.run_token === run_token && r.user_id === req.user.id && r.status === "running");
-  if (!run) return res.status(400).json({ ok: false, message: "جلسة غير صالحة." });
-
-  if (!allowedIds.has(run.task_id)) {
-    // ✅ إذا كان خارج limit (مثلا حدّث المدير limit وهو خدام) نسدوها بأمان
-    run.status = "expired";
-    run.finished_at = nowISO();
-    await writeDb(db);
-    return res.status(403).json({ ok: false, message: "هذه المهمة غير مسموحة لهذا الحساب." });
-  }
-
-  if (Date.now() < run.expected_finish_ms) {
-    return res.status(400).json({ ok: false, message: "يجب الانتظار لإكمال المهمة." });
-  }
-
-  const task = (db.tasks || []).find(t => t.id === run.task_id && t.is_active);
-  if (!task) return res.status(400).json({ ok: false, message: "المهمة غير موجودة." });
-
-  const ut = (db.user_tasks || []).find(x => x.user_id === req.user.id && x.task_id === task.id);
-  if (!ut || ut.status !== "available") return res.status(400).json({ ok: false, message: "المهمة غير جاهزة." });
-
-  ut.status = "completed";
-  ut.completed_at = nowISO();
-  ut.earned_points = task.reward_points;
-
-  // ✅ فتح المهمة التالية ولكن فقط إذا كانت داخل limit
-  const allowedSorted = allowedTasks.sort((a,b)=>a.order_index-b.order_index);
-  const idx = allowedSorted.findIndex(t => t.id === task.id);
-  const next = (idx >= 0) ? allowedSorted[idx + 1] : null;
-
-  if (next) {
-    const nextUT = (db.user_tasks || []).find(x => x.user_id === req.user.id && x.task_id === next.id);
-    if (nextUT && nextUT.status === "locked") nextUT.status = "available";
-  }
-
-  req.user.points_balance += task.reward_points;
-
-  run.status = "completed";
-  run.finished_at = nowISO();
-
-  await writeDb(db);
-  res.json({ ok: true, message: "لقد اكتملت المهمة ✅ وتمت إضافة المكافأة." });
-}));
-
-/* ---------------- ADMIN: Pending Requests ---------------- */
-app.get("/api/admin/requests", requireAuth, requireAdmin, (req, res) => {
-  const db = req._db;
-  const rows = (db.wallet_transactions || [])
-    .filter(x => x.status === "pending")
-    .slice(-200)
-    .reverse()
-    .map(x => {
-      const u = db.users.find(uu => uu.id === x.user_id);
-      return { ...x, full_name: u?.full_name, email: u?.email, phone: u?.phone };
-    });
+  // if tasks_enabled is false => still return list but locked
+  const rows = getTasksForUser(db, userId);
   res.json({ ok: true, rows });
 });
-
-app.post("/api/admin/requests/:id/approve", requireAuth, requireAdmin, wrap(async (req, res) => {
-  const db = req._db;
-  const id = req.params.id;
-
-  const row = (db.wallet_transactions || []).find(x => x.id === id && x.status === "pending");
-  if (!row) return res.status(400).json({ ok: false, message: "طلب غير صالح." });
-
-  const u = db.users.find(uu => uu.id === row.user_id);
-  if (!u) return res.status(400).json({ ok: false, message: "مستخدم غير موجود." });
-
-  u.points_balance += row.points_delta;
-  row.status = "approved";
-  row.processed_at = nowISO();
-
-  if (String(row.type).toLowerCase() === "deposit") {
-    db.referrals = db.referrals || [];
-    const rel = db.referrals.find(r => r.referred_id === u.id && r.deposit_bonus_awarded === false);
-    if (rel) {
-      const referrer = db.users.find(x => x.id === rel.referrer_id);
-      if (referrer) {
-        const bonus = Number(db.settings?.referral?.deposit_bonus_points ?? rel.deposit_bonus_points ?? 30);
-        referrer.points_balance += bonus;
-        rel.deposit_bonus_awarded = true;
-        rel.deposit_bonus_awarded_at = nowISO();
-      }
-    }
-  }
-
-  await writeDb(db);
-  res.json({ ok: true });
-}));
-
-app.post("/api/admin/requests/:id/reject", requireAuth, requireAdmin, wrap(async (req, res) => {
-  const db = req._db;
-  const id = req.params.id;
-
-  const row = (db.wallet_transactions || []).find(x => x.id === id && x.status === "pending");
-  if (!row) return res.status(400).json({ ok: false, message: "طلب غير صالح." });
-
-  row.status = "rejected";
-  row.processed_at = nowISO();
-
-  await writeDb(db);
-  res.json({ ok: true });
-}));
-
-/* ---------------- ADMIN: Users ---------------- */
-app.get("/api/admin/users", requireAuth, requireAdmin, wrap(async (req, res) => {
-  const db = req._db;
-
-  for (const u of (db.users || [])) {
-    if (u.tasks_enabled === undefined) u.tasks_enabled = true;
-    if (u.tasks_limit === undefined) u.tasks_limit = null; // ✅ NEW
-  }
-  await writeDb(db);
-
-  const rows = (db.users || [])
-    .filter(u => !u.is_admin)
-    .slice(-300)
-    .reverse();
-
-  res.json({ ok: true, rows });
-}));
-
-app.post("/api/admin/users/:id/points", requireAuth, requireAdmin, wrap(async (req, res) => {
-  const db = req._db;
-  const userId = Number(req.params.id);
-  const points = Number(req.body.points);
-
-  if (!Number.isFinite(points) || points < 0) return res.status(400).json({ ok: false, message: "نقاط غير صالحة." });
-
-  const u = db.users.find(x => x.id === userId && !x.is_admin);
-  if (!u) return res.status(400).json({ ok: false, message: "مستخدم غير موجود." });
-
-  u.points_balance = Math.floor(points);
-  await writeDb(db);
-  res.json({ ok: true });
-}));
-
-app.post("/api/admin/users/:id/password", requireAuth, requireAdmin, wrap(async (req, res) => {
-  const db = req._db;
-  const userId = Number(req.params.id);
-
-  const new_password = String(req.body.new_password || "").trim();
-  if (new_password.length < 6) return res.status(400).json({ ok: false, message: "كلمة المرور 6 أحرف على الأقل." });
-
-  const u = db.users.find(x => x.id === userId && !x.is_admin);
-  if (!u) return res.status(400).json({ ok: false, message: "مستخدم غير موجود." });
-
-  u.password_hash = bcrypt.hashSync(new_password, 10);
-  await writeDb(db);
-  res.json({ ok: true });
-}));
-
-app.post("/api/admin/users/:id/reset-tasks", requireAuth, requireAdmin, wrap(async (req, res) => {
-  const db = req._db;
-  const userId = Number(req.params.id);
-
-  const u = db.users.find(x => x.id === userId && !x.is_admin);
-  if (!u) return res.status(404).json({ ok: false, message: "مستخدم غير موجود." });
-
-  resetUserProgress(db, userId);
-  syncLocks(db, userId);
-  await writeDb(db);
-  res.json({ ok: true });
-}));
-
-app.post("/api/admin/users/:id/tasks-enabled", requireAuth, requireAdmin, wrap(async (req, res) => {
-  const db = req._db;
-  const userId = Number(req.params.id);
-  const enabled = !!req.body.enabled;
-
-  const u = db.users.find(x => x.id === userId && !x.is_admin);
-  if (!u) return res.status(404).json({ ok: false, message: "مستخدم غير موجود." });
-
-  u.tasks_enabled = enabled;
-
-  db.task_runs = db.task_runs || [];
-  if (!enabled) {
-    for (const r of db.task_runs) {
-      if (r.user_id === userId && r.status === "running") {
-        r.status = "expired";
-        r.finished_at = nowISO();
-      }
-    }
-  }
-
-  await writeDb(db);
-  res.json({ ok: true, tasks_enabled: u.tasks_enabled });
-}));
-
-/* ✅ NEW: set per-user tasks limit */
-app.post("/api/admin/users/:id/tasks-limit", requireAuth, requireAdmin, wrap(async (req, res) => {
-  const db = req._db;
-  const userId = Number(req.params.id);
-
-  const u = db.users.find(x => x.id === userId && !x.is_admin);
-  if (!u) return res.status(404).json({ ok: false, message: "مستخدم غير موجود." });
-
-  // body.limit: number | null
-  const raw = req.body.limit;
-
-  if (raw === null || raw === undefined || raw === "") {
-    u.tasks_limit = null; // no limit
-  } else {
-    const n = Number(raw);
-    if (!Number.isFinite(n) || n < 0) return res.status(400).json({ ok: false, message: "limit غير صالح" });
-    u.tasks_limit = Math.floor(n);
-  }
-
-  // نعاودو نضبطو الحالة ديال user_tasks باش مايبانوش مهام خارج limit
-  ensureUserTasks(db, userId);
-  syncLocks(db, userId);
-
-  await writeDb(db);
-  res.json({ ok: true, tasks_limit: u.tasks_limit });
-}));
 
 /* ---------------- ADMIN: Settings ---------------- */
 app.get("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
   const db = req._db;
-  res.json({ ok: true, settings: db.settings });
+  res.json({ ok: true, settings: db.settings || {} });
 });
 
 app.post("/api/admin/settings", requireAuth, requireAdmin, wrap(async (req, res) => {
@@ -914,35 +348,64 @@ app.post("/api/admin/settings", requireAuth, requireAdmin, wrap(async (req, res)
   const usd_to_points = Number(req.body.usd_to_points);
   const min_deposit_usd = Number(req.body.min_deposit_usd);
   const min_withdraw_usd = Number(req.body.min_withdraw_usd);
+  const whatsapp = String(req.body.whatsapp || "").trim();
+  const telegram = String(req.body.telegram || "").trim();
 
-  if (!Number.isFinite(usd_to_points) || usd_to_points <= 0) return res.status(400).json({ ok: false, message: "usd_to_points غير صالح" });
-  if (!Number.isFinite(min_deposit_usd) || min_deposit_usd <= 0) return res.status(400).json({ ok: false, message: "min_deposit_usd غير صالح" });
-  if (!Number.isFinite(min_withdraw_usd) || min_withdraw_usd <= 0) return res.status(400).json({ ok: false, message: "min_withdraw_usd غير صالح" });
-
-  db.settings.usd_to_points = Math.floor(usd_to_points);
-  db.settings.min_deposit_usd = min_deposit_usd;
-  db.settings.min_withdraw_usd = min_withdraw_usd;
-
-  db.settings.manager_contact = db.settings.manager_contact || {};
-  if (req.body.whatsapp !== undefined) db.settings.manager_contact.whatsapp = String(req.body.whatsapp || "");
-  if (req.body.telegram !== undefined) db.settings.manager_contact.telegram = String(req.body.telegram || "");
-
-  db.settings.referral = db.settings.referral || {};
-  if (req.body.signup_bonus_points !== undefined) db.settings.referral.signup_bonus_points = Number(req.body.signup_bonus_points) || 1;
-  if (req.body.deposit_bonus_points !== undefined) db.settings.referral.deposit_bonus_points = Number(req.body.deposit_bonus_points) || 30;
-
-  // ✅ optional
-  if (req.body.default_tasks_limit !== undefined) {
-    const raw = req.body.default_tasks_limit;
-    if (raw === null || raw === "" || raw === undefined) db.settings.default_tasks_limit = null;
-    else {
-      const n = Number(raw);
-      if (!Number.isFinite(n) || n < 0) return res.status(400).json({ ok: false, message: "default_tasks_limit غير صالح" });
-      db.settings.default_tasks_limit = Math.floor(n);
-    }
+  if (!Number.isFinite(usd_to_points) || usd_to_points < 1) {
+    return res.status(400).json({ ok: false, message: "usd_to_points غير صالح" });
   }
 
-  await writeDb(db);
+  db.settings = db.settings || {};
+  db.settings.usd_to_points = Math.floor(usd_to_points);
+  db.settings.min_deposit_usd = Number.isFinite(min_deposit_usd) ? Math.max(0, min_deposit_usd) : 0;
+  db.settings.min_withdraw_usd = Number.isFinite(min_withdraw_usd) ? Math.max(0, min_withdraw_usd) : 0;
+  db.settings.manager_contact = db.settings.manager_contact || {};
+  db.settings.manager_contact.whatsapp = whatsapp;
+  db.settings.manager_contact.telegram = telegram;
+
+  writeDb(db);
+  res.json({ ok: true, settings: db.settings });
+}));
+
+/* ---------------- ADMIN: Requests ---------------- */
+app.get("/api/admin/requests", requireAuth, requireAdmin, (req, res) => {
+  const db = req._db;
+  const rows = (db.requests || []).filter(r => String(r.status || "").toLowerCase() === "pending");
+  res.json({ ok: true, rows });
+});
+
+app.post("/api/admin/requests/:id/approve", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const id = Number(req.params.id);
+  const r = (db.requests || []).find(x => x.id === id);
+  if (!r) return res.status(404).json({ ok: false, message: "Request not found" });
+  if (String(r.status).toLowerCase() !== "pending") return res.json({ ok: true });
+
+  const u = getUserById(db, Number(r.user_id));
+  if (!u) return res.status(404).json({ ok: false, message: "User not found" });
+
+  // apply points change
+  const delta = Number(r.points_delta) || 0;
+  u.points_balance = Number(u.points_balance || 0) + delta;
+
+  r.status = "approved";
+  r.approved_at = nowISO();
+
+  writeDb(db);
+  res.json({ ok: true });
+}));
+
+app.post("/api/admin/requests/:id/reject", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const id = Number(req.params.id);
+  const r = (db.requests || []).find(x => x.id === id);
+  if (!r) return res.status(404).json({ ok: false, message: "Request not found" });
+  if (String(r.status).toLowerCase() !== "pending") return res.json({ ok: true });
+
+  r.status = "rejected";
+  r.rejected_at = nowISO();
+
+  writeDb(db);
   res.json({ ok: true });
 }));
 
@@ -964,8 +427,10 @@ app.post("/api/admin/tasks/create", requireAuth, requireAdmin, wrap(async (req, 
   if (!Number.isFinite(reward_points) || reward_points < 0) return res.status(400).json({ ok: false, message: "reward غير صالح" });
   if (!Number.isFinite(wait_seconds) || wait_seconds < 1) return res.status(400).json({ ok: false, message: "wait غير صالح" });
 
-  const maxOrder = (db.tasks || []).length ? Math.max(...db.tasks.map(t => t.order_index)) : 0;
-  const newId = (db.tasks || []).length ? (Math.max(...db.tasks.map(t => t.id)) + 1) : 1;
+  db.tasks = db.tasks || [];
+
+  const maxOrder = db.tasks.length ? Math.max(...db.tasks.map(t => t.order_index)) : 0;
+  const newId = db.tasks.length ? (Math.max(...db.tasks.map(t => t.id)) + 1) : 1;
 
   const task = {
     id: newId,
@@ -978,14 +443,15 @@ app.post("/api/admin/tasks/create", requireAuth, requireAdmin, wrap(async (req, 
 
   db.tasks.push(task);
 
-  for (const u of db.users) {
-    if (!u.is_admin && u.tasks_enabled !== false) {
+  // sync for users
+  for (const u of db.users || []) {
+    if (!u.is_admin) {
       ensureUserTasks(db, u.id);
       syncLocks(db, u.id);
     }
   }
 
-  await writeDb(db);
+  writeDb(db);
   res.json({ ok: true, task });
 }));
 
@@ -1010,86 +476,193 @@ app.post("/api/admin/tasks/:id/update", requireAuth, requireAdmin, wrap(async (r
   t.wait_seconds = Math.floor(wait_seconds);
   t.is_active = is_active;
 
-  for (const u of db.users) {
-    if (!u.is_admin && u.tasks_enabled !== false) {
+  for (const u of db.users || []) {
+    if (!u.is_admin) {
       ensureUserTasks(db, u.id);
       syncLocks(db, u.id);
     }
   }
 
-  await writeDb(db);
+  writeDb(db);
   res.json({ ok: true });
 }));
 
-/* ---------------- ADMIN: Create User ---------------- */
-app.post("/api/admin/users/create", requireAuth, requireAdmin, wrap(async (req,res)=>{
+/* ---------------- ADMIN: Users list ---------------- */
+app.get("/api/admin/users", requireAuth, requireAdmin, (req, res) => {
+  const db = req._db;
+  const rows = (db.users || [])
+    .filter(u => !u.is_admin)
+    .map(u => ({
+      id: u.id,
+      full_name: u.full_name,
+      email: u.email,
+      phone: u.phone,
+      points_balance: u.points_balance,
+      tasks_enabled: u.tasks_enabled !== false,
+      tasks_limit: (u.tasks_limit === undefined) ? null : u.tasks_limit
+    }))
+    .sort((a, b) => a.id - b.id);
+
+  res.json({ ok: true, rows });
+});
+
+/* ---------------- ADMIN: points ---------------- */
+app.post("/api/admin/users/:id/points", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const userId = Number(req.params.id);
+  const points = Number(req.body.points);
+
+  if (!Number.isFinite(points)) return res.status(400).json({ ok: false, message: "points غير صالح" });
+
+  const u = getUserById(db, userId);
+  if (!u || u.is_admin) return res.status(404).json({ ok: false, message: "المستخدم غير موجود" });
+
+  u.points_balance = Math.floor(points);
+
+  writeDb(db);
+  res.json({ ok: true });
+}));
+
+/* ---------------- ADMIN: password ---------------- */
+app.post("/api/admin/users/:id/password", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const userId = Number(req.params.id);
+  const new_password = String(req.body.new_password || "").trim();
+
+  if (!new_password || new_password.length < 6) {
+    return res.status(400).json({ ok: false, message: "كلمة السر ضعيفة" });
+  }
+
+  const u = getUserById(db, userId);
+  if (!u || u.is_admin) return res.status(404).json({ ok: false, message: "المستخدم غير موجود" });
+
+  u.password_hash = bcrypt.hashSync(new_password, 10);
+
+  writeDb(db);
+  res.json({ ok: true });
+}));
+
+/* ---------------- ADMIN: tasks-enabled toggle ---------------- */
+app.post("/api/admin/users/:id/tasks-enabled", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const userId = Number(req.params.id);
+  const enabled = !!req.body.enabled;
+
+  const u = getUserById(db, userId);
+  if (!u || u.is_admin) return res.status(404).json({ ok: false, message: "المستخدم غير موجود" });
+
+  u.tasks_enabled = enabled;
+  syncLocks(db, userId);
+
+  writeDb(db);
+  res.json({ ok: true, tasks_enabled: u.tasks_enabled });
+}));
+
+/* ---------------- ADMIN: tasks-limit (0..5 or null=unlimited) ---------------- */
+app.post("/api/admin/users/:id/tasks-limit", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const userId = Number(req.params.id);
+
+  let limit = req.body.limit;
+
+  // accept null, "null", undefined => null (unlimited)
+  if (limit === null || limit === undefined || limit === "" || limit === "null") {
+    limit = null;
+  } else {
+    const n = Number(limit);
+    if (!Number.isFinite(n)) return res.status(400).json({ ok: false, message: "limit غير صالح" });
+    const k = Math.floor(n);
+    if (k < 0 || k > 5) return res.status(400).json({ ok: false, message: "limit يجب 0..5" });
+    limit = k;
+  }
+
+  const u = getUserById(db, userId);
+  if (!u || u.is_admin) return res.status(404).json({ ok: false, message: "المستخدم غير موجود" });
+
+  u.tasks_limit = limit; // null or 0..5
+  syncLocks(db, userId);
+
+  writeDb(db);
+  res.json({ ok: true, tasks_limit: u.tasks_limit });
+}));
+
+/* ---------------- ADMIN: reset tasks ---------------- */
+app.post("/api/admin/users/:id/reset-tasks", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const userId = Number(req.params.id);
+
+  const u = getUserById(db, userId);
+  if (!u || u.is_admin) return res.status(404).json({ ok: false, message: "المستخدم غير موجود" });
+
+  resetUserProgress(db, userId);
+  syncLocks(db, userId);
+
+  writeDb(db);
+  res.json({ ok: true });
+}));
+
+/* ---------------- ADMIN: create user ---------------- */
+app.post("/api/admin/users/create", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
 
   const full_name = String(req.body.full_name || "").trim();
-  const email = String(req.body.email || "").trim();
+  const email = String(req.body.email || "").trim().toLowerCase();
   const password = String(req.body.password || "").trim();
 
-  if(!full_name || !email || password.length < 6){
-    return res.status(400).json({ ok:false, message:"المعطيات غير صحيحة" });
+  if (!full_name || !email || password.length < 6) {
+    return res.status(400).json({ ok: false, message: "المعطيات غير صحيحة" });
   }
 
-  const exists = db.users.find(u => u.email === email);
-  if(exists){
-    return res.status(400).json({ ok:false, message:"البريد مستعمل" });
-  }
+  const exists = (db.users || []).find(u => (u.email || "").toLowerCase() === email);
+  if (exists) return res.status(400).json({ ok: false, message: "البريد مستعمل" });
 
-  const newId = db.meta.next_user_id;
+  const newId = db.meta?.next_user_id || ((db.users || []).length + 1);
+  db.meta = db.meta || {};
+  db.meta.next_user_id = newId + 1;
 
   const user = {
-    id:newId,
+    id: newId,
     full_name,
     email,
-    phone:null,
-    password_hash:bcrypt.hashSync(password,10),
-    points_balance:0,
-    is_admin:false,
-    status:"active",
-    created_at:nowISO(),
-    last_login_at:null,
-    referral_code:makeReferralCode(newId),
-    tasks_enabled:true,
-
-    // ✅ NEW
+    phone: null,
+    password_hash: bcrypt.hashSync(password, 10),
+    points_balance: 0,
+    is_admin: false,
+    status: "active",
+    created_at: nowISO(),
+    last_login_at: null,
+    referral_code: makeReferralCode(newId),
+    tasks_enabled: true,
     tasks_limit: null
   };
 
   db.users.push(user);
-  db.meta.next_user_id++;
 
-  ensureUserTasks(db,user.id);
-  resetUserProgress(db,user.id);
-  syncLocks(db,user.id);
+  ensureUserTasks(db, user.id);
+  resetUserProgress(db, user.id);
+  syncLocks(db, user.id);
 
-  await writeDb(db);
-
-  res.json({ ok:true });
+  writeDb(db);
+  res.json({ ok: true, user_id: user.id });
 }));
 
-/* ---------------- ADMIN: Delete User ---------------- */
-app.post("/api/admin/users/:id/delete", requireAuth, requireAdmin, wrap(async (req,res)=>{
+/* ---------------- ADMIN: delete user ---------------- */
+app.post("/api/admin/users/:id/delete", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const userId = Number(req.params.id);
 
-  const index = db.users.findIndex(u => u.id === userId && !u.is_admin);
+  const index = (db.users || []).findIndex(u => u.id === userId && !u.is_admin);
+  if (index === -1) return res.status(404).json({ ok: false, message: "المستخدم غير موجود" });
 
-  if(index === -1){
-    return res.status(404).json({ ok:false, message:"المستخدم غير موجود" });
-  }
-
-  db.users.splice(index,1);
+  db.users.splice(index, 1);
 
   db.user_tasks = (db.user_tasks || []).filter(x => x.user_id !== userId);
   db.task_runs = (db.task_runs || []).filter(x => x.user_id !== userId);
   db.wallet_transactions = (db.wallet_transactions || []).filter(x => x.user_id !== userId);
+  db.requests = (db.requests || []).filter(x => x.user_id !== userId);
 
-  await writeDb(db);
-
-  res.json({ ok:true });
+  writeDb(db);
+  res.json({ ok: true });
 }));
 
 /* ---------------- Debug ---------------- */
@@ -1098,14 +671,23 @@ app.get("/test", (req, res) => res.send("SERVER UPDATED ✅"));
 /* ---------------- Error Handler ---------------- */
 app.use((err, req, res, next) => {
   console.error("❌ Error:", err);
+  if (res.headersSent) return next(err);
   res.status(500).json({ ok: false, message: "Server error", error: String(err?.message || err) });
 });
 
-/* ---------------- Start ---------------- */
-(async () => {
-  await init();
-  app.listen(PORT, () => {
+/* ---------------- Start with timeouts ---------------- */
+(function start() {
+  ensureDbFile();
+
+  const server = http.createServer(app);
+
+  // Important to avoid hanging connections
+  server.keepAliveTimeout = 65_000;
+  server.headersTimeout = 70_000;
+  server.requestTimeout = 60_000;
+
+  server.listen(PORT, () => {
     console.log("✅ MRP Logistic running on port", PORT);
-    console.log("✅ Storage:", USE_PG ? "PostgreSQL (persistent)" : "db.json (local)");
+    console.log("✅ Storage: db.json");
   });
 })();
