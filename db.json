@@ -12,7 +12,8 @@
     "referral": {
       "signup_bonus_points": 1,
       "deposit_bonus_points": 30
-    }
+    },
+    "default_tasks_limit": null
   },
   "users": [
     {
@@ -25,9 +26,10 @@
       "is_admin": true,
       "status": "active",
       "created_at": "2026-02-27T15:33:49.221Z",
-      "last_login_at": "2026-03-02T15:14:45.329Z",
+      "last_login_at": "2026-03-04T04:43:47.267Z",
       "referral_code": "Ud728daa5-d822-42cd-b4f6-67abeb6b0fe2",
-      "tasks_enabled": true
+      "tasks_enabled": true,
+      "tasks_limit": null
     },
     {
       "id": "87608041-b3f4-4f25-aaea-8d4b2dc399aa",
@@ -39,9 +41,10 @@
       "is_admin": false,
       "status": "active",
       "created_at": "2026-02-27T15:39:30.203Z",
-      "last_login_at": "2026-02-28T14:57:58.008Z",
+      "last_login_at": "2026-03-04T04:12:10.857Z",
       "referral_code": "U87608041-b3f4-4f25-aaea-8d4b2dc399aa",
-      "tasks_enabled": true
+      "tasks_enabled": true,
+      "tasks_limit": null
     },
     {
       "id": "14222512-10e7-4b22-ae6a-e04b74c6e287",
@@ -53,37 +56,40 @@
       "is_admin": false,
       "status": "active",
       "created_at": "2026-02-27T17:09:31.485Z",
-      "last_login_at": "2026-03-02T13:56:10.357Z",
+      "last_login_at": "2026-03-04T03:50:43.516Z",
       "referral_code": "U14222512-10e7-4b22-ae6a-e04b74c6e287",
-      "tasks_enabled": true
+      "tasks_enabled": true,
+      "tasks_limit": null
     },
     {
-      "id": 555555,
-      "full_name": "AMED",
-      "email": "test1",
+      "id": 555557,
+      "full_name": "med55",
+      "email": "med55@gmail.com",
       "phone": null,
-      "password_hash": "$2a$10$kq0nJrd4aSeaq18d9e/ZmeqExIFvX63JLjMqAWO8BDYfLm7iy35By",
-      "points_balance": 15,
-      "is_admin": false,
-      "status": "active",
-      "created_at": "2026-03-01T17:39:20.310Z",
-      "last_login_at": "2026-03-02T15:09:55.891Z",
-      "referral_code": "U555555",
-      "tasks_enabled": true
-    },
-    {
-      "id": 555556,
-      "full_name": "Produi",
-      "email": "test12",
-      "phone": null,
-      "password_hash": "$2a$10$K68rdVWoSNsUCh2vEyWxIeVrxCBXf1yJUCAoWwb6s1GePD0suiPO6",
+      "password_hash": "$2a$10$t4k/00hG4izX3kN8ImKkverdu1R3p4Z/S1izR7PnUw7s7I65V0DmG",
       "points_balance": 0,
       "is_admin": false,
       "status": "active",
-      "created_at": "2026-03-02T15:09:53.043Z",
-      "last_login_at": "2026-03-02T15:18:43.211Z",
-      "referral_code": "U555556",
-      "tasks_enabled": false
+      "created_at": "2026-03-03T22:45:14.199Z",
+      "last_login_at": null,
+      "referral_code": "U555557",
+      "tasks_enabled": false,
+      "tasks_limit": 3
+    },
+    {
+      "id": 555559,
+      "full_name": "simo",
+      "email": "simo@gmail.com",
+      "phone": null,
+      "password_hash": "$2a$10$wgbREIXcoOhADg98jAGO2eObx9M/dAxnldV3BugQ/PBh6puo7X8uS",
+      "points_balance": 0,
+      "is_admin": false,
+      "status": "active",
+      "created_at": "2026-03-04T04:22:11.436Z",
+      "last_login_at": "2026-03-04T04:43:55.916Z",
+      "referral_code": "U555559",
+      "tasks_enabled": true,
+      "tasks_limit": 3
     }
   ],
   "wallet_transactions": [
@@ -1483,17 +1489,6 @@
       "status": "approved",
       "created_at": "2026-02-27T17:48:27.512Z",
       "processed_at": "2026-02-27T17:48:50.821Z"
-    },
-    {
-      "id": "1772386834004-5674",
-      "user_id": 555555,
-      "type": "deposit",
-      "amount_usd": 50,
-      "rate_usd_to_points": 10,
-      "points_delta": 500,
-      "status": "pending",
-      "created_at": "2026-03-01T17:40:34.004Z",
-      "processed_at": null
     }
   ],
   "tasks": [
@@ -1675,26 +1670,26 @@
       "earned_points": 0
     },
     {
-      "id": "555555-1",
-      "user_id": 555555,
+      "id": "555557-1",
+      "user_id": 555557,
       "task_id": 1,
-      "status": "completed",
-      "started_at": null,
-      "completed_at": "2026-03-01T17:51:28.499Z",
-      "earned_points": 15
-    },
-    {
-      "id": "555555-2",
-      "user_id": 555555,
-      "task_id": 2,
       "status": "available",
       "started_at": null,
       "completed_at": null,
       "earned_points": 0
     },
     {
-      "id": "555555-3",
-      "user_id": 555555,
+      "id": "555557-2",
+      "user_id": 555557,
+      "task_id": 2,
+      "status": "locked",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
+    },
+    {
+      "id": "555557-3",
+      "user_id": 555557,
       "task_id": 3,
       "status": "locked",
       "started_at": null,
@@ -1702,8 +1697,8 @@
       "earned_points": 0
     },
     {
-      "id": "555555-4",
-      "user_id": 555555,
+      "id": "555557-4",
+      "user_id": 555557,
       "task_id": 4,
       "status": "locked",
       "started_at": null,
@@ -1711,8 +1706,8 @@
       "earned_points": 0
     },
     {
-      "id": "555555-5",
-      "user_id": 555555,
+      "id": "555557-5",
+      "user_id": 555557,
       "task_id": 5,
       "status": "locked",
       "started_at": null,
@@ -1720,8 +1715,8 @@
       "earned_points": 0
     },
     {
-      "id": "555556-1",
-      "user_id": 555556,
+      "id": "555559-1",
+      "user_id": 555559,
       "task_id": 1,
       "status": "available",
       "started_at": null,
@@ -1729,8 +1724,8 @@
       "earned_points": 0
     },
     {
-      "id": "555556-2",
-      "user_id": 555556,
+      "id": "555559-2",
+      "user_id": 555559,
       "task_id": 2,
       "status": "locked",
       "started_at": null,
@@ -1738,8 +1733,8 @@
       "earned_points": 0
     },
     {
-      "id": "555556-3",
-      "user_id": 555556,
+      "id": "555559-3",
+      "user_id": 555559,
       "task_id": 3,
       "status": "locked",
       "started_at": null,
@@ -1747,8 +1742,8 @@
       "earned_points": 0
     },
     {
-      "id": "555556-4",
-      "user_id": 555556,
+      "id": "555559-4",
+      "user_id": 555559,
       "task_id": 4,
       "status": "locked",
       "started_at": null,
@@ -1756,8 +1751,8 @@
       "earned_points": 0
     },
     {
-      "id": "555556-5",
-      "user_id": 555556,
+      "id": "555559-5",
+      "user_id": 555559,
       "task_id": 5,
       "status": "locked",
       "started_at": null,
@@ -1917,16 +1912,6 @@
       "status": "completed"
     },
     {
-      "id": "1772387478433-90949",
-      "user_id": 555555,
-      "task_id": 1,
-      "run_token": "1772387478433-90949",
-      "started_at": "2026-03-01T17:51:18.433Z",
-      "expected_finish_ms": 1772387488433,
-      "finished_at": "2026-03-01T17:51:28.499Z",
-      "status": "completed"
-    },
-    {
       "id": "1772400574177-43335",
       "user_id": "d728daa5-d822-42cd-b4f6-67abeb6b0fe2",
       "task_id": 1,
@@ -1938,7 +1923,7 @@
     }
   ],
   "meta": {
-    "next_user_id": 555557
+    "next_user_id": 555560
   },
   "referrals": []
 }

@@ -50,7 +50,10 @@ function defaultDb() {
       referral: {
         signup_bonus_points: 1,
         deposit_bonus_points: 30
-      }
+      },
+
+      // ✅ NEW (اختياري): حد افتراضي لعدد المهام لكل مستخدم (null = بلا حد)
+      default_tasks_limit: null
     },
     meta: { next_user_id: 555555 },
     users: [],
@@ -152,7 +155,7 @@ async function writeDb(db) {
   await pgSetDb(db);
 }
 
-/* ---------------- Logic helpers (unchanged) ---------------- */
+/* ---------------- Logic helpers ---------------- */
 function ensureAdmin(db) {
   db.users = db.users || [];
   const exists = db.users.some(u => u.is_admin === true);
@@ -178,7 +181,10 @@ function ensureAdmin(db) {
     created_at: nowISO(),
     last_login_at: null,
     referral_code: makeReferralCode(adminId),
-    tasks_enabled: true
+    tasks_enabled: true,
+
+    // ✅ NEW
+    tasks_limit: null
   };
 
   db.users.push(admin);
@@ -187,10 +193,31 @@ function ensureAdmin(db) {
   console.log("✅ Admin ensured:", adminEmail, "/", adminPass);
 }
 
+/* ✅ NEW: per-user tasks limit */
+function getTasksLimitForUser(db, userId){
+  const u = (db.users || []).find(x => x.id === userId);
+  const raw = (u && u.tasks_limit !== undefined) ? u.tasks_limit : (db.settings?.default_tasks_limit ?? null);
+
+  if (raw === null || raw === undefined || raw === "") return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return null;
+  if (n <= 0) return 0;
+  return Math.floor(n);
+}
+
+/* ✅ NEW: return active tasks respecting user limit */
+function getActiveTasksForUser(db, userId){
+  const all = (db.tasks || []).filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
+  const lim = getTasksLimitForUser(db, userId);
+  if (lim === null) return all;
+  return all.slice(0, lim);
+}
+
 function ensureUserTasks(db, userId) {
   db.tasks = db.tasks || [];
   db.user_tasks = db.user_tasks || [];
 
+  // ⚠️ هنا ما كنحيدوش tasks، كنضمنو user_tasks لجميع المهام النشطة (باش تبقى الداتا صحيحة)
   const active = db.tasks.filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
 
   for (const t of active) {
@@ -209,11 +236,24 @@ function ensureUserTasks(db, userId) {
   }
 }
 
+/* ✅ UPDATED: syncLocks respects per-user tasks limit */
 function syncLocks(db, userId) {
   ensureUserTasks(db, userId);
 
-  const tasks = db.tasks.filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
-  const uts = tasks.map(t => ({
+  // 🔥 هنا كنخدمو غير على tasks اللي مسموح بها لهذا المستخدم
+  const tasksAllowed = getActiveTasksForUser(db, userId);
+  const allowedIds = new Set(tasksAllowed.map(t => t.id));
+
+  // كنقفل أي user_task ديال مهمة خارج limit
+  for (const ut of (db.user_tasks || [])) {
+    if (ut.user_id !== userId) continue;
+    if (!allowedIds.has(ut.task_id)) {
+      // خارج limit => نخليه locked دائما
+      if (ut.status !== "completed") ut.status = "locked";
+    }
+  }
+
+  const uts = tasksAllowed.map(t => ({
     t,
     ut: db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id)
   }));
@@ -237,17 +277,28 @@ function syncLocks(db, userId) {
   }
 }
 
+/* ✅ UPDATED: reset only allowed tasks for that user */
 function resetUserProgress(db, userId) {
   ensureUserTasks(db, userId);
-  const tasks = db.tasks.filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
+  const tasksAllowed = getActiveTasksForUser(db, userId);
 
-  for (const t of tasks) {
+  // reset allowed
+  for (const t of tasksAllowed) {
     const ut = db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id);
     if (!ut) continue;
     ut.status = (t.order_index === 1) ? "available" : "locked";
     ut.started_at = null;
     ut.completed_at = null;
     ut.earned_points = 0;
+  }
+
+  // lock tasks outside limit (unless completed)
+  const allowedIds = new Set(tasksAllowed.map(t => t.id));
+  for (const ut of (db.user_tasks || [])) {
+    if (ut.user_id !== userId) continue;
+    if (!allowedIds.has(ut.task_id)) {
+      if (ut.status !== "completed") ut.status = "locked";
+    }
   }
 
   db.task_runs = db.task_runs || [];
@@ -265,6 +316,7 @@ async function init() {
 
   db.settings = db.settings || {};
   db.settings.referral = db.settings.referral || { signup_bonus_points: 1, deposit_bonus_points: 30 };
+  if (db.settings.default_tasks_limit === undefined) db.settings.default_tasks_limit = null;
 
   db.meta = db.meta || { next_user_id: 555555 };
   db.users = db.users || [];
@@ -280,6 +332,9 @@ async function init() {
   for (const u of db.users) {
     if (!u.referral_code) u.referral_code = makeReferralCode(u.id);
     if (u.tasks_enabled === undefined) u.tasks_enabled = true;
+
+    // ✅ NEW migration
+    if (u.tasks_limit === undefined) u.tasks_limit = null;
   }
 
   for (const u of db.users) {
@@ -411,7 +466,10 @@ app.post("/api/register", wrap(async (req, res) => {
     created_at: nowISO(),
     last_login_at: null,
     referral_code: makeReferralCode(newId),
-    tasks_enabled: true
+    tasks_enabled: true,
+
+    // ✅ NEW
+    tasks_limit: null
   };
 
   db.users.push(user);
@@ -443,6 +501,7 @@ app.post("/api/register", wrap(async (req, res) => {
   if (user.tasks_enabled !== false) {
     ensureUserTasks(db, user.id);
     resetUserProgress(db, user.id);
+    syncLocks(db, user.id);
   }
 
   await writeDb(db);
@@ -484,8 +543,11 @@ app.get("/api/me", requireAuth, wrap(async (req, res) => {
     await writeDb(db);
   }
 
-  const activeTasks = (db.tasks || []).filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
-  const done = (db.user_tasks || []).filter(x => x.user_id === req.user.id && x.status === "completed").length;
+  const activeTasksAllowed = getActiveTasksForUser(db, req.user.id);
+  const done = (db.user_tasks || []).filter(x => x.user_id === req.user.id && x.status === "completed").filter(x => {
+    // done within allowed set
+    return activeTasksAllowed.some(t => t.id === x.task_id);
+  }).length;
 
   res.json({
     ok: true,
@@ -495,10 +557,13 @@ app.get("/api/me", requireAuth, wrap(async (req, res) => {
       full_name: req.user.full_name,
       points_balance: req.user.points_balance,
       is_admin: !!req.user.is_admin,
-      tasks_enabled: req.user.tasks_enabled !== false
+      tasks_enabled: req.user.tasks_enabled !== false,
+
+      // ✅ NEW
+      tasks_limit: (req.user.tasks_limit === undefined ? null : req.user.tasks_limit)
     },
     settings: db.settings,
-    tasks: { total: activeTasks.length, done }
+    tasks: { total: activeTasksAllowed.length, done }
   });
 }));
 
@@ -553,8 +618,9 @@ app.get("/api/tasks", requireAuth, requireTasksEnabled, wrap(async (req, res) =>
   ensureUserTasks(db, req.user.id);
   syncLocks(db, req.user.id);
 
-  const rows = (db.tasks || [])
-    .filter(t => t.is_active)
+  const allowed = getActiveTasksForUser(db, req.user.id);
+
+  const rows = allowed
     .sort((a, b) => a.order_index - b.order_index)
     .map(t => {
       const ut = (db.user_tasks || []).find(x => x.user_id === req.user.id && x.task_id === t.id);
@@ -569,7 +635,7 @@ app.get("/api/tasks", requireAuth, requireTasksEnabled, wrap(async (req, res) =>
     });
 
   await writeDb(db);
-  res.json({ ok: true, rows });
+  res.json({ ok: true, rows, limit: getTasksLimitForUser(db, req.user.id) });
 }));
 
 app.post("/api/tasks/start", requireAuth, requireTasksEnabled, wrap(async (req, res) => {
@@ -578,10 +644,13 @@ app.post("/api/tasks/start", requireAuth, requireTasksEnabled, wrap(async (req, 
   ensureUserTasks(db, req.user.id);
   syncLocks(db, req.user.id);
 
+  const allowedTasks = getActiveTasksForUser(db, req.user.id);
+  const allowedIds = new Set(allowedTasks.map(t => t.id));
+
   const available = (db.user_tasks || [])
-    .filter(x => x.user_id === req.user.id && x.status === "available")
+    .filter(x => x.user_id === req.user.id && x.status === "available" && allowedIds.has(x.task_id))
     .map(x => ({ ut: x, t: (db.tasks || []).find(tt => tt.id === x.task_id) }))
-    .filter(x => x.t && x.t.is_active)
+    .filter(x => x.t && x.t.is_active && allowedIds.has(x.t.id))
     .sort((a, b) => a.t.order_index - b.t.order_index);
 
   const pick = available[0];
@@ -613,9 +682,20 @@ app.post("/api/tasks/finish", requireAuth, requireTasksEnabled, wrap(async (req,
   const db = req._db;
   ensureUserTasks(db, req.user.id);
 
+  const allowedTasks = getActiveTasksForUser(db, req.user.id);
+  const allowedIds = new Set(allowedTasks.map(t => t.id));
+
   const { run_token } = req.body;
   const run = (db.task_runs || []).find(r => r.run_token === run_token && r.user_id === req.user.id && r.status === "running");
   if (!run) return res.status(400).json({ ok: false, message: "جلسة غير صالحة." });
+
+  if (!allowedIds.has(run.task_id)) {
+    // ✅ إذا كان خارج limit (مثلا حدّث المدير limit وهو خدام) نسدوها بأمان
+    run.status = "expired";
+    run.finished_at = nowISO();
+    await writeDb(db);
+    return res.status(403).json({ ok: false, message: "هذه المهمة غير مسموحة لهذا الحساب." });
+  }
 
   if (Date.now() < run.expected_finish_ms) {
     return res.status(400).json({ ok: false, message: "يجب الانتظار لإكمال المهمة." });
@@ -631,7 +711,11 @@ app.post("/api/tasks/finish", requireAuth, requireTasksEnabled, wrap(async (req,
   ut.completed_at = nowISO();
   ut.earned_points = task.reward_points;
 
-  const next = (db.tasks || []).find(t => t.is_active && t.order_index === task.order_index + 1);
+  // ✅ فتح المهمة التالية ولكن فقط إذا كانت داخل limit
+  const allowedSorted = allowedTasks.sort((a,b)=>a.order_index-b.order_index);
+  const idx = allowedSorted.findIndex(t => t.id === task.id);
+  const next = (idx >= 0) ? allowedSorted[idx + 1] : null;
+
   if (next) {
     const nextUT = (db.user_tasks || []).find(x => x.user_id === req.user.id && x.task_id === next.id);
     if (nextUT && nextUT.status === "locked") nextUT.status = "available";
@@ -712,6 +796,7 @@ app.get("/api/admin/users", requireAuth, requireAdmin, wrap(async (req, res) => 
 
   for (const u of (db.users || [])) {
     if (u.tasks_enabled === undefined) u.tasks_enabled = true;
+    if (u.tasks_limit === undefined) u.tasks_limit = null; // ✅ NEW
   }
   await writeDb(db);
 
@@ -761,6 +846,7 @@ app.post("/api/admin/users/:id/reset-tasks", requireAuth, requireAdmin, wrap(asy
   if (!u) return res.status(404).json({ ok: false, message: "مستخدم غير موجود." });
 
   resetUserProgress(db, userId);
+  syncLocks(db, userId);
   await writeDb(db);
   res.json({ ok: true });
 }));
@@ -787,6 +873,33 @@ app.post("/api/admin/users/:id/tasks-enabled", requireAuth, requireAdmin, wrap(a
 
   await writeDb(db);
   res.json({ ok: true, tasks_enabled: u.tasks_enabled });
+}));
+
+/* ✅ NEW: set per-user tasks limit */
+app.post("/api/admin/users/:id/tasks-limit", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const userId = Number(req.params.id);
+
+  const u = db.users.find(x => x.id === userId && !x.is_admin);
+  if (!u) return res.status(404).json({ ok: false, message: "مستخدم غير موجود." });
+
+  // body.limit: number | null
+  const raw = req.body.limit;
+
+  if (raw === null || raw === undefined || raw === "") {
+    u.tasks_limit = null; // no limit
+  } else {
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 0) return res.status(400).json({ ok: false, message: "limit غير صالح" });
+    u.tasks_limit = Math.floor(n);
+  }
+
+  // نعاودو نضبطو الحالة ديال user_tasks باش مايبانوش مهام خارج limit
+  ensureUserTasks(db, userId);
+  syncLocks(db, userId);
+
+  await writeDb(db);
+  res.json({ ok: true, tasks_limit: u.tasks_limit });
 }));
 
 /* ---------------- ADMIN: Settings ---------------- */
@@ -817,6 +930,17 @@ app.post("/api/admin/settings", requireAuth, requireAdmin, wrap(async (req, res)
   db.settings.referral = db.settings.referral || {};
   if (req.body.signup_bonus_points !== undefined) db.settings.referral.signup_bonus_points = Number(req.body.signup_bonus_points) || 1;
   if (req.body.deposit_bonus_points !== undefined) db.settings.referral.deposit_bonus_points = Number(req.body.deposit_bonus_points) || 30;
+
+  // ✅ optional
+  if (req.body.default_tasks_limit !== undefined) {
+    const raw = req.body.default_tasks_limit;
+    if (raw === null || raw === "" || raw === undefined) db.settings.default_tasks_limit = null;
+    else {
+      const n = Number(raw);
+      if (!Number.isFinite(n) || n < 0) return res.status(400).json({ ok: false, message: "default_tasks_limit غير صالح" });
+      db.settings.default_tasks_limit = Math.floor(n);
+    }
+  }
 
   await writeDb(db);
   res.json({ ok: true });
@@ -928,7 +1052,10 @@ app.post("/api/admin/users/create", requireAuth, requireAdmin, wrap(async (req,r
     created_at:nowISO(),
     last_login_at:null,
     referral_code:makeReferralCode(newId),
-    tasks_enabled:true
+    tasks_enabled:true,
+
+    // ✅ NEW
+    tasks_limit: null
   };
 
   db.users.push(user);
@@ -936,6 +1063,7 @@ app.post("/api/admin/users/create", requireAuth, requireAdmin, wrap(async (req,r
 
   ensureUserTasks(db,user.id);
   resetUserProgress(db,user.id);
+  syncLocks(db,user.id);
 
   await writeDb(db);
 
