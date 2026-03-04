@@ -1046,30 +1046,7 @@
   </script>
  <script>
 
-  // ✅ OnClick: كنحمّلو السكريبت غير مرة وحدة (باش مايتعاودش)
-  function loadOnClickOnce(){
-    try{
-      if (window.__onclick_loaded) return;
-      window.__onclick_loaded = true;
 
-      var s = document.createElement("script");
-      s.dataset.zone = "10683197";
-      s.src = "https://al5sm.com/tag.min.js";
-      document.body.appendChild(s);
-    }catch(e){}
-  }
-
-  // ✅ استهداف زر "بدء/ابدأ" داخل المهام
-  document.addEventListener("click", function(e){
-    const btn = e.target.closest("button, a, .btn");
-    if(!btn) return;
-
-    const t = (btn.innerText || "").trim();
-    if(t.includes("بدء") || t.includes("ابدأ")){
-      // الإعلان OnClick/Popunder كيتحل فتبويب/نافذة (إلا ما تبلوكا)
-      loadOnClickOnce();
-    }
-  });
 </script>
 </body>
 </html>
