@@ -1044,6 +1044,29 @@
 
     load().catch(e=>toast(e.message));
   </script>
-  <script src="/public/ads.js"></script>
+  <script>
+  // كيعاود يحقن سكريبت Monetag كل مرة بغيت
+  function showAd(){
+    try{
+      var s = document.createElement("script");
+      s.src = "https://5gvci.com/act/files/tag.min.js?z=10683065";
+      s.async = true;
+      s.setAttribute("data-cfasync","false");
+      document.body.appendChild(s);
+    }catch(e){}
+  }
+
+  // استهداف زر "بدء" في المهام (إلى كاين بزاف ديال الأزرار)
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest("button, a, .btn");
+    if(!btn) return;
+
+    // غادي يطلق الإعلان غير ملي يضغط على زر فيه كلمة "بدء"
+    const t = (btn.innerText || "").trim();
+    if(t.includes("بدء") || t.includes("ابدأ")){
+    showAd();
+}
+  });
+</script>
 </body>
 </html>
