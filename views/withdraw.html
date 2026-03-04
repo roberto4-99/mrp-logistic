@@ -11,7 +11,7 @@
       --card: rgba(255,255,255,.07);
       --border: rgba(255,255,255,.14);
       --txt:#fff; --muted: rgba(255,255,255,.72);
-      --good:#22c55e; --blue:#3b82f6; --bad:#ef4444;
+      --good:#22c55e; --blue:#3b82f6; --bad:#ef4444; --amber:#f59e0b;
       --shadow: 0 18px 60px rgba(0,0,0,.35);
       --r24:24px; --r16:16px;
     }
@@ -20,18 +20,19 @@
       margin:0; color:var(--txt);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
       background:
-        radial-gradient(900px 500px at 10% 10%, #15234a, transparent 60%),
-        radial-gradient(900px 500px at 90% 10%, #3a0b1c, transparent 55%),
+        radial-gradient(900px 500px at 10% 10%, rgba(59,130,246,.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(239,68,68,.14), transparent 55%),
         linear-gradient(180deg, var(--bg1), var(--bg2));
       min-height:100vh;
       padding:16px;
       padding-bottom: calc(92px + env(safe-area-inset-bottom));
     }
-    .wrap{max-width:520px;margin:0 auto}
+    .wrap{max-width:560px;margin:0 auto}
+
     .toast{
       position:fixed; left:16px; right:16px;
       bottom: calc(90px + env(safe-area-inset-bottom));
-      max-width:520px; margin:auto;
+      max-width:560px; margin:auto;
       background: rgba(2,6,23,.92);
       border:1px solid var(--border);
       border-radius: var(--r16);
@@ -39,8 +40,12 @@
       box-shadow: 0 10px 28px rgba(0,0,0,.28);
       display:none; z-index:9999;
       backdrop-filter: blur(14px);
+      line-height:1.7;
+      font-weight:900;
+      font-size:13px;
     }
     .toast.show{display:block}
+
     .topbar{
       display:flex; align-items:center; justify-content:space-between;
       gap:10px; margin-top:10px;
@@ -51,13 +56,38 @@
       backdrop-filter: blur(12px);
       box-shadow: 0 14px 50px rgba(0,0,0,.22);
     }
+    .brand{
+      display:flex; align-items:center; gap:10px; min-width:0;
+    }
+    .logo{
+      width:42px;height:42px;border-radius:16px;
+      display:flex;align-items:center;justify-content:center;
+      background: linear-gradient(135deg, rgba(34,197,94,.95), rgba(59,130,246,.95));
+      color:#020617; font-weight:1000;
+      box-shadow: var(--shadow);
+      flex:0 0 auto;
+    }
+    .btxt{min-width:0}
+    .btxt b{
+      display:block; font-size:13px; font-weight:1000;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .btxt span{
+      display:block; font-size:11px; color:var(--muted);
+      margin-top:2px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width:260px;
+    }
+
     .back{
       display:inline-flex; align-items:center; gap:8px;
       padding:10px 12px; border-radius:999px;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
-      color:#fff; text-decoration:none; font-weight:900;
+      color:#fff; text-decoration:none; font-weight:1000;
+      white-space:nowrap;
     }
+
     .card{
       margin-top:14px;
       background: var(--card);
@@ -67,9 +97,30 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
     }
-    h1{margin:0; font-size:16px; font-weight:950}
-    .sub{margin-top:6px; font-size:12px; color:var(--muted); line-height:1.6}
-    label{display:block; margin-top:12px; font-size:12px; color:var(--muted); font-weight:900}
+
+    .hero{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      padding:14px;
+      border-radius: var(--r24);
+      background: rgba(0,0,0,.22);
+      border:1px solid rgba(255,255,255,.10);
+      margin-bottom:14px;
+    }
+    .hero b{font-size:15px; font-weight:1000}
+    .hero .small{margin-top:6px; font-size:12px; color:var(--muted); line-height:1.6}
+    .chip{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:8px 12px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-weight:1000;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    label{display:block; margin-top:12px; font-size:12px; color:var(--muted); font-weight:1000}
     .field{
       width:100%;
       margin-top:8px;
@@ -85,23 +136,81 @@
       border-color: rgba(147,197,253,.55);
       box-shadow: 0 0 0 4px rgba(59,130,246,.12);
     }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media(max-width:520px){ .grid{grid-template-columns:1fr} }
+
+    .methodGrid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+    }
+    @media(max-width:520px){ .methodGrid{grid-template-columns: repeat(2, 1fr);} }
+
+    .mbtn{
+      cursor:pointer;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      padding:12px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font-weight:1000;
+      transition: transform .12s ease, filter .2s ease, background .2s ease;
+      user-select:none;
+    }
+    .mbtn:active{transform: translateY(1px) scale(.99)}
+    .mbtn .tag{
+      width:10px;height:10px;border-radius:999px;
+      background: rgba(255,255,255,.35);
+      box-shadow: 0 0 0 4px rgba(255,255,255,.08);
+      flex:0 0 auto;
+    }
+    .mbtn.active{
+      background: linear-gradient(135deg, rgba(34,197,94,.25), rgba(59,130,246,.22));
+      border-color: rgba(34,197,94,.35);
+    }
+    .mbtn.active .tag{background: var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,.16);}
+
     .btn{
       width:100%;
       margin-top:14px;
       border:none; cursor:pointer;
       border-radius:999px;
       padding:12px 14px;
-      font-weight:950;
-      color:#fff;
-      background: linear-gradient(135deg, rgba(239,68,68,.95), rgba(59,130,246,.95));
+      font-weight:1000;
+      color:#020617;
+      background: linear-gradient(135deg, rgba(34,197,94,.98), rgba(59,130,246,.98));
       transition:transform .12s ease, filter .2s ease;
     }
+    .btn:hover{filter:brightness(1.03)}
     .btn:active{transform: translateY(1px) scale(.99)}
+    .btn[disabled]{opacity:.6; cursor:not-allowed}
+
     .mini{
       margin-top:10px;
       font-size:12px;
       color:var(--muted);
-      line-height:1.6;
+      line-height:1.7;
+    }
+    .warn{
+      margin-top:12px;
+      padding:12px;
+      border-radius: 18px;
+      border:1px solid rgba(245,158,11,.25);
+      background: rgba(245,158,11,.10);
+      color: rgba(255,255,255,.90);
+      font-size:12px;
+      line-height:1.7;
+      font-weight:900;
     }
 
     /* Bottom Nav */
@@ -127,7 +236,7 @@
       border:1px solid rgba(255,255,255,.16);
       border-radius: 18px;
       padding: 10px 12px;
-      font-weight: 950;
+      font-weight: 1000;
       user-select:none;
     }
     .navbtn small{font-size:11px;opacity:.9}
@@ -152,27 +261,50 @@
 
   <div class="wrap">
     <div class="topbar">
+      <div class="brand">
+        <div class="logo">MR</div>
+        <div class="btxt">
+          <b id="appName">MRP Logistic</b>
+          <span id="userLine">—</span>
+        </div>
+      </div>
       <a class="back" href="/home">← رجوع</a>
-      <div style="font-weight:950; opacity:.85; font-size:12px;">صفحة السحب</div>
     </div>
 
     <div class="card">
-      <h1>سحب</h1>
-      <div class="sub" id="minLine">أقل سحب: 10$</div>
+      <div class="hero">
+        <div>
+          <b>طلب سحب</b>
+          <div class="small" id="minLine">أقل سحب: 10$</div>
+        </div>
+        <div class="chip" id="balanceChip">💠 الرصيد: —</div>
+      </div>
 
-      <label>المبلغ بالدولار</label>
-      <input class="field" id="amount" inputmode="decimal" placeholder="مثال: 10"/>
+      <div class="grid">
+        <div>
+          <label>المبلغ بالدولار</label>
+          <input class="field" id="amount" inputmode="decimal" placeholder="مثال: 10"/>
+        </div>
+        <div>
+          <label>العملة</label>
+          <input class="field" value="USD" disabled/>
+        </div>
+      </div>
 
-      <label>طريقة الدفع</label>
-      <input class="field" id="method" placeholder="مثال: Inwi / CIH / CashPlus"/>
+      <label>طريقة السحب (محافظ إلكترونية فقط)</label>
+      <div class="methodGrid" id="methodGrid"></div>
 
-      <label>الحساب / الرقم / RIB</label>
-      <input class="field" id="account" placeholder="مثال: رقم الهاتف / RIB / رقم الحساب"/>
+      <label>معرّف المحفظة / Wallet ID</label>
+      <input class="field" id="walletId" placeholder="مثال: Binance ID / USDT Address / Payeer Account"/>
 
-      <button class="btn" onclick="submitWithdraw()">إرسال طلب السحب</button>
+      <button class="btn" id="sendBtn" onclick="submitWithdraw()">إرسال طلب السحب</button>
+
+      <div class="warn">
+       
+      </div>
 
       <div class="mini">
-        تأكد من طريقة الدفع والحساب قبل الإرسال يصل خلال 24 ساعة
+        تأكد من المعلومات قبل الإرسال. معالجة الطلب خلال 24 ساعة.
       </div>
     </div>
   </div>
@@ -217,8 +349,19 @@
     </div>
   </div>
 
-  <script src=https://i.ibb.co/SwTt7rZj/Screenshot-20260304-043805.png"></script>
   <script>
+    /* ✅ IMPORTANT: api() fallback داخل الصفحة باش مايبقاش api is not defined */
+    window.api = window.api || async function api(url, method="GET", body){
+      const opt = { method, headers: { "Content-Type":"application/json" } };
+      if(method !== "GET" && method !== "HEAD") opt.body = JSON.stringify(body || {});
+      const r = await fetch(url, opt);
+      const data = await r.json().catch(()=> ({}));
+      if(!r.ok || data?.ok === false){
+        throw new Error(data?.message || ("HTTP " + r.status));
+      }
+      return data;
+    };
+
     function toast(msg){
       const t=document.getElementById("toast");
       t.innerHTML=msg;
@@ -238,40 +381,114 @@
       if(p==="/profile") document.getElementById("navProfile").classList.add("active");
     })();
 
-    let MIN_WD = 10;
+    const METHODS = [
+      { key:"binance", label:"Binance", hint:"Binance Pay / ID" },
+      { key:"usdt_trc20", label:"USDT (TRC20)", hint:"Address" },
+      { key:"usdt_erc20", label:"USDT (ERC20)", hint:"Address" },
+      { key:"payeer", label:"Payeer", hint:"Pxxxxxx" },
+      { key:"perfectmoney", label:"Perfect Money", hint:"Uxxxxxx" },
+      { key:"skrill", label:"Skrill", hint:"Email" },
+      { key:"neteller", label:"Neteller", hint:"Email" },
+    ];
 
-    async function loadMin(){
+    let MIN_WD = 10;
+    let ME = null;
+    let selectedMethod = null;
+
+    function renderMethods(){
+      const grid = document.getElementById("methodGrid");
+      grid.innerHTML = "";
+      for(const m of METHODS){
+        grid.insertAdjacentHTML("beforeend", `
+          <div class="mbtn" id="m_${m.key}" onclick="pickMethod('${m.key}')">
+            <span>${m.label}</span>
+            <span class="tag"></span>
+          </div>
+        `);
+      }
+    }
+
+    function pickMethod(key){
+      selectedMethod = key;
+      for(const m of METHODS){
+        document.getElementById("m_"+m.key)?.classList.toggle("active", m.key===key);
+      }
+      const meta = METHODS.find(x=>x.key===key);
+      const w = document.getElementById("walletId");
+      w.placeholder = meta ? `مثال: ${meta.hint}` : "Wallet ID";
+      // حفظ محلي
+      localStorage.setItem("wd_method", key);
+    }
+
+    async function loadMeAndMin(){
       try{
-        const me = await api("/api/me");
-        MIN_WD = Number(me.settings?.min_withdraw_usd ?? 10);
-      }catch(e){}
-      document.getElementById("minLine").textContent = `أقل سحب: ${MIN_WD}$`;
+        ME = await api("/api/me");
+        MIN_WD = Number(ME.settings?.min_withdraw_usd ?? 10);
+
+        document.getElementById("appName").textContent = ME.app?.name || "MRP Logistic";
+        const name = (ME.user?.full_name || ("ID: " + ME.user?.id));
+        document.getElementById("userLine").textContent = `مرحباً، ${name}`;
+
+        document.getElementById("minLine").textContent = `أقل سحب: ${MIN_WD}$`;
+        const bal = Number(ME.user?.points_balance ?? 0);
+        document.getElementById("balanceChip").textContent = `💠 الرصيد: ${bal}`;
+
+        // استرجاع اختيار سابق
+        const savedMethod = localStorage.getItem("wd_method");
+        const savedWallet = localStorage.getItem("wd_wallet");
+        if(savedWallet) document.getElementById("walletId").value = savedWallet;
+
+        if(savedMethod && METHODS.some(x=>x.key===savedMethod)){
+          pickMethod(savedMethod);
+        }else{
+          pickMethod(METHODS[0].key);
+        }
+      }catch(e){
+        document.getElementById("minLine").textContent = `أقل سحب: ${MIN_WD}$`;
+      }
     }
 
     async function submitWithdraw(){
+      const btn = document.getElementById("sendBtn");
+      btn.disabled = true;
+
       const amount = moneyNum(document.getElementById("amount").value);
-      const method = String(document.getElementById("method").value||"").trim();
-      const account = String(document.getElementById("account").value||"").trim();
+      const walletId = String(document.getElementById("walletId").value||"").trim();
 
-      if(!Number.isFinite(amount) || amount<=0) return toast("دخل مبلغ صحيح");
-      if(amount < MIN_WD) return toast(`أقل سحب هو <b>${MIN_WD}$</b>`);
-      if(!method) return toast("دخل طريقة الدفع");
-      if(!account) return toast("دخل الحساب");
-
-      // ملاحظة: السيرفر الحالي ماكيخزنش method/account فـ db.json
-      // ولكن الطلب pending غادي يتسجل، والمعلومات خزنها عندك فالرسالة/المدير.
-      try{
-        const r = await api("/api/wallet/request","POST",{ type:"withdraw", amount_usd: amount });
-        toast(r.message ? r.message : "تم إرسال طلب السحب ✅");
-      }catch(e){
-        return toast(e?.message || "وقع خطأ فطلب السحب");
+      if(!Number.isFinite(amount) || amount<=0){
+        btn.disabled = false;
+        return toast("دخل مبلغ صحيح");
+      }
+      if(amount < MIN_WD){
+        btn.disabled = false;
+        return toast(`أقل سحب هو <b>${MIN_WD}$</b>`);
+      }
+      if(!selectedMethod){
+        btn.disabled = false;
+        return toast("اختار طريقة السحب");
+      }
+      if(!walletId){
+        btn.disabled = false;
+        return toast("دخل Wallet ID ديالك");
       }
 
-      // نقدر نرجع للهوم مباشرة
-      setTimeout(()=>location.href="/home", 900);
+      // ✅ حفظ محلي فقط (السيرفر ماكيخزنهمش)
+      localStorage.setItem("wd_wallet", walletId);
+
+      try{
+        // ⚠️ حسب السيرفر: كيتم إرسال amount_usd فقط + type
+        const r = await api("/api/wallet/request","POST",{ type:"withdraw", amount_usd: amount });
+        toast(r.message ? r.message : "تم إرسال طلب السحب ✅");
+        setTimeout(()=>location.href="/home", 900);
+      }catch(e){
+        toast(e?.message || "وقع خطأ فطلب السحب");
+        btn.disabled = false;
+      }
     }
 
-    loadMin();
+    // init
+    renderMethods();
+    loadMeAndMin();
   </script>
 </body>
 </html>
