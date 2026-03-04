@@ -1046,16 +1046,15 @@
   </script>
  <script>
 
-  // ✅ Monetag: كنحمّلو السكريبت غير مرة وحدة (باش مايتعاودش ويتبلوكا)
-  function loadMonetagOnce(){
+  // ✅ OnClick: كنحمّلو السكريبت غير مرة وحدة (باش مايتعاودش)
+  function loadOnClickOnce(){
     try{
-      if (window.__monetag_loaded) return;
-      window.__monetag_loaded = true;
+      if (window.__onclick_loaded) return;
+      window.__onclick_loaded = true;
 
       var s = document.createElement("script");
-      s.src = "https://5gvci.com/act/files/tag.min.js?z=10683065";
-      s.async = true;
-      s.setAttribute("data-cfasync","false");
+      s.dataset.zone = "10683197";
+      s.src = "https://al5sm.com/tag.min.js";
       document.body.appendChild(s);
     }catch(e){}
   }
@@ -1067,10 +1066,10 @@
 
     const t = (btn.innerText || "").trim();
     if(t.includes("بدء") || t.includes("ابدأ")){
-      // ملاحظة: Popunder ما كيبانش داخل الصفحة، كيفتح تبويب/نافذة (إلا ما تبلوكا)
-      loadMonetagOnce()
+      // الإعلان OnClick/Popunder كيتحل فتبويب/نافذة (إلا ما تبلوكا)
+      loadOnClickOnce();
     }
   });
 </script>
 </body>
-   </html>
+</html>
