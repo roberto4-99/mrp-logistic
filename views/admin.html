@@ -178,7 +178,6 @@
       white-space:nowrap;
     }
 
-    .sidehr{height:10px}
     .search{
       margin-top:10px;
       padding:10px;
@@ -329,6 +328,25 @@
       color:#fff;
       outline:none;
       font-size:13px;
+    }
+
+    /* mini buttons (tasks limit) */
+    .dtMini{display:flex;gap:6px;flex-wrap:wrap}
+    .miniBtn{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color:#fff;
+      padding:6px 9px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:1000;
+      font-size:12px;
+      line-height:1;
+    }
+    .miniBtn:hover{filter:brightness(1.08)}
+    .miniBtn.ok{
+      background: rgba(34,197,94,.16);
+      border-color: rgba(34,197,94,.30);
     }
 
     /* Toast */
@@ -602,7 +620,7 @@
                   <th>الاسم</th>
                   <th>تواصل</th>
                   <th>نقاط</th>
-                  <th>المهام</th>
+                  <th>المهام + العدد</th>
                   <th>كلمة سر جديدة</th>
                   <th>إجراءات</th>
                 </tr>
@@ -612,11 +630,10 @@
           </div>
         </div>
 
-        <!-- OPTIONAL: create user (works only if endpoint exists) -->
         <div class="block">
           <div class="btitle">
-            <b>➕ إنشاء مستخدم (اختياري)</b>
-            <span>POST /api/admin/users/create (إذا موجود)</span>
+            <b>➕ إنشاء مستخدم</b>
+            <span>POST /api/admin/users/create</span>
           </div>
 
           <div class="grid" style="grid-template-columns: 2fr 2fr 2fr 1fr">
@@ -637,7 +654,7 @@
             </div>
           </div>
           <div class="muted" style="margin-top:10px;line-height:1.7">
-            إذا السيرفر ما فيهش هاد endpoint، غادي يعطيك رسالة "غير مدعوم" بلا ما يطيّح الصفحة.
+            إذا السيرفر ما فيهش endpoint ديال create (نادر دابا عندك كيبان)، غادي يعطيك رسالة بلا ما يطيّح الصفحة.
           </div>
         </div>
       </section>
@@ -648,6 +665,7 @@
     // ---------- tiny helpers ----------
     function toast(msg){
       const t = document.getElementById("toast");
+      if(!t) return;
       t.textContent = msg;
       t.classList.add("show");
       setTimeout(()=>t.classList.remove("show"), 2600);
@@ -675,17 +693,26 @@
       return '<span class="tag warn">Pending</span>';
     }
 
-    // ---------- API wrapper (works even if /public/app.js is missing) ----------
-    window.api = window.api || (async function api(url, method="GET", body){
-      const opt = { method, headers: { "Content-Type":"application/json" } };
-      if(method !== "GET" && method !== "HEAD") opt.body = JSON.stringify(body || {});
-      const r = await fetch(url, opt);
-      const data = await r.json().catch(()=> ({}));
-      if(!r.ok || data?.ok === false){
-        throw new Error(data?.message || ("HTTP " + r.status));
-      }
-      return data;
-    });
+// ---------- API wrapper ----------
+window.api = window.api || (async function api(url, method="GET", body){
+  const opt = {
+    method,
+    headers: { "Content-Type":"application/json" },
+    credentials: "include" // ✅ مهم: يرسل cookie ديال session
+  };
+
+  if(method !== "GET" && method !== "HEAD"){
+    opt.body = JSON.stringify(body || {});
+  }
+
+  const r = await fetch(url, opt);
+  const data = await r.json().catch(()=> ({}));
+
+  if(!r.ok || data?.ok === false){
+    throw new Error(data?.message || ("HTTP " + r.status));
+  }
+  return data;
+});
 
     // ---------- Tabs ----------
     function openTab(key){
@@ -700,8 +727,8 @@
       const map = {
         settings:{t:"الإعدادات", d:"تحكم في التحويل + الحد الأدنى + وسائل التواصل."},
         requests:{t:"طلبات Pending", d:"موافقة أو رفض الطلبات بسرعة."},
-        tasks:{t:"المهام", d:"تعديل/إضافة/فتح/غلق (بدون تغيير السيرفر)."},
-        users:{t:"المستخدمون", d:"نقاط + كلمة السر + تشغيل/إيقاف المهام."},
+        tasks:{t:"المهام", d:"تعديل/إضافة/فتح/غلق."},
+        users:{t:"المستخدمون", d:"نقاط + كلمة السر + تشغيل/إيقاف المهام + تحديد عدد المهام."},
       };
       document.getElementById("mainTitle").textContent = map[key].t;
       document.getElementById("mainDesc").textContent  = map[key].d;
@@ -836,25 +863,24 @@
           tb.insertAdjacentHTML("beforeend", `
             <tr data-row="task" data-search="${escapeHtml((t.title||"")+" "+t.id+" "+t.order_index)}">
               <td><b>${escapeHtml(t.order_index)}</b><div class="muted">id: ${escapeHtml(t.id)}</div></td>
-
               <td><input class="miniInput" id="t_title_${t.id}" value="${escapeAttr(t.title)}"/></td>
               <td><input class="miniInput" type="number" min="0" id="t_reward_${t.id}" value="${escapeAttr(t.reward_points)}"/></td>
               <td><input class="miniInput" type="number" min="1" id="t_wait_${t.id}" value="${escapeAttr(t.wait_seconds)}"/></td>
-
               <td>
                 <div class="sw">
-                  <div class="switch ${on ? "on":""}" id="sw_${t.id}" onclick="toggleTaskSwitch(${t.id})">
+                  <div class="switch ${on ? "on":""}" id="sw_${t.id}" onclick="toggleTaskSwitch(${t.id})" title="فتح/غلق">
                     <div class="knob"></div>
                   </div>
                   <small class="muted" id="swlbl_${t.id}">${on ? "مفتوحة" : "مغلقة"}</small>
                   <input type="hidden" id="t_active_${t.id}" value="${on ? "true":"false"}"/>
                 </div>
               </td>
-
               <td>
                 <div class="rowBtns">
                   <button class="btn" onclick="saveTask(${t.id})">💾 حفظ</button>
+                  <button class="btn danger" onclick="deleteTask(${t.id})">🗑️ حذف</button>
                 </div>
+                <div class="muted" style="margin-top:6px">الحذف اختياري حسب السيرفر</div>
               </td>
             </tr>
           `);
@@ -891,7 +917,7 @@
           is_active: document.getElementById(`t_active_${id}`).value === "true"
         });
         toast("تم تحديث المهمة ✅");
-        loadTasks();
+        await loadTasks();
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
@@ -903,7 +929,7 @@
           await api(`/api/admin/tasks/${t.id}/update`,"POST",{ is_active:true });
         }
         toast("تم فتح الكل ✅");
-        loadTasks();
+        await loadTasks();
       }catch(e){ toast(e.message || "وقع خطأ"); }
       finally{ setSync("🟢 جاهز"); }
     }
@@ -916,7 +942,7 @@
           await api(`/api/admin/tasks/${t.id}/update`,"POST",{ is_active:false });
         }
         toast("تم غلق الكل ✅");
-        loadTasks();
+        await loadTasks();
       }catch(e){ toast(e.message || "وقع خطأ"); }
       finally{ setSync("🟢 جاهز"); }
     }
@@ -930,8 +956,20 @@
         });
         toast("تمت إضافة مهمة ✅");
         document.getElementById("new_title").value = "";
-        loadTasks();
+        await loadTasks();
       }catch(e){ toast(e.message || "وقع خطأ"); }
+    }
+
+    async function deleteTask(id){
+      if(!confirm("حذف هذه المهمة؟")) return;
+      try{
+        await api(`/api/admin/tasks/${id}/delete`, "POST", {});
+        toast("تم حذف المهمة ✅");
+        await loadTasks();
+      }catch(e){
+        const msg = String(e?.message || "");
+        toast(msg.includes("404") ? "الحذف غير مدعوم فالسيرفر الحالي" : (msg || "وقع خطأ"));
+      }
     }
 
     // ---------- USERS ----------
@@ -955,8 +993,7 @@
       const current = (hid.value === "true");
       const next = !current;
 
-      setUserSwitchUI(userId, next); // optimistic
-
+      setUserSwitchUI(userId, next);
       try{
         const r = await api(`/api/admin/users/${userId}/tasks-enabled`, "POST", { enabled: next });
         setUserSwitchUI(userId, r.tasks_enabled !== false);
@@ -964,6 +1001,78 @@
       }catch(e){
         setUserSwitchUI(userId, current);
         toast(e.message || "وقع خطأ");
+      }
+    }
+
+    // ----- Tasks Limit UI -----
+    function getLocalLimit(u){
+      const v = u?.tasks_limit;
+      if(v === null || v === undefined || v === "") return null;
+      const n = Number(v);
+      if(!Number.isFinite(n)) return null;
+      return Math.max(0, Math.floor(n));
+    }
+
+    function renderLimitIcons(userId, currentLimit){
+      const box = document.getElementById(`limit_${userId}`);
+      if(!box) return;
+
+      const lim = (currentLimit === null) ? null : Number(currentLimit);
+      let html = "";
+
+      html += `
+        <button class="miniBtn ${lim === null ? "ok" : ""}"
+          title="بلا حد"
+          onclick="setTasksLimit('${userId}', null)">∞</button>
+      `;
+
+      for(let i=0;i<=5;i++){
+        const active = (lim !== null && lim === i);
+        html += `
+          <button class="miniBtn ${active ? "ok" : ""}"
+            title="عرض ${i} مهمة"
+            onclick="setTasksLimit('${userId}', ${i})">${i}</button>
+        `;
+      }
+      box.innerHTML = html;
+    }
+
+    async function setTasksLimit(userId, limit){
+      const lbl = document.getElementById(`limit_lbl_${userId}`);
+      const prevAttr = lbl ? lbl.getAttribute("data-limit") : "null";
+
+      const setLbl = (v)=>{
+        if(!lbl) return;
+        if(v === null){
+          lbl.textContent = "بلا حد";
+          lbl.setAttribute("data-limit","null");
+        }else{
+          lbl.textContent = `${v}/5`;
+          lbl.setAttribute("data-limit", String(v));
+        }
+      };
+
+      setLbl(limit === null ? null : Number(limit));
+      renderLimitIcons(userId, limit === null ? null : Number(limit));
+
+      try{
+        const r = await api(`/api/admin/users/${userId}/tasks-limit`, "POST", { limit });
+
+        const serverLimit =
+          (r && ("tasks_limit" in r))
+            ? (r.tasks_limit === null ? null : Number(r.tasks_limit))
+            : (limit === null ? null : Number(limit));
+
+        setLbl(serverLimit);
+        renderLimitIcons(userId, serverLimit);
+        toast("تم حفظ عدد المهام ✅");
+      }catch(e){
+        const old = (prevAttr === "null" || prevAttr === null) ? null : Number(prevAttr);
+        setLbl(Number.isFinite(old) ? old : null);
+        renderLimitIcons(userId, Number.isFinite(old) ? old : null);
+
+        const msg = String(e?.message || "");
+        toast(msg.includes("404") ? "الميزة غير مدعومة فالسيرفر الحالي" : (msg || "وقع خطأ"));
       }
     }
 
@@ -980,6 +1089,10 @@
         for(const u of CACHE_USERS){
           const contact = u.email || u.phone || "-";
           const enabled = (u.tasks_enabled !== false);
+
+          // إذا السيرفر ما كيرجعش tasks_limit نخليها بلا حد
+          const lim = ("tasks_limit" in u) ? getLocalLimit(u) : null;
+          const limText = (lim === null) ? "بلا حد" : `${lim}/5`;
 
           us.insertAdjacentHTML("beforeend", `
             <tr data-row="user" data-search="${escapeHtml((u.full_name||"")+" "+(u.id||"")+" "+contact)}">
@@ -998,6 +1111,14 @@
                   <input type="hidden" id="ut_val_${u.id}" value="${enabled ? "true":"false"}"/>
                 </div>
                 <div class="muted" style="margin-top:6px">كتمنع /tasks و start/finish</div>
+
+                <div style="margin-top:10px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                    <small class="muted">عدد المهام المسموحة</small>
+                    <small class="muted" id="limit_lbl_${u.id}" data-limit="${lim === null ? "null" : String(lim)}">${limText}</small>
+                  </div>
+                  <div class="dtMini" id="limit_${u.id}" style="margin-top:8px"></div>
+                </div>
               </td>
 
               <td><input class="miniInput" style="max-width:180px" id="pw_${u.id}" type="password" placeholder="كلمة سر جديدة"/></td>
@@ -1012,6 +1133,8 @@
               </td>
             </tr>
           `);
+
+          renderLimitIcons(u.id, lim);
         }
 
         applySearch();
@@ -1053,7 +1176,6 @@
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
-    // OPTIONAL delete (works only if endpoint exists)
     async function deleteUser(userId){
       if(!confirm("حذف هذا المستخدم؟")) return;
       try{
@@ -1061,12 +1183,11 @@
         toast("تم حذف المستخدم ✅");
         loadUsers();
       }catch(e){
-        // إذا ماكايناش فالـ server
-        toast(e.message.includes("404") ? "الحذف غير مدعوم فالسيرفر الحالي" : (e.message || "وقع خطأ"));
+        const msg = String(e?.message || "");
+        toast(msg.includes("404") ? "الحذف غير مدعوم فالسيرفر الحالي" : (msg || "وقع خطأ"));
       }
     }
 
-    // OPTIONAL create (works only if endpoint exists)
     async function createUser(){
       const full_name = document.getElementById("cu_name").value.trim();
       const email = document.getElementById("cu_email").value.trim();
@@ -1083,7 +1204,8 @@
         document.getElementById("cu_pass").value="";
         loadUsers();
       }catch(e){
-        toast(e.message.includes("404") ? "الإنشاء غير مدعوم فالسيرفر الحالي" : (e.message || "وقع خطأ"));
+        const msg = String(e?.message || "");
+        toast(msg.includes("404") ? "الإنشاء غير مدعوم فالسيرفر الحالي" : (msg || "وقع خطأ"));
       }
     }
 
@@ -1100,10 +1222,10 @@
     // ---------- Init ----------
     async function initAll(){
       openTab("settings");
-      await loadSettings();
-      await loadRequests();
-      await loadTasks();
-      await loadUsers();
+      try{ await loadSettings(); }catch(_){}
+      try{ await loadRequests(); }catch(_){}
+      try{ await loadTasks(); }catch(_){}
+      try{ await loadUsers(); }catch(_){}
       toast("تم تحديث كلشي ✅");
     }
 
