@@ -24,7 +24,6 @@
       --r24:24px; --r20:20px; --r18:18px; --r16:16px;
     }
 
-    /* ✅ remove tap highlight / blue focus line */
     *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
     *:focus{outline:none !important;}
     *:focus-visible{outline:none !important;}
@@ -43,7 +42,6 @@
       overflow-x:hidden;
     }
 
-    /* subtle background glow */
     body::before{
       content:"";
       position:fixed; inset:0;
@@ -102,7 +100,6 @@
       box-shadow: 0 0 0 6px rgba(34,197,94,.12);
     }
 
-    /* Hero */
     .hero{
       margin-top:14px;
       background: var(--card);
@@ -135,7 +132,6 @@
       color: rgba(255,255,255,.92);
     }
 
-    /* Form Card */
     .card{
       margin-top:12px;
       background: var(--card);
@@ -222,7 +218,6 @@
     }
     .field.money{padding-left:72px; direction:ltr; text-align:left;}
 
-    /* Payment methods (cards) */
     .methods{
       margin-top:10px;
       display:grid;
@@ -276,7 +271,6 @@
     .mTxt b{display:block;font-size:13px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .mTxt span{display:block;margin-top:3px;font-size:11px;color: var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-    /* Network pills */
     .nets{
       margin-top:10px;
       display:flex;
@@ -312,10 +306,8 @@
       opacity:.95;
     }
 
-    /* Hide network section */
     .hide{display:none !important;}
 
-    /* CTA */
     .btn{
       width:100%;
       margin-top:14px;
@@ -337,49 +329,6 @@
       line-height:1.7;
     }
     .mini b{font-weight:950}
-
-    /* Bottom Nav (keep your style) */
-    .nav{
-      position: fixed; left:0; right:0; bottom:0;
-      z-index:4000;
-      background: rgba(2,6,23,.70);
-      border-top: none;
-      box-shadow:none;
-      backdrop-filter: blur(14px);
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .navInner{
-      max-width:1100px; margin:0 auto;
-      display:flex; align-items:center; justify-content: space-around;
-      gap:10px; padding: 10px 12px;
-    }
-    .navbtn{
-      min-width: 86px;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:6px;
-      text-decoration:none; color:#e5e7eb;
-      background: transparent;
-      border:none;
-      border-radius: 16px;
-      padding: 10px 10px;
-      font-weight: 950;
-      user-select:none;
-      cursor:pointer;
-      transition: transform .12s ease, background .2s ease;
-    }
-    .navbtn:hover{background: rgba(255,255,255,.06);transform: translateY(-1px);}
-    .navbtn:active{transform: translateY(1px) scale(.99)}
-    .navbtn small{font-size:11px;opacity:.92}
-    .navbtn.active{
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 10px 22px rgba(0,0,0,.18);
-    }
-    .nav form{margin:0;flex:1;}
-    .nav form .navbtn{width:100%;}
-    .navbtn.danger{color:#fecaca;}
-    .navbtn.danger:hover{background: rgba(239,68,68,.16);}
-    .navbtn svg{width:18px;height:18px;opacity:.95}
   </style>
 </head>
 
@@ -410,7 +359,6 @@
 
       <label>طريقة الدفع (اختياري)</label>
       <div class="methods" id="methods">
-        <!-- Binance -->
         <div class="m active" data-method="Binance">
           <div class="mIco">
             <svg viewBox="0 0 24 24" fill="none">
@@ -424,7 +372,6 @@
           </div>
         </div>
 
-        <!-- USDT Wallet -->
         <div class="m" data-method="USDT">
           <div class="mIco">
             <svg viewBox="0 0 24 24" fill="none">
@@ -440,7 +387,6 @@
           </div>
         </div>
 
-        <!-- Transfer -->
         <div class="m" data-method="Transfer">
           <div class="mIco">
             <svg viewBox="0 0 24 24" fill="none">
@@ -490,101 +436,131 @@
     </div>
   </div>
 
+<script>
+  // ✅ Settings fixed
+  const MIN_DEP = 5;
+  const MAX_DEP = 5000;
+  const TG_USERNAME = "Mrp_deposit"; // @Mrp_deposit
 
-  <script>
-    // ✅ Settings fixed (as you requested)
-    const MIN_DEP = 5;
-    const MAX_DEP = 5000;
-    const TG_USERNAME = "Mrp_deposit"; // @Mrp_deposit
+  function toast(msg){
+    const t=document.getElementById("toast");
+    t.innerHTML=msg;
+    t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),2600);
+  }
 
-    function toast(msg){
-      const t=document.getElementById("toast");
-      t.innerHTML=msg;
-      t.classList.add("show");
-      setTimeout(()=>t.classList.remove("show"),2600);
+  function moneyNum(v){
+    const n = Number(String(v||"").replace(",", ".").trim());
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  // ✅ api() موجودة هنا باش مايبقاش "api not found"
+  async function api(url, method="GET", data=null){
+    const opts = {
+      method,
+      headers: { "Content-Type": "application/json" }
+    };
+    if(data) opts.body = JSON.stringify(data);
+
+    const res = await fetch(url, opts);
+    let json = null;
+
+    try{ json = await res.json(); }catch(e){}
+
+    if(!res.ok){
+      const msg = (json && (json.message || json.error)) ? (json.message || json.error) : "Server error";
+      throw new Error(msg);
     }
+    return json || {};
+  }
 
-    function moneyNum(v){
-      const n = Number(String(v||"").replace(",", ".").trim());
-      return Number.isFinite(n) ? n : NaN;
+  // ✅ UI state
+  let selectedMethod = "binance";
+  let selectedNet = "";
+
+  const methodsBox = document.getElementById("methods");
+  const netsBox = document.getElementById("nets");
+  const netSection = document.getElementById("netSection");
+
+  function isUSDT(){
+    return String(selectedMethod).toLowerCase() === "usdt";
+  }
+
+  function methodLabel(key){
+    key = String(key||"").toLowerCase();
+    if(key === "binance") return "Binance";
+    if(key === "usdt") return "USDT";
+    if(key === "transfer") return "Transfer";
+    return key || "غير محددة";
+  }
+
+  function setMethod(key){
+    selectedMethod = String(key||"").toLowerCase();
+    if(isUSDT()){
+      netSection.classList.remove("hide");
+    }else{
+      netSection.classList.add("hide");
+      selectedNet = "";
+      netsBox?.querySelectorAll(".net")?.forEach(x=>x.classList.remove("active"));
     }
+  }
 
-    // ✅ active nav
-    (function(){
-      const p=(location.pathname||"").toLowerCase();
-      if(p==="/home" || p==="/") document.getElementById("navHome")?.classList.add("active");
-      else if(p==="/tasks" || p.startsWith("/tasks/")) document.getElementById("navTasks")?.classList.add("active");
-      else if(p==="/profile" || p.startsWith("/profile/")) document.getElementById("navProfile")?.classList.add("active");
-    })();
+  methodsBox.addEventListener("click",(e)=>{
+    const item = e.target.closest(".m");
+    if(!item) return;
+    methodsBox.querySelectorAll(".m").forEach(x=>x.classList.remove("active"));
+    item.classList.add("active");
+    setMethod(item.getAttribute("data-method"));
+  });
 
-    // ✅ UI state
-    let selectedMethod = "Binance"; // default
-    let selectedNet = "";          // optional
+  netsBox?.addEventListener("click",(e)=>{
+    const item = e.target.closest(".net");
+    if(!item) return;
+    netsBox.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
+    item.classList.add("active");
+    selectedNet = item.getAttribute("data-net") || "";
+  });
 
-    const methodsBox = document.getElementById("methods");
-    const netsBox = document.getElementById("nets");
-    const netSection = document.getElementById("netSection");
+  document.getElementById("minLine").textContent = `أقل إيداع: ${MIN_DEP}$ • أقصى: ${MAX_DEP}$`;
+  setMethod(selectedMethod);
 
-    function setMethod(name){
-      selectedMethod = name || "";
-      // show network only if USDT
-      if(String(selectedMethod).toUpperCase() === "USDT"){
-        netSection.classList.remove("hide");
-      }else{
-        netSection.classList.add("hide");
-        selectedNet = ""; // reset
-        netsBox?.querySelectorAll(".net")?.forEach(x=>x.classList.remove("active"));
-      }
-    }
+  // ✅ دالة الإرسال كاملة
+  async function submitDeposit(){
+    const amount = moneyNum(document.getElementById("amount").value);
+    const sender = (document.getElementById("senderName").value || "").trim();
 
-    methodsBox.addEventListener("click",(e)=>{
-      const item = e.target.closest(".m");
-      if(!item) return;
-      methodsBox.querySelectorAll(".m").forEach(x=>x.classList.remove("active"));
-      item.classList.add("active");
-      setMethod(item.getAttribute("data-method"));
-    });
+    if(!Number.isFinite(amount) || amount<=0) return toast("دخل مبلغ صحيح");
+    if(amount < MIN_DEP) return toast(`أقل إيداع هو <b>${MIN_DEP}$</b>`);
+    if(amount > MAX_DEP) return toast(`أقصى إيداع هو <b>${MAX_DEP}$</b>`);
+    if(sender.length < 2) return toast("دخل اسم المرسل (حرفين على الأقل)");
 
-    if(netsBox){
-      netsBox.addEventListener("click",(e)=>{
-        const item = e.target.closest(".net");
-        if(!item) return;
-        netsBox.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
-        item.classList.add("active");
-        selectedNet = item.getAttribute("data-net") || "";
+    // 1) Send to admin (server) ✅
+    try{
+      await api("/api/wallet/request","POST",{
+        type:"deposit",
+        amount_usd: amount
       });
+    }catch(e){
+      return toast(e?.message || "وقع خطأ أثناء إرسال الطلب للسيرفر");
     }
 
-    // init
-    document.getElementById("minLine").textContent = `أقل إيداع: ${MIN_DEP}$ • أقصى: ${MAX_DEP}$`;
-    setMethod(selectedMethod);
-
-    function submitDeposit(){
-      const amount = moneyNum(document.getElementById("amount").value);
-      const sender = (document.getElementById("senderName").value || "").trim();
-
-      if(!Number.isFinite(amount) || amount<=0) return toast("دخل مبلغ صحيح");
-      if(amount < MIN_DEP) return toast(`أقل إيداع هو <b>${MIN_DEP}$</b>`);
-      if(amount > MAX_DEP) return toast(`أقصى إيداع هو <b>${MAX_DEP}$</b>`);
-      if(sender.length < 2) return toast("دخل اسم المرسل (حرفين على الأقل)");
-
-      const methodTxt = selectedMethod ? selectedMethod : "غير محددة";
-      let msg =
+    // 2) Telegram message ✅
+    const methodTxt = methodLabel(selectedMethod);
+    let msg =
 `طلب إيداع جديد ✅
-المبلغ: ${amount}$ 
+المبلغ: ${amount}$
 اسم المرسل: ${sender}
 طريقة الدفع: ${methodTxt}`;
 
-      // network only if USDT and user picked it (optional)
-      if(String(selectedMethod).toUpperCase() === "USDT"){
-        msg += `\nشبكة USDT: ${selectedNet || "غير محددة"}`;
-      }
-
-      toast("غادي نفتح تيليجرام لإرسال الطلب… ✅");
-
-      const url = "https://t.me/" + TG_USERNAME + "?text=" + encodeURIComponent(msg);
-      setTimeout(()=>{ window.location.href = url; }, 450);
+    if(isUSDT()){
+      msg += `\nشبكة USDT: ${selectedNet || "غير محددة"}`;
     }
-  </script>
+
+    toast("تم إرسال الطلب للأدمن ✅ غادي نفتح تيليجرام…");
+
+    const url = "https://t.me/" + TG_USERNAME + "?text=" + encodeURIComponent(msg);
+    setTimeout(()=>{ window.location.href = url; }, 450);
+  }
+</script>
 </body>
 </html>
