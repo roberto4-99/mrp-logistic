@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>MRP Logistic | VIP</title>
+
+  <style>
+    :root{
+      --bg1:#020617;
+      --bg2:#0b1225;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.09);
+      --border: rgba(255,255,255,.12);
+      --border2: rgba(255,255,255,.18);
+      --txt:#ffffff;
+      --muted: rgba(255,255,255,.75);
+      --muted2: rgba(255,255,255,.6);
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --shadow2: 0 10px 22px rgba(0,0,0,.26);
+
+      --r24:24px;
+      --r20:20px;
+      --r18:18px;
+      --r16:16px;
+
+      --good:#22c55e;
+      --bad:#ef4444;
+      --blue:#3b82f6;
+      --yellow:#f59e0b;
+      --purple:#a78bfa;
+      --sky:#7dd3fc;
+
+      /* VIP colors */
+      --vip1:#f59e0b;
+      --vip2:#f43f5e;
+    }
+
+    /* ✅ Remove blue focus ring + tap highlight */
+    *{box-sizing:border-box;-webkit-tap-highlight-color: transparent;}
+    *:focus{outline:none !important;}
+    *:focus-visible{outline:none !important;}
+    a,button{outline:none;}
+    button::-moz-focus-inner{border:0;}
+
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--txt);
+      background:
+        radial-gradient(900px 500px at 10% 10%, #15234a, transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, #0b3d2a, transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
+
+      /* ✅ مساحة كافية للـ nav + VIP */
+      padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    }
+
+    .wrap{max-width:1100px;margin:0 auto;padding:16px;}
+
+    .toast{
+      position:fixed;left:16px;right:16px;
+      bottom: calc(120px + env(safe-area-inset-bottom));
+      margin:auto;max-width:520px;
+      background: rgba(2,6,23,.92);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:12px 14px;
+      box-shadow: var(--shadow2);
+      display:none;
+      z-index:5000;
+      backdrop-filter: blur(14px);
+      font-size:13px;
+    }
+    .toast.show{display:block}
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 10px;
+      border-radius: var(--r24);
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 14px 50px rgba(0,0,0,.22);
+      margin-top: 12px;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+    .logo{
+      width:48px;height:48px;border-radius:999px;overflow:hidden;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.16);
+      flex:0 0 auto;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow: 0 12px 35px rgba(0,0,0,.22);
+    }
+    .logo img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.02);}
+    .brandTxt{min-width:0}
+    .appName{
+      font-weight:950;font-size:15px;line-height:1.1;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .sub{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+    .pill{
+      display:flex;align-items:center;gap:8px;
+      padding:9px 11px;border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      color:var(--txt);
+      font-weight:900;font-size:12px;
+      white-space:nowrap;
+      user-select:none;
+    }
+
+    .grid{display:grid;gap:14px;margin-top:14px;grid-template-columns: 1fr;}
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--r24);
+      padding:14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .titleRow{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+      margin-bottom:10px;
+    }
+    .titleRow h2{margin:0;font-size:14px;font-weight:950;letter-spacing:.2px;}
+    .subtxt{font-size:12px;color: var(--muted2);line-height:1.6;}
+
+    .note{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      font-size:12px;font-weight:950;color: rgba(255,255,255,.92);
+      white-space:nowrap;
+    }
+    .badge.good{background: rgba(34,197,94,.12);border-color: rgba(34,197,94,.24);}
+    .badge.warn{background: rgba(245,158,11,.12);border-color: rgba(245,158,11,.24);}
+
+    .plans{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+    }
+    @media(max-width:920px){ .plans{grid-template-columns: repeat(2, 1fr);} }
+    @media(max-width:560px){ .plans{grid-template-columns: 1fr;} }
+
+    .plan{
+      background: var(--card2);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--r24);
+      padding:14px;
+      overflow:hidden;
+      position:relative;
+      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+    }
+    .plan::before{
+      content:"";
+      position:absolute;inset:-2px;
+      background: radial-gradient(420px 180px at 20% 10%, rgba(125,211,252,.18), transparent 60%),
+                  radial-gradient(420px 180px at 80% 0%, rgba(167,139,250,.16), transparent 60%);
+      pointer-events:none;
+    }
+    .planTop{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .pName{font-weight:1000;font-size:14px;}
+    .pTag{
+      font-size:12px;font-weight:950;
+      padding:7px 10px;border-radius:999px;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      color:#fff;
+      white-space:nowrap;
+    }
+
+    .pPrice{
+      position:relative;
+      margin-top:12px;
+      font-weight:1100;
+      font-size:28px;
+      letter-spacing:.3px;
+    }
+    .pPrice small{
+      font-size:12px;
+      font-weight:950;
+      color:var(--muted);
+      margin-right:6px;
+    }
+
+    .rows{position:relative;margin-top:10px;display:grid;gap:8px;}
+    .row{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:9px 10px;border-radius:16px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      font-size:12px;
+    }
+    .row b{font-weight:950;color:rgba(255,255,255,.92)}
+    .row span{color:var(--muted)}
+
+    .buyRow{position:relative;margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;}
+    .btn{
+      border:none;cursor:pointer;border-radius:999px;
+      padding:11px 14px;font-weight:1000;color:#021019;
+      background: linear-gradient(135deg, var(--good), var(--blue));
+      white-space:nowrap;transition: transform .12s ease, filter .2s ease;
+      user-select:none;flex:1 1 auto;min-width: 150px;
+    }
+    .btn:active{transform: translateY(1px) scale(.99)}
+    .btn.secondary{
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      color:#fff;
+    }
+
+    .footerHint{
+      margin-top:12px;
+      padding:12px;
+      border-radius: var(--r24);
+      background: rgba(255,255,255,.05);
+      border:1px dashed rgba(255,255,255,.16);
+      color: rgba(255,255,255,.88);
+      line-height:1.7;
+      font-size:12px;
+    }
+
+    /* ===============================
+       ✅ Bottom Nav (نفس Tasks/Home)
+       =============================== */
+    .nav{
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 4000;
+      background: rgba(2,6,23,.80);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    }
+    .navInner{
+      max-width:1100px;
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .navbtn{
+      flex:1;
+      min-width:64px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+
+      text-decoration:none;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,.80);
+
+      font-weight: 900;
+      user-select:none;
+      cursor:pointer;
+
+      padding: 10px 8px;
+      border-radius: 16px;
+      transition: transform .12s ease, background .2s ease, color .2s ease;
+    }
+    .navbtn:hover{background: rgba(255,255,255,.06);transform: translateY(-1px);}
+    .navbtn:active{transform: translateY(1px) scale(.99)}
+    .navbtn svg{width:22px;height:22px;opacity:.95}
+    .navbtn small{font-size:11px;line-height:1;opacity:.92}
+
+    .navbtn.active{
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+      color:#fff;
+    }
+
+    /* ✅ VIP وسط بارز */
+    .navbtn.vip{
+      flex:1.1;
+      background: linear-gradient(135deg, var(--vip1), var(--vip2));
+      color:#020617;
+      border-radius: 18px;
+      padding: 12px 10px;
+      box-shadow: 0 16px 34px rgba(0,0,0,.28);
+      position: relative;
+      top: -10px;
+    }
+    .navbtn.vip svg{width:24px;height:24px}
+    .navbtn.vip small{font-weight:950;opacity:1}
+    .navbtn.vip.active{
+      box-shadow: 0 18px 38px rgba(0,0,0,.34);
+      filter: saturate(1.05);
+    }
+
+    .navbtn.danger{color: rgba(239,68,68,.95);}
+    .navbtn.danger.active{background: rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.18);}
+
+    .nav form{margin:0;flex:1;}
+    .nav form button{width:100%;background:transparent;border:none;padding:0;}
+    .nav form button.navbtn{padding:10px 8px;}
+  </style>
+</head>
+
+<body>
+  <div class="toast" id="toast"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.ibb.co/SwTt7rZj/Screenshot-20260304-043805.png" alt="MRP Logo"/>
+        </div>
+        <div class="brandTxt">
+          <div class="appName">MRP Logistic</div>
+          <div class="sub">VIP • عروض الاستثمار</div>
+        </div>
+      </div>
+      <div class="pill">⭐ VIP Plans</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="titleRow">
+          <h2>ابدأ الآن باختيار أحد العروض التالية واستثمر لزيادة أرباحك اليومية 👇</h2>
+        </div>
+
+        <div class="note">
+          <div class="badge warn">💳 أقل مبلغ للسحب: <b>10$</b> (يعني <b>100 نقطة</b>)</div>
+          <div class="badge good">✨ كلما استثمرت أكثر، زادت أرباحك اليومية</div>
+        </div>
+
+        <div class="plans">
+          <!-- Plan 1 -->
+          <div class="plan">
+            <div class="planTop">
+              <div class="pName">🔹 العرض الأول</div>
+              <div class="pTag">Starter</div>
+            </div>
+            <div class="pPrice"><small>قيمة الشحن</small> 5$</div>
+            <div class="rows">
+              <div class="row"><b>📈 الدخل اليومي</b><span>0.5$</span></div>
+              <div class="row"><b>⏳ مدة الخطة</b><span>20 يوم</span></div>
+              <div class="row"><b>💵 إجمالي الأرباح</b><span>10$</span></div>
+            </div>
+            <div class="buyRow">
+              <button class="btn" onclick="goDeposit(5)">💳 اشحن 5$</button>
+              <button class="btn secondary" onclick="toast('للتفعيل: قم بالشحن ثم تواصل مع الدعم ✅')">ℹ️ تفاصيل</button>
+            </div>
+          </div>
+
+          <!-- Plan 2 -->
+          <div class="plan">
+            <div class="planTop">
+              <div class="pName">🔹 العرض الثاني</div>
+              <div class="pTag">Plus</div>
+            </div>
+            <div class="pPrice"><small>قيمة الشحن</small> 10$</div>
+            <div class="rows">
+              <div class="row"><b>📈 الدخل اليومي</b><span>1.2$</span></div>
+              <div class="row"><b>⏳ مدة الخطة</b><span>20 يوم</span></div>
+              <div class="row"><b>💵 إجمالي الأرباح</b><span>24$</span></div>
+            </div>
+            <div class="buyRow">
+              <button class="btn" onclick="goDeposit(10)">💳 اشحن 10$</button>
+              <button class="btn secondary" onclick="toast('بعد الشحن سيتم تفعيل الخطة من الدعم ✅')">ℹ️ تفاصيل</button>
+            </div>
+          </div>
+
+          <!-- Plan 3 -->
+          <div class="plan">
+            <div class="planTop">
+              <div class="pName">🔹 العرض الثالث</div>
+              <div class="pTag">Pro</div>
+            </div>
+            <div class="pPrice"><small>قيمة الشحن</small> 20$</div>
+            <div class="rows">
+              <div class="row"><b>📈 الدخل اليومي</b><span>2.8$</span></div>
+              <div class="row"><b>⏳ مدة الخطة</b><span>20 يوم</span></div>
+              <div class="row"><b>💵 إجمالي الأرباح</b><span>56$</span></div>
+            </div>
+            <div class="buyRow">
+              <button class="btn" onclick="goDeposit(20)">💳 اشحن 20$</button>
+              <button class="btn secondary" onclick="toast('التفعيل يتم بعد تأكيد الشحن ✅')">ℹ️ تفاصيل</button>
+            </div>
+          </div>
+
+          <!-- Plan 4 -->
+          <div class="plan">
+            <div class="planTop">
+              <div class="pName">🔹 العرض الرابع</div>
+              <div class="pTag">VIP</div>
+            </div>
+            <div class="pPrice"><small>قيمة الشحن</small> 50$</div>
+            <div class="rows">
+              <div class="row"><b>📈 الدخل اليومي</b><span>7$</span></div>
+              <div class="row"><b>⏳ مدة الخطة</b><span>20 يوم</span></div>
+              <div class="row"><b>💵 إجمالي الأرباح</b><span>140$</span></div>
+            </div>
+            <div class="buyRow">
+              <button class="btn" onclick="goDeposit(50)">💳 اشحن 50$</button>
+              <button class="btn secondary" onclick="toast('VIP: دعم سريع + أولوية ✅')">⚡ VIP</button>
+            </div>
+          </div>
+
+          <!-- Plan 5 -->
+          <div class="plan">
+            <div class="planTop">
+              <div class="pName">🔹 العرض الخامس</div>
+              <div class="pTag">ULTRA</div>
+            </div>
+            <div class="pPrice"><small>قيمة الشحن</small> 100$</div>
+            <div class="rows">
+              <div class="row"><b>📈 الدخل اليومي</b><span>15$</span></div>
+              <div class="row"><b>⏳ مدة الخطة</b><span>20 يوم</span></div>
+              <div class="row"><b>💵 إجمالي الأرباح</b><span>300$</span></div>
+            </div>
+            <div class="buyRow">
+              <button class="btn" onclick="goDeposit(100)">💳 اشحن 100$</button>
+              <button class="btn secondary" onclick="toast('ULTRA: أفضل عائد + أولوية تفعيل ✅')">🚀 ULTRA</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="footerHint">
+          ✅ <b>مهم:</b> بعد ما تشحن، تقدر تمشي لصفحة <b>الدعم</b> وتبعت رقم العملية باش يتم تأكيد وتفعيل الخطة.<br/>
+          🔒 السحب متاح ابتداءً من <b>10$</b> (يعني <b>100 نقطة</b>).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Bottom Nav (VIP وسط بارز) -->
+  <div class="nav">
+    <div class="navInner">
+      <a href="/home" class="navbtn" id="navHome">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 10.5l9-7 9 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 9.8V20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.8" stroke="currentColor" stroke-width="2" opacity=".85"/>
+        </svg>
+        <small>الرئيسية</small>
+      </a>
+
+      <a href="/tasks" class="navbtn" id="navTasks">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M9 11l2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 4h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2" opacity=".85"/>
+        </svg>
+        <small>المهام</small>
+      </a>
+
+      <a href="/vip" class="navbtn vip" id="navVip">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3l2.3 6.8H21l-5.6 4 2.2 6.8L12 16.9 6.4 20.6l2.2-6.8L3 9.8h6.7L12 3z"
+                stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <small>VIP</small>
+      </a>
+
+      <a href="/profile" class="navbtn" id="navProfile">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 12a4.5 4.5 0 1 0-4.5-4.5A4.5 4.5 0 0 0 12 12z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <small>بروفايل</small>
+      </a>
+
+      <form method="post" action="/logout">
+        <button type="submit" class="navbtn danger">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M10 12h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M18 9l3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <small>خروج</small>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/public/app.js"></script>
+  <script>
+    function toast(msg){
+      const t=document.getElementById("toast");
+      t.textContent=msg;
+      t.classList.add("show");
+      setTimeout(()=>t.classList.remove("show"),2600);
+    }
+
+    function goDeposit(amount){
+      toast("غادي نمشيو للإيداع ✅");
+      setTimeout(()=>{ location.href = "/deposit"; }, 350);
+    }
+
+    /* ✅ Active nav: Home/Tasks/Profile/VIP */
+    (function setActiveNav(){
+      const p = (location.pathname || "/").toLowerCase();
+      document.getElementById("navHome")?.classList.remove("active");
+      document.getElementById("navTasks")?.classList.remove("active");
+      document.getElementById("navProfile")?.classList.remove("active");
+      document.getElementById("navVip")?.classList.remove("active");
+
+      if(p === "/" || p === "/home") document.getElementById("navHome")?.classList.add("active");
+      else if(p === "/tasks" || p.startsWith("/tasks/")) document.getElementById("navTasks")?.classList.add("active");
+      else if(p === "/profile" || p.startsWith("/profile/")) document.getElementById("navProfile")?.classList.add("active");
+      else if(p === "/vip" || p.startsWith("/vip/")) document.getElementById("navVip")?.classList.add("active");
+    })();
+
+    // optional: show points in pill
+    (async function loadMeSafe(){
+      try{
+        const me = await api("/api/me");
+        const pts = Number(me.user?.points_balance ?? 0);
+        const pill = document.querySelector(".pill");
+        if(pill) pill.textContent = `⭐ VIP Plans • نقاطك: ${pts}`;
+      }catch(e){}
+    })();
+  </script>
+</body>
+</html>

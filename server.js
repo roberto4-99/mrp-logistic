@@ -462,10 +462,12 @@ function requireTasksEnabled(req, res, next){
 /* ---------------- Pages ---------------- */
 app.get("/", (req, res) => res.redirect("/home"));
 app.get("/login", (req, res) => res.sendFile(path.join(__dirname, "views/login.html")));
+app.get("/vip", requireAuth, (req, res) => {res.sendFile(path.join(__dirname, "views/vip.html"));});
 app.get("/register", (req, res) => res.sendFile(path.join(__dirname, "views/register.html")));
 app.get("/home", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/home.html")));
 app.get("/tasks", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/tasks.html")));
 app.get("/profile", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/profile.html")));
+app.get("/support", requireAuth, (req, res) => {res.sendFile(path.join(__dirname, "views/support.html"));});
 app.get("/admin", requireAuth, requireAdmin, (req, res) => res.sendFile(path.join(__dirname, "views/admin.html")));
 app.post("/logout", (req, res) => req.session.destroy(() => res.redirect("/login")));
 app.get("/withdraw", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/withdraw.html")));

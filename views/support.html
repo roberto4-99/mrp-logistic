@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>MRP Logistic | الدعم</title>
+
+  <style>
+    :root{
+      --bg1:#020617; --bg2:#0b1225;
+      --card: rgba(255,255,255,.07);
+      --card2: rgba(0,0,0,.28);
+      --border: rgba(255,255,255,.14);
+      --txt:#fff; --muted: rgba(255,255,255,.72);
+      --good:#22c55e; --blue:#3b82f6; --bad:#ef4444; --amber:#f59e0b;
+      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --r24:24px; --r18:18px; --r16:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(59,130,246,.22), transparent 60%),
+        radial-gradient(900px 500px at 90% 12%, rgba(239,68,68,.14), transparent 55%),
+        radial-gradient(900px 500px at 50% 90%, rgba(34,197,94,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+      padding:16px;
+      padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    }
+    .wrap{max-width:820px;margin:0 auto}
+    .toast{
+      position:fixed; left:16px; right:16px;
+      bottom: calc(90px + env(safe-area-inset-bottom));
+      max-width:820px; margin:auto;
+      background: rgba(2,6,23,.92);
+      border:1px solid var(--border);
+      border-radius: var(--r16);
+      padding:12px 14px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.28);
+      display:none; z-index:9999;
+      backdrop-filter: blur(14px);
+      text-align:center;
+      font-weight:950;
+    }
+    .toast.show{display:block}
+
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; margin-top:10px;
+      padding:12px 12px;
+      border-radius: var(--r24);
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 14px 50px rgba(0,0,0,.22);
+    }
+    .back{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px; border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      color:#fff; text-decoration:none; font-weight:950;
+    }
+    .brand{
+      display:flex; flex-direction:column; align-items:flex-end;
+      gap:3px; text-align:right;
+    }
+    .brand b{font-size:13px}
+    .brand span{font-size:11px;color:var(--muted)}
+
+    .hero{
+      margin-top:14px;
+      border-radius: var(--r24);
+      padding:16px;
+      background: linear-gradient(135deg, rgba(139,92,246,.18), rgba(59,130,246,.18));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-80px;
+      background: radial-gradient(circle at 20% 30%, rgba(34,197,94,.22), transparent 55%),
+                  radial-gradient(circle at 80% 20%, rgba(59,130,246,.26), transparent 58%),
+                  radial-gradient(circle at 50% 80%, rgba(239,68,68,.14), transparent 60%);
+      filter: blur(10px);
+      opacity:.9;
+    }
+    .hero .in{position:relative}
+    h1{margin:0; font-size:18px; font-weight:1000}
+    .sub{margin-top:6px; font-size:12px; color:rgba(255,255,255,.78); line-height:1.8}
+
+    .statusRow{
+      margin-top:12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.14);
+      font-weight:1000;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:999px;background:var(--amber);
+      box-shadow: 0 0 0 4px rgba(245,158,11,.18);
+    }
+    .dot.open{background:var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,.18)}
+    .dot.closed{background:var(--bad); box-shadow: 0 0 0 4px rgba(239,68,68,.18)}
+    .pill small{color:var(--muted); font-weight:900}
+
+    .grid{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media(max-width:760px){ .grid{grid-template-columns:1fr} }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--r24);
+      padding:16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+    .card h2{
+      margin:0 0 8px 0;
+      font-size:14px;
+      font-weight:1000;
+      display:flex; align-items:center; gap:8px;
+    }
+    .muted{color:var(--muted); font-size:12px; line-height:1.8}
+    .btnRow{
+      margin-top:12px;
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .btn{
+      flex:1 1 180px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      text-decoration:none;
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:12px 14px;
+      font-weight:1000;
+      color:#fff;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      transition:transform .12s ease, filter .2s ease;
+      user-select:none;
+    }
+    .btn:hover{filter:brightness(1.06)}
+    .btn:active{transform: translateY(1px) scale(.99)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(34,197,94,.96), rgba(59,130,246,.96));
+      border-color: transparent;
+      color:#020617;
+    }
+    .btn.danger{
+      background: rgba(239,68,68,.16);
+      border-color: rgba(239,68,68,.35);
+    }
+    .btn svg{width:18px;height:18px}
+
+    .list{
+      margin:10px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:8px;
+    }
+    .li{
+      background: var(--card2);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: var(--r18);
+      padding:10px 12px;
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .badge{
+      flex:0 0 auto;
+      width:30px; height:30px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      font-weight:1000;
+    }
+    .li b{display:block; font-size:12px}
+    .li span{display:block; color:var(--muted); font-size:12px; margin-top:2px; line-height:1.7}
+
+    .note{
+      margin-top:12px;
+      border-radius: var(--r24);
+      padding:14px;
+      border:1px solid rgba(245,158,11,.35);
+      background: rgba(245,158,11,.10);
+      color: rgba(255,255,255,.90);
+      font-size:12px;
+      line-height:1.8;
+      font-weight:900;
+    }
+
+    /* Bottom Nav (اختياري نفس ديال الصفحات الأخرى) */
+    .nav{
+      position: fixed; left:0; right:0; bottom:0;
+      z-index:4000;
+      background: rgba(2,6,23,.70);
+      border-top: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(14px);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .navInner{
+      max-width:1100px; margin:0 auto;
+      display:flex; align-items:center; justify-content: space-around;
+      gap:10px; padding: 10px 12px;
+    }
+    .navbtn{
+      min-width: 86px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:6px;
+      text-decoration:none; color:#fff;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: 18px;
+      padding: 10px 12px;
+      font-weight: 950;
+      user-select:none;
+    }
+    .navbtn small{font-size:11px;opacity:.9}
+    .navbtn.active{
+      background: linear-gradient(135deg, var(--good), var(--blue));
+      border-color: transparent;
+      color: #020617;
+    }
+    .navbtn.active small{opacity:1}
+    .nav form{margin:0}
+    .navbtn.danger{
+      background: rgba(239,68,68,.18);
+      border-color: rgba(239,68,68,.30);
+    }
+    .navbtn.danger small{color:#fff}
+    .navbtn svg{width:18px;height:18px;opacity:.95}
+  </style>
+</head>
+
+<body>
+  <div class="toast" id="toast"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <a class="back" href="/home">← رجوع</a>
+      <div class="brand">
+        <b>الدعم • MRP Logistic</b>
+        <span>خدمة العملاء والإرشادات</span>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="in">
+        <h1>مرحبا بك في مركز الدعم</h1>
+        <div class="sub">
+          هدفنا نساعدوك بسرعة وبوضوح. قبل ما تراسلنا، شوف التعليمات لتسريع حل المشكلة.
+          <br>
+          <b>ساعات العمل:</b> من <b>11:00</b> صباحاً إلى <b>18:00</b> مساءً بتوقيت <b>GMT</b>.
+        </div>
+
+        <div class="statusRow">
+          <div class="pill" id="statusPill">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">جاري التحقق...</span>
+          </div>
+          <div class="pill">
+            ⏱️ <span id="gmtNow">--:-- GMT</span>
+            <small>التوقيت الحالي</small>
+          </div>
+        </div>
+
+        <div class="btnRow">
+          <!-- بدّل الروابط حسب رقمك/يوزرك -->
+          <a class="btn primary" id="waBtn" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M20 11.5a8.5 8.5 0 0 1-12.8 7.3L4 20l1.3-3.1A8.5 8.5 0 1 1 20 11.5z" stroke="currentColor" stroke-width="2" opacity=".9"/>
+              <path d="M8.7 8.7c.2-.4.4-.5.7-.5h.6c.2 0 .5.1.6.5l.7 1.8c.1.3.1.6-.1.8l-.5.6c-.2.2-.2.5 0 .7.6 1.2 1.6 2.2 2.8 2.8.2.1.5.1.7 0l.6-.5c.2-.2.5-.2.8-.1l1.8.7c.4.1.5.4.5.6v.6c0 .3-.1.5-.5.7-.6.3-1.8.6-3.2.1-2.5-.8-5-3.2-5.8-5.8-.5-1.4-.2-2.6.1-3.2z" fill="currentColor" opacity=".9"/>
+            </svg>
+            واتساب الدعم
+          </a>
+
+          <a class="btn" id="tgBtn" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M21 5.2 3.7 11.8c-.9.3-.9 1.6 0 1.9l4.2 1.4 1.6 5c.2.7 1.1.9 1.7.4l2.4-2 4.4 3.2c.6.4 1.4.1 1.6-.6L22 6.6c.2-.9-.6-1.7-1.5-1.4z" fill="currentColor" opacity=".9"/>
+            </svg>
+            تليغرام الدعم
+          </a>
+
+          <button class="btn danger" onclick="copyTemplate()">
+            📋 نسخ رسالة جاهزة
+          </button>
+        </div>
+
+        <div class="note">
+          ✅ نصيحة: من الأفضل تراسلنا برسالة كاملة (ID + المشكلة + لقطة شاشة) باش نجاوبوك بسرعة.
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>📌 قبل ما تراسلنا</h2>
+        <div class="muted">
+          جرب هاد الخطوات السريعة، كتحل 80% من المشاكل:
+        </div>
+
+        <ul class="list">
+          <li class="li">
+            <div class="badge">1</div>
+            <div>
+              <b>عاود سجل الدخول</b>
+              <span>خرج من الحساب ورجع دخّل، وجرّب من متصفح/هاتف آخر إذا أمكن.</span>
+            </div>
+          </li>
+          <li class="li">
+            <div class="badge">2</div>
+            <div>
+              <b>تحقق من الرصيد</b>
+              <span>تأكد أن النقاط كافية للسحب وأنك مازال داخل ساعات العمل.</span>
+            </div>
+          </li>
+          <li class="li">
+            <div class="badge">3</div>
+            <div>
+              <b>أرسل معلومات كاملة</b>
+              <span>اسم الحساب + ID + نوع العملية (سحب/إيداع) + المبلغ + لقطة شاشة.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>🛡️ وصايا مهمة</h2>
+        <div class="muted">
+          حفاظاً على أمان حسابك:
+        </div>
+
+        <ul class="list">
+          <li class="li">
+            <div class="badge">🔒</div>
+            <div>
+              <b>لا ترسل كلمة المرور</b>
+              <span>الدعم لن يطلب منك كلمة المرور أبداً.</span>
+            </div>
+          </li>
+          <li class="li">
+            <div class="badge">⚠️</div>
+            <div>
+              <b>تأكد من المحافظ</b>
+              <span>أدخل معلومات المحفظة/الحساب بدقة، أي خطأ قد يسبب تأخير.</span>
+            </div>
+          </li>
+          <li class="li">
+            <div class="badge">🧾</div>
+            <div>
+              <b>احتفظ باللقطات</b>
+              <span>احتفظ بسكرينشوت للعملية حتى يتم حل طلبك.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <h2>❓ أسئلة شائعة</h2>
+      <ul class="list">
+        <li class="li">
+          <div class="badge">⏳</div>
+          <div>
+            <b>متى يتم الرد؟</b>
+            <span>خلال ساعات العمل (11:00–18:00 GMT). خارجها قد يتأخر الرد لليوم التالي.</span>
+          </div>
+        </li>
+        <li class="li">
+          <div class="badge">💵</div>
+          <div>
+            <b>طلب السحب فين كيمشي؟</b>
+            <span>كيوصل كـ Pending للوحة المدير مع المبلغ، ويتم مراجعته من فريق الدعم.</span>
+          </div>
+        </li>
+        <li class="li">
+          <div class="badge">✅</div>
+          <div>
+            <b>شنو نرسل للدعم؟</b>
+            <span>اسم الحساب + ID + المبلغ + نوع المشكلة + لقطة شاشة (إذا كاين).</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+
+  <script>
+    function toast(msg){
+      const t=document.getElementById("toast");
+      t.innerHTML=msg;
+      t.classList.add("show");
+      setTimeout(()=>t.classList.remove("show"),2600);
+    }
+
+    // ✅ روابط الدعم (بدّلهم إذا بغيت)
+    const SUPPORT = {
+      whatsappNumber: "212619692685",   // بدون + ولا 00
+      telegramUser: "Mrp_logistic"
+    };
+
+    // ✅ ساعات العمل GMT
+    const OPEN_HOUR = 11;  // 11:00
+    const CLOSE_HOUR = 18; // 18:00
+
+    function gmtNowParts(){
+      const d = new Date();
+      // toISOString() = UTC (وهو نفسه GMT)
+      const hh = Number(d.toISOString().slice(11,13));
+      const mm = d.toISOString().slice(14,16);
+      return { hh, mm };
+    }
+
+    function isSupportOpen(){
+      const { hh } = gmtNowParts();
+      // مفتوح من 11:00 إلى 18:00 (18:00 تعتبر مغلقة)
+      return (hh >= OPEN_HOUR && hh < CLOSE_HOUR);
+    }
+
+    function updateStatus(){
+      const { hh, mm } = gmtNowParts();
+      document.getElementById("gmtNow").textContent = `${String(hh).padStart(2,"0")}:${mm} GMT`;
+
+      const open = isSupportOpen();
+      const pill = document.getElementById("statusPill");
+      const dot  = document.getElementById("statusDot");
+      const txt  = document.getElementById("statusText");
+
+      if(open){
+        dot.classList.add("open");
+        dot.classList.remove("closed");
+        txt.innerHTML = `الدعم <b>مفتوح الآن</b> <small>(11:00–18:00 GMT)</small>`;
+        pill.style.borderColor = "rgba(34,197,94,.35)";
+      }else{
+        dot.classList.add("closed");
+        dot.classList.remove("open");
+        txt.innerHTML = `الدعم <b>مغلق الآن</b> <small>(يفتح 11:00 GMT)</small>`;
+        pill.style.borderColor = "rgba(239,68,68,.35)";
+      }
+
+      // تحديث روابط الأزرار
+      document.getElementById("waBtn").href = `https://wa.me/${SUPPORT.whatsappNumber}`;
+      document.getElementById("tgBtn").href = `https://t.me/${SUPPORT.telegramUser}`;
+    }
+
+    async function copyTemplate(){
+      // نحاول نجيب ID من /api/me إذا متاح
+      let uid = "";
+      let name = "";
+      try{
+        const r = await fetch("/api/me");
+        const j = await r.json();
+        uid = j?.user?.id ? String(j.user.id) : "";
+        name = j?.user?.full_name ? String(j.user.full_name) : "";
+      }catch(e){}
+
+      const msg =
+`MRP Logistic - دعم
+الاسم: ${name || "—"}
+ID: ${uid || "—"}
+نوع المشكلة: (سحب/إيداع/نقاط/مهام)
+المبلغ: —
+التفاصيل: —
+مرفقات: (لقطة شاشة إن وجدت)`;
+
+      try{
+        await navigator.clipboard.writeText(msg);
+        toast("تم نسخ رسالة جاهزة ✅");
+      }catch(e){
+        toast("ماقدرناش ننسخو (جرّب من متصفح آخر)");
+      }
+    }
+
+    updateStatus();
+    setInterval(updateStatus, 15000);
+  </script>
+</body>
+</html>

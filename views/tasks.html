@@ -32,9 +32,18 @@
       --gray:#64748b;
       --purple:#a78bfa;
       --sky:#7dd3fc;
+
+      --vip1:#f59e0b;
+      --vip2:#f43f5e;
     }
 
-    *{box-sizing:border-box}
+    /* ✅ Remove blue focus ring + tap highlight */
+    *{box-sizing:border-box;-webkit-tap-highlight-color: transparent;}
+    *:focus{outline:none !important;}
+    *:focus-visible{outline:none !important;}
+    a,button{outline:none;}
+    button::-moz-focus-inner{border:0;}
+
     html,body{height:100%}
     body{
       margin:0;
@@ -45,7 +54,9 @@
         radial-gradient(900px 500px at 90% 10%, #0b3d2a, transparent 55%),
         linear-gradient(180deg, var(--bg1), var(--bg2));
       overflow-x:hidden;
-      padding-bottom: calc(92px + env(safe-area-inset-bottom));
+
+      /* ✅ مساحة كافية للـ nav + VIP */
+      padding-bottom: calc(120px + env(safe-area-inset-bottom));
       position:relative;
     }
 
@@ -68,7 +79,7 @@
       position:fixed;
       left:16px;
       right:16px;
-      bottom: calc(90px + env(safe-area-inset-bottom));
+      bottom: calc(120px + env(safe-area-inset-bottom));
       margin:auto;
       max-width:520px;
       background: rgba(2,6,23,.92);
@@ -79,6 +90,7 @@
       display:none;
       z-index:5000;
       backdrop-filter: blur(14px);
+      font-size:13px;
     }
     .toast.show{display:block}
 
@@ -108,27 +120,15 @@
       min-width:0;
     }
 
-    /* ✅ Logo جديد: كيبان مزيان حيث الصورة دائرية أصلا */
     .logo{
-      width:48px;
-      height:48px;
-      border-radius: 999px;
-      overflow:hidden;
+      width:48px;height:48px;border-radius: 999px;overflow:hidden;
       background: rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.16);
       flex: 0 0 auto;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      display:flex;align-items:center;justify-content:center;
       box-shadow: 0 12px 35px rgba(0,0,0,.22);
     }
-    .logo img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-      transform: scale(1.02);
-    }
+    .logo img{width:100%;height:100%;object-fit:cover;display:block;transform: scale(1.02);}
 
     .brandTxt{min-width:0}
     .appName{
@@ -148,18 +148,10 @@
       text-overflow: ellipsis;
     }
 
-    .topActions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex:0 0 auto;
-    }
+    .topActions{display:flex;align-items:center;gap:10px;flex:0 0 auto;}
     .pill{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 11px;
-      border-radius: 999px;
+      display:flex;align-items:center;gap:8px;
+      padding:9px 11px;border-radius: 999px;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.16);
       color: var(--txt);
@@ -176,9 +168,7 @@
       grid-template-columns: 1.1fr .9fr;
       align-items:start;
     }
-    @media(max-width: 920px){
-      .grid{grid-template-columns:1fr}
-    }
+    @media(max-width: 920px){ .grid{grid-template-columns:1fr} }
 
     .card{
       background: var(--card);
@@ -201,20 +191,11 @@
       font-weight: 950;
       letter-spacing:.2px;
     }
-    .subtxt{
-      font-size:12px;
-      color: var(--muted2);
-      line-height:1.5;
-    }
+    .subtxt{font-size:12px;color: var(--muted2);line-height:1.5;}
 
-    .summary{
-      display:flex;
-      gap:10px;
-      overflow:hidden;
-    }
+    .summary{display:flex;gap:10px;overflow:hidden;}
     .sum{
-      flex:1 1 0;
-      min-width:0;
+      flex:1 1 0;min-width:0;
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 22px;
@@ -223,25 +204,9 @@
       overflow:hidden;
       box-shadow: 0 10px 28px rgba(0,0,0,.18);
     }
-    .sum b{
-      display:block;
-      font-weight:950;
-      font-size:13px;
-      opacity:.95;
-    }
-    .sum .n{
-      font-size: 28px;
-      font-weight: 1000;
-      margin-top: 8px;
-      line-height:1;
-      letter-spacing:.3px;
-    }
-    .sum .t{
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-      opacity:.9;
-    }
+    .sum b{display:block;font-weight:950;font-size:13px;opacity:.95;}
+    .sum .n{font-size: 28px;font-weight: 1000;margin-top: 8px;line-height:1;letter-spacing:.3px;}
+    .sum .t{font-size: 12px;color: var(--muted);margin-top: 6px;opacity:.9;}
 
     @media(max-width:520px){
       .summary{gap:8px}
@@ -264,7 +229,6 @@
     }
 
     .left{display:flex;align-items:center;gap:12px;min-width:0}
-
     .dot{
       width:12px;height:12px;border-radius:50%;
       box-shadow:0 0 0 6px rgba(255,255,255,.06);
@@ -293,9 +257,7 @@
       text-overflow: ellipsis;
       max-width: 560px;
     }
-    @media(max-width:700px){
-      .meta b,.meta .small{max-width: 260px;}
-    }
+    @media(max-width:700px){ .meta b,.meta .small{max-width: 260px;} }
 
     .btn{
       border:none;
@@ -323,87 +285,83 @@
       white-space:nowrap;
     }
 
-    /* ✅ Bottom Nav PRO */
+    /* ===============================
+       ✅ Bottom Nav PRO (نفس Home/Profile)
+       =============================== */
     .nav{
       position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      left: 0; right: 0; bottom: 0;
       z-index: 4000;
-
-      background: rgba(2,6,23,.72);
-      border-top: 1px solid rgba(255,255,255,.12);
+      background: rgba(2,6,23,.80);
       backdrop-filter: blur(16px);
-      padding-bottom: env(safe-area-inset-bottom);
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
     }
-
     .navInner{
       max-width:1100px;
       margin:0 auto;
       display:flex;
-      justify-content: space-around;
       align-items:center;
-      padding: 10px 8px calc(12px + env(safe-area-inset-bottom));
-      gap: 6px;
+      justify-content:space-between;
+      gap:10px;
     }
-
     .navbtn{
-      flex: 1;
-      min-width: 70px;
+      flex:1;
+      min-width:64px;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap: 6px;
+      gap:6px;
 
       text-decoration:none;
       background: transparent;
       border: none;
-      color: rgba(255,255,255,.72);
+      color: rgba(255,255,255,.80);
 
-      font-weight: 850;
+      font-weight: 900;
       user-select:none;
+      cursor:pointer;
 
-      padding: 8px 6px;
+      padding: 10px 8px;
       border-radius: 16px;
       transition: transform .12s ease, background .2s ease, color .2s ease;
-      cursor:pointer;
     }
-
-    .navbtn:hover{ background: rgba(255,255,255,.06); }
-    .navbtn:active{ transform: translateY(1px) scale(.99); }
-
-    .navbtn svg{
-      width: 22px;
-      height: 22px;
-      stroke-width: 2;
-      color: rgba(255,255,255,.70);
-      opacity: .95;
-    }
-
-    .navbtn small{
-      font-size: 11px;
-      color: rgba(255,255,255,.70);
-      line-height: 1;
-    }
+    .navbtn:hover{background: rgba(255,255,255,.06);transform: translateY(-1px);}
+    .navbtn:active{transform: translateY(1px) scale(.99)}
+    .navbtn svg{width:22px;height:22px;opacity:.95}
+    .navbtn small{font-size:11px;line-height:1;opacity:.92}
 
     .navbtn.active{
-      background: linear-gradient(135deg, var(--good), var(--blue));
-      color: #020617;
-      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+      color:#fff;
     }
-    .navbtn.active svg{ color:#020617; }
-    .navbtn.active small{ color:#020617; font-weight:950; }
 
-    .navbtn.danger{
-      background: rgba(239,68,68,.12);
+    /* ✅ VIP وسط بارز */
+    .navbtn.vip{
+      flex:1.1;
+      background: linear-gradient(135deg, var(--vip1), var(--vip2));
+      color:#020617;
+      border-radius: 18px;
+      padding: 12px 10px;
+      box-shadow: 0 16px 34px rgba(0,0,0,.28);
+      position: relative;
+      top: -10px;
     }
-    .navbtn.danger svg,
-    .navbtn.danger small{ color:#ef4444; }
-    .navbtn.danger:hover{ background: rgba(239,68,68,.18); }
+    .navbtn.vip svg{width:24px;height:24px}
+    .navbtn.vip small{font-weight:950;opacity:1}
+    .navbtn.vip.active{
+      box-shadow: 0 18px 38px rgba(0,0,0,.34);
+      filter: saturate(1.05);
+    }
 
-    .nav form{margin:0;flex:1}
-    .nav form .navbtn{ width:100%; }
+    .navbtn.danger{color: rgba(239,68,68,.95);}
+    .navbtn.danger.active{background: rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.18);}
+    .nav form{margin:0;flex:1;}
+    .nav form button{width:100%;background:transparent;border:none;padding:0;}
+    .nav form button.navbtn{padding:10px 8px;}
 
     /* Overlay + FX (كما هي) */
     .overlay{
@@ -454,21 +412,8 @@
       50%{ transform:scale(1.02); opacity:1 }
     }
 
-    .ring{
-      position:relative;
-      width:78%;
-      height:78%;
-      z-index:2;
-      display:grid;
-      place-items:center;
-    }
-    .ring svg{
-      width:100%;
-      height:100%;
-      transform: rotate(-90deg);
-      filter: drop-shadow(0 16px 30px rgba(0,0,0,.35));
-      display:block;
-    }
+    .ring{position:relative;width:78%;height:78%;z-index:2;display:grid;place-items:center;}
+    .ring svg{width:100%;height:100%;transform: rotate(-90deg);filter: drop-shadow(0 16px 30px rgba(0,0,0,.35));display:block;}
     .ringTrack{stroke: rgba(255,255,255,.10);stroke-width:10;fill:none}
     .ringProg{
       stroke: url(#grad);
@@ -494,109 +439,57 @@
     }
 
     .count{
-      position:absolute;
-      z-index:3;
-      text-align:center;
-      width:70%;
-      pointer-events:none;
+      position:absolute;z-index:3;text-align:center;width:70%;pointer-events:none;
     }
     .count .big{
-      font-weight:1000;
-      font-size:40px;
-      letter-spacing:.5px;
-      margin:0;
-      line-height:1.05;
+      font-weight:1000;font-size:40px;letter-spacing:.5px;margin:0;line-height:1.05;
       background: linear-gradient(135deg, var(--sky), var(--purple));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
+      -webkit-background-clip:text;background-clip:text;color:transparent;
       filter: drop-shadow(0 10px 22px rgba(0,0,0,.35));
     }
     .count .small{
-      margin-top:8px;
-      font-size:12px;
-      opacity:.86;
-      line-height:1.5;
-      color: rgba(255,255,255,.88);
+      margin-top:8px;font-size:12px;opacity:.86;line-height:1.5;color: rgba(255,255,255,.88);
     }
     .taskTitle{
-      margin-top:10px;
-      font-weight:950;
-      font-size:13px;
-      opacity:.95;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      margin-top:10px;font-weight:950;font-size:13px;opacity:.95;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
 
-    #fx{
-      position:fixed; inset:0;
-      width:100%; height:100%;
-      z-index:6100;
-      pointer-events:none;
-      display:none;
-    }
+    #fx{position:fixed; inset:0;width:100%;height:100%;z-index:6100;pointer-events:none;display:none;}
     #fx.show{display:block}
 
     .flash{
       position:fixed; inset:0;
       background: radial-gradient(700px 400px at 50% 45%, rgba(125,211,252,.40), rgba(167,139,250,.18), transparent 65%),
                   rgba(255,255,255,.02);
-      opacity:0;
-      z-index:6200;
-      pointer-events:none;
+      opacity:0;z-index:6200;pointer-events:none;
     }
     .flash.go{ animation: flash .45s ease-in-out; }
-    @keyframes flash{
-      0%{opacity:0}
-      35%{opacity:.95}
-      100%{opacity:0}
-    }
+    @keyframes flash{0%{opacity:0}35%{opacity:.95}100%{opacity:0}}
 
     .checkWrap{
-      position:absolute;
-      inset:0;
-      display:grid;
-      place-items:center;
-      z-index:4;
-      opacity:0;
-      transform: scale(.92);
-      pointer-events:none;
+      position:absolute;inset:0;display:grid;place-items:center;z-index:4;
+      opacity:0;transform: scale(.92);pointer-events:none;
     }
     .checkWrap.show{
-      opacity:1;
-      transform: scale(1);
+      opacity:1;transform: scale(1);
       transition: opacity .18s ease, transform .18s ease;
     }
     .checkSvg{width:120px;height:120px;filter: drop-shadow(0 20px 40px rgba(0,0,0,.35))}
     .checkCircle{stroke: rgba(255,215,0,.25);stroke-width:6;fill:none}
     .checkPath{
-      stroke: #facc15;
-      stroke-width:10;
-      fill:none;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-      stroke-dasharray: 120;
-      stroke-dashoffset: 120;
+      stroke: #facc15;stroke-width:10;fill:none;stroke-linecap:round;stroke-linejoin:round;
+      stroke-dasharray: 120;stroke-dashoffset: 120;
       animation: draw .55s ease-in-out forwards;
     }
     @keyframes draw{ to{ stroke-dashoffset: 0; } }
 
     .cancelBtn{
-      position:absolute;
-      bottom:-54px;
-      left:50%;
-      transform:translateX(-50%);
+      position:absolute;bottom:-54px;left:50%;transform:translateX(-50%);
       background:rgba(255,255,255,.10);
       border:1px solid rgba(255,255,255,.18);
-      color:#fff;
-      border-radius:999px;
-      padding:10px 14px;
-      font-weight:950;
-      cursor:not-allowed;
-      opacity:.55;
-      white-space:nowrap;
-      z-index:2;
+      color:#fff;border-radius:999px;padding:10px 14px;font-weight:950;
+      cursor:not-allowed;opacity:.55;white-space:nowrap;z-index:2;
     }
     .cancelBtn small{opacity:.85;font-weight:800}
   </style>
@@ -609,7 +502,6 @@
     <div class="topbar">
       <div class="brand">
         <div class="logo">
-          <!-- ✅ اللوغو الجديد -->
           <img src="https://i.ibb.co/SwTt7rZj/Screenshot-20260304-043805.png" alt="MRP Logo" />
         </div>
         <div class="brandTxt">
@@ -664,7 +556,7 @@
     </div>
   </div>
 
-  <!-- ✅ Bottom Nav (PRO + SVG + سميات) -->
+  <!-- ✅ Bottom Nav (PRO + VIP) -->
   <div class="nav">
     <div class="navInner">
       <a href="/home" class="navbtn" id="navHome" aria-label="الرئيسية">
@@ -683,6 +575,15 @@
         <small>المهام</small>
       </a>
 
+      <!-- ✅ VIP -->
+      <a href="/vip" class="navbtn vip" id="navVip" aria-label="VIP" title="VIP">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3l2.3 6.8H21l-5.6 4 2.2 6.8L12 16.9 6.4 20.6l2.2-6.8L3 9.8h6.7L12 3z"
+                stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <small>VIP</small>
+      </a>
+
       <a href="/profile" class="navbtn" id="navProfile" aria-label="بروفايل">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -692,7 +593,7 @@
       </a>
 
       <form method="post" action="/logout">
-        <button type="submit" class="navbtn danger" style="width:100%; border:none;" aria-label="خروج">
+        <button type="submit" class="navbtn danger" aria-label="خروج">
           <svg viewBox="0 0 24 24" fill="none">
             <path d="M15 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             <path d="M10 12h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -1030,23 +931,21 @@
       }
     }
 
+    /* ✅ Active nav: Home/Tasks/Profile/VIP */
     (function setActiveNav(){
-      const p = location.pathname || "/";
-      const home = document.getElementById("navHome");
-      const tasks = document.getElementById("navTasks");
-      const profile = document.getElementById("navProfile");
-      if(!home || !tasks || !profile) return;
+      const p = (location.pathname || "/").toLowerCase();
+      document.getElementById("navHome")?.classList.remove("active");
+      document.getElementById("navTasks")?.classList.remove("active");
+      document.getElementById("navProfile")?.classList.remove("active");
+      document.getElementById("navVip")?.classList.remove("active");
 
-      if(p === "/" || p === "/home") home.classList.add("active");
-      else if(p === "/tasks" || p.startsWith("/tasks/")) tasks.classList.add("active");
-      else if(p === "/profile" || p.startsWith("/profile/")) profile.classList.add("active");
+      if(p === "/" || p === "/home") document.getElementById("navHome")?.classList.add("active");
+      else if(p === "/tasks" || p.startsWith("/tasks/")) document.getElementById("navTasks")?.classList.add("active");
+      else if(p === "/profile" || p.startsWith("/profile/")) document.getElementById("navProfile")?.classList.add("active");
+      else if(p === "/vip" || p.startsWith("/vip/")) document.getElementById("navVip")?.classList.add("active");
     })();
 
     load().catch(e=>toast(e.message));
   </script>
- <script>
-
-
-</script>
 </body>
 </html>
