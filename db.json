@@ -26,7 +26,7 @@
       "is_admin": true,
       "status": "active",
       "created_at": "2026-02-27T15:33:49.221Z",
-      "last_login_at": "2026-03-05T16:01:52.886Z",
+      "last_login_at": "2026-03-05T16:53:13.352Z",
       "referral_code": "Ud728daa5-d822-42cd-b4f6-67abeb6b0fe2",
       "tasks_enabled": true,
       "tasks_limit": null
@@ -37,11 +37,11 @@
       "email": "Mohamedashouba@gmail.com",
       "phone": "0652452212",
       "password_hash": "$2a$10$KCCy9m/HqvpzBSj39V3wz.lMZf49Re9jNdWvpQYbO.HTk5OTs541C",
-      "points_balance": 65,
+      "points_balance": 50065,
       "is_admin": false,
       "status": "active",
       "created_at": "2026-02-27T15:39:30.203Z",
-      "last_login_at": "2026-03-05T16:04:03.292Z",
+      "last_login_at": "2026-03-05T16:53:21.922Z",
       "referral_code": "U87608041-b3f4-4f25-aaea-8d4b2dc399aa",
       "tasks_enabled": true,
       "tasks_limit": null
@@ -1499,6 +1499,28 @@
       "points_delta": 100,
       "status": "pending",
       "created_at": "2026-03-05T16:16:33.920Z",
+      "processed_at": null
+    },
+    {
+      "id": "1772729570184-4383",
+      "user_id": "87608041-b3f4-4f25-aaea-8d4b2dc399aa",
+      "type": "deposit",
+      "amount_usd": 5000,
+      "rate_usd_to_points": 10,
+      "points_delta": 50000,
+      "status": "approved",
+      "created_at": "2026-03-05T16:52:50.184Z",
+      "processed_at": "2026-03-05T16:53:17.065Z"
+    },
+    {
+      "id": "1772730140591-4608",
+      "user_id": "87608041-b3f4-4f25-aaea-8d4b2dc399aa",
+      "type": "withdraw",
+      "amount_usd": 50,
+      "rate_usd_to_points": 10,
+      "points_delta": -500,
+      "status": "pending",
+      "created_at": "2026-03-05T17:02:20.591Z",
       "processed_at": null
     }
   ],

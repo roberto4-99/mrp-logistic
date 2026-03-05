@@ -404,30 +404,24 @@
       <button class="btn" id="sendBtn" onclick="submitWithdraw()">إرسال طلب السحب</button>
 
       <div class="mini">
-       السحب يصل خلال لحضات <b>submitWithdraw()</b> .
+        السحب يصل خلال لحضات .<br/>
+           <b> </b>
       </div>
     </div>
   </div>
 
-  <!-- إذا عندك /public/app.js خليه -->
-  <script src="/public/app.js"></script>
-
   <script>
-    // ✅ Fix "api not found": إذا ماكانش window.api موجود، كنصاوب واحد
-    const api = window.api || async function(path, method="GET", body){
-      const opt = { method, headers: { "Content-Type":"application/json" } };
-      if(method !== "GET") opt.body = JSON.stringify(body || {});
-      const res = await fetch(path, opt);
+    // ✅ fetch helper (بدون app.js)
+    async function postJSON(url, body){
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(body || {})
+      });
       const data = await res.json().catch(()=> ({}));
       if(!res.ok) throw new Error(data?.message || ("HTTP " + res.status));
       return data;
-    };
-
-    // ✅ Limits (افتراضياً)
-    const MIN_WD_DEFAULT = 10;
-    const MAX_WD_DEFAULT = 5000;
-    let MIN_WD = MIN_WD_DEFAULT;
-    let MAX_WD = MAX_WD_DEFAULT;
+    }
 
     function toast(msg){
       const t=document.getElementById("toast");
@@ -441,9 +435,17 @@
       return Number.isFinite(n) ? n : NaN;
     }
 
-    // state
-    let selectedMethod = "usdt";   // usdt | transfer
-    let selectedNet = "TRC20";     // optional
+    // ✅ Limits (ثابتة + متوافقة مع السيرفر)
+    const MIN_WD = 10;      // نفس min_withdraw_usd الافتراضي فالسيرفر
+    const MAX_WD = 5000;    // حد واجهة فقط
+
+    document.getElementById("minTxt").textContent = MIN_WD + "$";
+    document.getElementById("maxTxt").textContent = MAX_WD + "$";
+    document.getElementById("limitsLine").textContent = `أقل سحب: ${MIN_WD}$ • أقصى: ${MAX_WD}$`;
+
+    // ✅ UI only state (لا يُرسل للسيرفر)
+    let selectedMethod = "usdt";
+    let selectedNet = "TRC20";
 
     const methodsBox = document.getElementById("methods");
     const netsBox = document.getElementById("nets");
@@ -458,7 +460,7 @@
       }else{
         netSection.classList.add("hide");
         selectedNet = "";
-        netsBox?.querySelectorAll(".net")?.forEach(x=>x.classList.remove("active"));
+        netsBox.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
       }
     }
 
@@ -470,7 +472,7 @@
       setMethod(item.getAttribute("data-method"));
     });
 
-    netsBox?.addEventListener("click",(e)=>{
+    netsBox.addEventListener("click",(e)=>{
       const item = e.target.closest(".net");
       if(!item) return;
       netsBox.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
@@ -478,28 +480,13 @@
       selectedNet = item.getAttribute("data-net") || "";
     });
 
-    function updateLimitsUI(){
-      document.getElementById("minTxt").textContent = MIN_WD + "$";
-      document.getElementById("maxTxt").textContent = MAX_WD + "$";
-      document.getElementById("limitsLine").textContent = `أقل سحب: ${MIN_WD}$ • أقصى: ${MAX_WD}$`;
-    }
-
-    // ✅ حاول يجيب limits من settings إذا كانت موجودة فـ /api/me (اختياري)
-    (async function loadSettingsSafe(){
-      try{
-        const me = await api("/api/me","GET");
-        // إذا عندك min_withdraw_usd فالسيرفر
-        const minW = Number(me?.settings?.min_withdraw_usd);
-        if(Number.isFinite(minW) && minW>0) MIN_WD = minW;
-      }catch(e){}
-      updateLimitsUI();
-      setMethod(selectedMethod);
-    })();
+    // init
+    setMethod(selectedMethod);
 
     async function submitWithdraw(){
       const amount = moneyNum(document.getElementById("amount").value);
-      const dest = (document.getElementById("dest").value || "").trim();
-      const note = (document.getElementById("note").value || "").trim();
+      const dest = (document.getElementById("dest").value || "").trim(); // واجهة فقط
+      const note = (document.getElementById("note").value || "").trim(); // واجهة فقط
 
       if(!Number.isFinite(amount) || amount<=0) return toast("دخل مبلغ صحيح");
       if(amount < MIN_WD) return toast(`أقل سحب هو <b>${MIN_WD}$</b>`);
@@ -510,19 +497,11 @@
       btn.disabled = true;
 
       try{
-        // ✅ هذا هو الendpoint الافتراضي (بدّل غير الاسم إلا كان مختلف فالسيرفر)
-        // مثال payload:
-        // { type:"withdraw", amount_usd: amount, method: "usdt", network:"TRC20", destination:"...", note:"..." }
-        const payload = {
+        // ✅ IMPORTANT: نرسل للسيرفر غير المبلغ و type فقط
+        const r = await postJSON("/api/wallet/request", {
           type: "withdraw",
-          amount_usd: amount,
-          method: selectedMethod,
-          network: isUSDT() ? (selectedNet || "") : "",
-          destination: dest,
-          note: note
-        };
-
-        const r = await api("/api/wallet/request","POST", payload);
+          amount_usd: amount
+        });
 
         toast(r?.message || "تم إرسال طلب السحب ✅");
         setTimeout(()=>{ location.href="/home"; }, 900);
