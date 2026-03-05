@@ -462,7 +462,7 @@ function requireTasksEnabled(req, res, next){
 /* ---------------- Pages ---------------- */
 app.get("/", (req, res) => res.redirect("/home"));
 app.get("/login", (req, res) => res.sendFile(path.join(__dirname, "views/login.html")));
-app.get("/vip", requireAuth, (req, res) => {res.sendFile(path.join(__dirname, "views/vip.html"));});
+app.get("/vip", requireAuth, (req,res) =>res.sendFile(path.join(__dirname, "views/VIP.HTML")));
 app.get("/register", (req, res) => res.sendFile(path.join(__dirname, "views/register.html")));
 app.get("/home", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/home.html")));
 app.get("/tasks", requireAuth, (req, res) => res.sendFile(path.join(__dirname, "views/tasks.html")));
