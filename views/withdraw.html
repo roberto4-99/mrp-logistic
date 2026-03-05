@@ -8,192 +8,302 @@
   <style>
     :root{
       --bg1:#020617; --bg2:#0b1225;
-      --card: rgba(255,255,255,.07);
-      --border: rgba(255,255,255,.14);
-      --txt:#fff; --muted: rgba(255,255,255,.72);
-      --good:#22c55e; --blue:#3b82f6; --bad:#ef4444; --amber:#f59e0b;
+      --card: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.12);
+      --border2: rgba(255,255,255,.18);
+      --txt:#fff;
+      --muted: rgba(255,255,255,.75);
+      --muted2: rgba(255,255,255,.60);
+      --good:#22c55e;
+      --bad:#ef4444;
+      --blue:#3b82f6;
+      --yellow:#f59e0b;
       --shadow: 0 18px 60px rgba(0,0,0,.35);
-      --r24:24px; --r16:16px;
+      --shadow2: 0 10px 28px rgba(0,0,0,.28);
+      --r24:24px; --r20:20px; --r18:18px; --r16:16px;
     }
-    *{box-sizing:border-box}
+
+    *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+    *:focus{outline:none !important;}
+    *:focus-visible{outline:none !important;}
+
+    html,body{height:100%}
     body{
       margin:0; color:var(--txt);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
       background:
-        radial-gradient(900px 500px at 10% 10%, rgba(59,130,246,.18), transparent 60%),
-        radial-gradient(900px 500px at 90% 10%, rgba(239,68,68,.14), transparent 55%),
+        radial-gradient(900px 500px at 10% 10%, #15234a, transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, #0b3d2a, transparent 55%),
         linear-gradient(180deg, var(--bg1), var(--bg2));
       min-height:100vh;
-      padding:16px;
-      padding-bottom: calc(92px + env(safe-area-inset-bottom));
+      padding:14px;
+      overflow-x:hidden;
     }
-    .wrap{max-width:560px;margin:0 auto}
+
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        radial-gradient(520px 260px at 18% 18%, rgba(125,211,252,.10), transparent 65%),
+        radial-gradient(520px 260px at 86% 6%, rgba(167,139,250,.10), transparent 65%);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .wrap{max-width:560px;margin:0 auto; position:relative; z-index:1;}
 
     .toast{
-      position:fixed; left:16px; right:16px;
-      bottom: calc(90px + env(safe-area-inset-bottom));
+      position:fixed; left:14px; right:14px;
+      bottom: 18px;
       max-width:560px; margin:auto;
       background: rgba(2,6,23,.92);
       border:1px solid var(--border);
-      border-radius: var(--r16);
-      padding:12px 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,.28);
+      border-radius: 16px;
+      padding:10px 12px;
+      box-shadow: var(--shadow2);
       display:none; z-index:9999;
       backdrop-filter: blur(14px);
-      line-height:1.7;
-      font-weight:900;
       font-size:13px;
     }
     .toast.show{display:block}
+    .toast b{font-weight:950}
 
     .topbar{
       display:flex; align-items:center; justify-content:space-between;
       gap:10px; margin-top:10px;
-      padding:12px 12px;
-      border-radius: var(--r24);
-      background: rgba(255,255,255,.05);
+      padding:10px 10px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(12px);
       box-shadow: 0 14px 50px rgba(0,0,0,.22);
     }
-    .brand{
-      display:flex; align-items:center; gap:10px; min-width:0;
-    }
-    .logo{
-      width:42px;height:42px;border-radius:16px;
-      display:flex;align-items:center;justify-content:center;
-      background: linear-gradient(135deg, rgba(34,197,94,.95), rgba(59,130,246,.95));
-      color:#020617; font-weight:1000;
-      box-shadow: var(--shadow);
-      flex:0 0 auto;
-    }
-    .btxt{min-width:0}
-    .btxt b{
-      display:block; font-size:13px; font-weight:1000;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    .btxt span{
-      display:block; font-size:11px; color:var(--muted);
-      margin-top:2px;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      max-width:260px;
-    }
-
     .back{
       display:inline-flex; align-items:center; gap:8px;
       padding:10px 12px; border-radius:999px;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
-      color:#fff; text-decoration:none; font-weight:1000;
+      color:#fff; text-decoration:none; font-weight:950;
+      user-select:none;
+    }
+    .ttl{
+      font-weight:950; opacity:.9; font-size:12px;
+      display:flex; align-items:center; gap:8px;
       white-space:nowrap;
     }
+    .ttl .dot{
+      width:8px;height:8px;border-radius:99px;
+      background: rgba(245,158,11,.9);
+      box-shadow: 0 0 0 6px rgba(245,158,11,.12);
+    }
 
-    .card{
+    .hero{
       margin-top:14px;
       background: var(--card);
       border:1px solid var(--border);
       border-radius: var(--r24);
-      padding:16px;
+      padding:14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(520px 180px at 15% 15%, rgba(125,211,252,.18), transparent 60%),
+        radial-gradient(520px 180px at 85% 0%, rgba(167,139,250,.16), transparent 60%);
+      pointer-events:none;
+    }
+    .heroTop{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    h1{margin:0;font-size:15px;font-weight:1000;letter-spacing:.2px}
+    .sub{margin-top:6px; font-size:12px; color:var(--muted); line-height:1.6}
+    .pill{
+      position:relative;
+      padding:9px 10px;border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      font-size:12px;font-weight:950;
+      white-space:nowrap;
+      color: rgba(255,255,255,.92);
+    }
+
+    .card{
+      margin-top:12px;
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--r24);
+      padding:14px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
     }
 
-    .hero{
-      display:flex; align-items:center; justify-content:space-between;
+    .hintBar{
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
       gap:10px;
-      padding:14px;
-      border-radius: var(--r24);
-      background: rgba(0,0,0,.22);
+      padding:10px 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.10);
-      margin-bottom:14px;
-    }
-    .hero b{font-size:15px; font-weight:1000}
-    .hero .small{margin-top:6px; font-size:12px; color:var(--muted); line-height:1.6}
-    .chip{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:8px 12px;
-      border-radius: 999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      font-weight:1000;
+      color: rgba(255,255,255,.88);
       font-size:12px;
+      line-height:1.5;
+    }
+    .hintBar b{font-weight:1000}
+    .hintBar .cap{
+      padding:7px 10px;
+      border-radius:999px;
+      background: rgba(245,158,11,.12);
+      border:1px solid rgba(245,158,11,.24);
+      font-weight:950;
       white-space:nowrap;
     }
 
-    label{display:block; margin-top:12px; font-size:12px; color:var(--muted); font-weight:1000}
+    label{
+      display:block;
+      margin-top:12px;
+      font-size:12px;
+      color:var(--muted2);
+      font-weight:950;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media(max-width:520px){ .grid2{grid-template-columns:1fr;} }
+
+    .fieldWrap{margin-top:8px; position:relative;}
     .field{
       width:100%;
-      margin-top:8px;
-      border:none; outline:none;
+      border:none;
+      outline:none;
       border-radius: 16px;
       padding:12px 12px;
       background: rgba(0,0,0,.32);
       border: 1px solid rgba(255,255,255,.14);
       color:#fff;
       font-size:14px;
+      transition: border-color .2s ease, box-shadow .2s ease, transform .12s ease;
     }
+    .field::placeholder{color: rgba(255,255,255,.38)}
     .field:focus{
       border-color: rgba(147,197,253,.55);
       box-shadow: 0 0 0 4px rgba(59,130,246,.12);
+      transform: translateY(-1px);
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
+    .prefix{
+      position:absolute;
+      left:10px; top:50%;
+      transform: translateY(-50%);
+      font-weight:950;
+      font-size:12px;
+      padding:6px 8px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      color: rgba(255,255,255,.92);
+      direction:ltr;
+      pointer-events:none;
     }
-    @media(max-width:520px){ .grid{grid-template-columns:1fr} }
+    .field.money{padding-left:72px; direction:ltr; text-align:left;}
 
-    .methodGrid{
+    .methods{
       margin-top:10px;
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap:10px;
     }
-    @media(max-width:520px){ .methodGrid{grid-template-columns: repeat(2, 1fr);} }
+    @media(max-width:560px){ .methods{grid-template-columns:1fr;} }
 
-    .mbtn{
-      cursor:pointer;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.14);
+    .m{
+      cursor:pointer; user-select:none;
+      border-radius: 18px;
+      padding:12px;
+      border:1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.06);
-      color:#fff;
-      padding:12px 10px;
       display:flex;
-      align-items:center;
-      justify-content:space-between;
       gap:10px;
-      font-weight:1000;
-      transition: transform .12s ease, filter .2s ease, background .2s ease;
-      user-select:none;
+      align-items:center;
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+      position:relative;
+      overflow:hidden;
     }
-    .mbtn:active{transform: translateY(1px) scale(.99)}
-    .mbtn .tag{
-      width:10px;height:10px;border-radius:999px;
-      background: rgba(255,255,255,.35);
-      box-shadow: 0 0 0 4px rgba(255,255,255,.08);
+    .m:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); transform: translateY(-1px);}
+    .m:active{transform: translateY(1px) scale(.99)}
+    .m.active{
+      background: rgba(59,130,246,.16);
+      border-color: rgba(59,130,246,.28);
+      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+    }
+    .mIco{
+      width:42px;height:42px;border-radius:16px;
+      display:flex;align-items:center;justify-content:center;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
       flex:0 0 auto;
     }
-    .mbtn.active{
-      background: linear-gradient(135deg, rgba(34,197,94,.25), rgba(59,130,246,.22));
-      border-color: rgba(34,197,94,.35);
+    .mIco svg{width:20px;height:20px;opacity:.95}
+    .mTxt b{display:block;font-size:13px;font-weight:1000}
+    .mTxt span{display:block;margin-top:3px;font-size:11px;color: var(--muted)}
+
+    .nets{
+      margin-top:10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
     }
-    .mbtn.active .tag{background: var(--good); box-shadow: 0 0 0 4px rgba(34,197,94,.16);}
+    .net{
+      cursor:pointer; user-select:none;
+      display:inline-flex;
+      align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.16);
+      font-size:12px;
+      font-weight:950;
+      color: rgba(255,255,255,.92);
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+    }
+    .net:hover{background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.20);}
+    .net:active{transform: translateY(1px) scale(.99)}
+    .net.active{
+      background: rgba(245,158,11,.14);
+      border-color: rgba(245,158,11,.28);
+      color:#fff;
+    }
+    .net .miniTag{
+      font-size:11px;
+      padding:5px 8px;
+      border-radius:999px;
+      background: rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.12);
+      opacity:.95;
+    }
+    .hide{display:none !important;}
 
     .btn{
       width:100%;
       margin-top:14px;
       border:none; cursor:pointer;
       border-radius:999px;
-      padding:12px 14px;
+      padding:13px 14px;
       font-weight:1000;
-      color:#020617;
-      background: linear-gradient(135deg, rgba(34,197,94,.98), rgba(59,130,246,.98));
+      color:#021019;
+      background: linear-gradient(135deg, var(--yellow), var(--blue));
       transition:transform .12s ease, filter .2s ease;
+      box-shadow: 0 14px 34px rgba(0,0,0,.22);
     }
-    .btn:hover{filter:brightness(1.03)}
     .btn:active{transform: translateY(1px) scale(.99)}
-    .btn[disabled]{opacity:.6; cursor:not-allowed}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
 
     .mini{
       margin-top:10px;
@@ -201,58 +311,7 @@
       color:var(--muted);
       line-height:1.7;
     }
-    .warn{
-      margin-top:12px;
-      padding:12px;
-      border-radius: 18px;
-      border:1px solid rgba(245,158,11,.25);
-      background: rgba(245,158,11,.10);
-      color: rgba(255,255,255,.90);
-      font-size:12px;
-      line-height:1.7;
-      font-weight:900;
-    }
-
-    /* Bottom Nav */
-    .nav{
-      position: fixed; left:0; right:0; bottom:0;
-      z-index:4000;
-      background: rgba(2,6,23,.70);
-      border-top: 1px solid rgba(255,255,255,.14);
-      backdrop-filter: blur(14px);
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .navInner{
-      max-width:1100px; margin:0 auto;
-      display:flex; align-items:center; justify-content: space-around;
-      gap:10px; padding: 10px 12px;
-    }
-    .navbtn{
-      min-width: 86px;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:6px;
-      text-decoration:none; color:#fff;
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.16);
-      border-radius: 18px;
-      padding: 10px 12px;
-      font-weight: 1000;
-      user-select:none;
-    }
-    .navbtn small{font-size:11px;opacity:.9}
-    .navbtn.active{
-      background: linear-gradient(135deg, var(--good), var(--blue));
-      border-color: transparent;
-      color: #020617;
-    }
-    .navbtn.active small{opacity:1}
-    .nav form{margin:0}
-    .navbtn.danger{
-      background: rgba(239,68,68,.18);
-      border-color: rgba(239,68,68,.30);
-    }
-    .navbtn.danger small{color:#fff}
-    .navbtn svg{width:18px;height:18px;opacity:.95}
+    .mini b{font-weight:950}
   </style>
 </head>
 
@@ -261,55 +320,219 @@
 
   <div class="wrap">
     <div class="topbar">
-      <div class="brand">
-        <div class="logo">MR</div>
-        <div class="btxt">
-          <b id="appName">MRP Logistic</b>
-          <span id="userLine">—</span>
-        </div>
-      </div>
       <a class="back" href="/home">← رجوع</a>
+      <div class="ttl"><span class="dot"></span> صفحة السحب</div>
+    </div>
+
+    <div class="hero">
+      <div class="heroTop">
+        <div>
+          <h1>سحب الرصيد</h1>
+          <div class="sub">حدّد الطريقة (اختياري)، إذا USDT حدّد الشبكة (اختياري)، وكتب المبلغ ووجهة السحب.</div>
+        </div>
+        <div class="pill" id="limitsLine">أقل سحب: 10$ • أقصى: 5000$</div>
+      </div>
     </div>
 
     <div class="card">
-      <div class="hero">
-        <div>
-          <b>طلب سحب</b>
-          <div class="small" id="minLine">أقل سحب: 10$</div>
-        </div>
-        <div class="chip" id="balanceChip">💠 الرصيد: —</div>
+      <div class="hintBar">
+        <div>✅ الحد الأدنى <b id="minTxt">10$</b> — الحد الأقصى <b id="maxTxt">5000$</b></div>
+        <div class="cap">الطريقة/الشبكة اختيارية</div>
       </div>
 
-      <div class="grid">
+      <label>طريقة السحب (اختياري)</label>
+      <div class="methods" id="methods">
+        <div class="m active" data-method="usdt">
+          <div class="mIco">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2v20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M5 6h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="mTxt">
+            <b>USDT</b>
+            <span>Crypto Withdraw</span>
+          </div>
+        </div>
+
+        <div class="m" data-method="transfer">
+          <div class="mIco">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 8h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="mTxt">
+            <b>Transfer</b>
+            <span>Wise / Bank</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="netSection">
+        <label>شبكة USDT (اختياري)</label>
+        <div class="nets" id="nets">
+          <div class="net active" data-net="TRC20">TRC20 <span class="miniTag">USDT</span></div>
+          <div class="net" data-net="ERC20">ERC20 <span class="miniTag">USDT</span></div>
+        </div>
+      </div>
+
+      <div class="grid2">
         <div>
           <label>المبلغ بالدولار</label>
-          <input class="field" id="amount" inputmode="decimal" placeholder="مثال: 10"/>
+          <div class="fieldWrap">
+            <span class="prefix">USD</span>
+            <input class="field money" id="amount" inputmode="decimal" placeholder="مثال: 25"/>
+          </div>
         </div>
+
         <div>
-          <label>العملة</label>
-          <input class="field" value="USD" disabled/>
+          <label>وجهة السحب (محفظة/رقم/IBAN) *</label>
+          <div class="fieldWrap">
+            <input class="field" id="dest" placeholder="USDT Address / IBAN / رقم الحساب"/>
+          </div>
         </div>
       </div>
 
-      <label>طريقة السحب (محافظ إلكترونية فقط)</label>
-      <div class="methodGrid" id="methodGrid"></div>
-
-      <label>معرّف المحفظة / Wallet ID</label>
-      <input class="field" id="walletId" placeholder="مثال: Binance ID / USDT Address / Payeer Account"/>
+      <label>ملاحظة (اختياري)</label>
+      <div class="fieldWrap">
+        <input class="field" id="note" placeholder="مثال: اسمي في Binance: ..."/>
+      </div>
 
       <button class="btn" id="sendBtn" onclick="submitWithdraw()">إرسال طلب السحب</button>
 
-      <div class="warn">
-       
-      </div>
-
       <div class="mini">
-        تأكد من المعلومات قبل الإرسال. معالجة الطلب خلال 24 ساعة.
+        ✅ يتم إرسال الطلب للوحة الأدمن عبر السيرفر.<br/>
+        🔒 إذا كانت عندك Endpoints مختلفة فالسيرفر بدّلهم فـ <b>submitWithdraw()</b> فقط.
       </div>
     </div>
   </div>
 
+  <!-- إذا عندك /public/app.js خليه -->
+  <script src="/public/app.js"></script>
 
+  <script>
+    // ✅ Fix "api not found": إذا ماكانش window.api موجود، كنصاوب واحد
+    const api = window.api || async function(path, method="GET", body){
+      const opt = { method, headers: { "Content-Type":"application/json" } };
+      if(method !== "GET") opt.body = JSON.stringify(body || {});
+      const res = await fetch(path, opt);
+      const data = await res.json().catch(()=> ({}));
+      if(!res.ok) throw new Error(data?.message || ("HTTP " + res.status));
+      return data;
+    };
+
+    // ✅ Limits (افتراضياً)
+    const MIN_WD_DEFAULT = 10;
+    const MAX_WD_DEFAULT = 5000;
+    let MIN_WD = MIN_WD_DEFAULT;
+    let MAX_WD = MAX_WD_DEFAULT;
+
+    function toast(msg){
+      const t=document.getElementById("toast");
+      t.innerHTML=msg;
+      t.classList.add("show");
+      setTimeout(()=>t.classList.remove("show"),2600);
+    }
+
+    function moneyNum(v){
+      const n = Number(String(v||"").replace(",", ".").trim());
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    // state
+    let selectedMethod = "usdt";   // usdt | transfer
+    let selectedNet = "TRC20";     // optional
+
+    const methodsBox = document.getElementById("methods");
+    const netsBox = document.getElementById("nets");
+    const netSection = document.getElementById("netSection");
+
+    function isUSDT(){ return String(selectedMethod).toLowerCase() === "usdt"; }
+
+    function setMethod(key){
+      selectedMethod = String(key||"").toLowerCase();
+      if(isUSDT()){
+        netSection.classList.remove("hide");
+      }else{
+        netSection.classList.add("hide");
+        selectedNet = "";
+        netsBox?.querySelectorAll(".net")?.forEach(x=>x.classList.remove("active"));
+      }
+    }
+
+    methodsBox.addEventListener("click",(e)=>{
+      const item = e.target.closest(".m");
+      if(!item) return;
+      methodsBox.querySelectorAll(".m").forEach(x=>x.classList.remove("active"));
+      item.classList.add("active");
+      setMethod(item.getAttribute("data-method"));
+    });
+
+    netsBox?.addEventListener("click",(e)=>{
+      const item = e.target.closest(".net");
+      if(!item) return;
+      netsBox.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
+      item.classList.add("active");
+      selectedNet = item.getAttribute("data-net") || "";
+    });
+
+    function updateLimitsUI(){
+      document.getElementById("minTxt").textContent = MIN_WD + "$";
+      document.getElementById("maxTxt").textContent = MAX_WD + "$";
+      document.getElementById("limitsLine").textContent = `أقل سحب: ${MIN_WD}$ • أقصى: ${MAX_WD}$`;
+    }
+
+    // ✅ حاول يجيب limits من settings إذا كانت موجودة فـ /api/me (اختياري)
+    (async function loadSettingsSafe(){
+      try{
+        const me = await api("/api/me","GET");
+        // إذا عندك min_withdraw_usd فالسيرفر
+        const minW = Number(me?.settings?.min_withdraw_usd);
+        if(Number.isFinite(minW) && minW>0) MIN_WD = minW;
+      }catch(e){}
+      updateLimitsUI();
+      setMethod(selectedMethod);
+    })();
+
+    async function submitWithdraw(){
+      const amount = moneyNum(document.getElementById("amount").value);
+      const dest = (document.getElementById("dest").value || "").trim();
+      const note = (document.getElementById("note").value || "").trim();
+
+      if(!Number.isFinite(amount) || amount<=0) return toast("دخل مبلغ صحيح");
+      if(amount < MIN_WD) return toast(`أقل سحب هو <b>${MIN_WD}$</b>`);
+      if(amount > MAX_WD) return toast(`أقصى سحب هو <b>${MAX_WD}$</b>`);
+      if(dest.length < 6) return toast("دخل وجهة سحب صحيحة (Wallet/IBAN/حساب)");
+
+      const btn = document.getElementById("sendBtn");
+      btn.disabled = true;
+
+      try{
+        // ✅ هذا هو الendpoint الافتراضي (بدّل غير الاسم إلا كان مختلف فالسيرفر)
+        // مثال payload:
+        // { type:"withdraw", amount_usd: amount, method: "usdt", network:"TRC20", destination:"...", note:"..." }
+        const payload = {
+          type: "withdraw",
+          amount_usd: amount,
+          method: selectedMethod,
+          network: isUSDT() ? (selectedNet || "") : "",
+          destination: dest,
+          note: note
+        };
+
+        const r = await api("/api/wallet/request","POST", payload);
+
+        toast(r?.message || "تم إرسال طلب السحب ✅");
+        setTimeout(()=>{ location.href="/home"; }, 900);
+      }catch(e){
+        toast(e?.message || "وقع خطأ فالسحب");
+      }finally{
+        btn.disabled = false;
+      }
+    }
   </script>
 </body>
 </html>
