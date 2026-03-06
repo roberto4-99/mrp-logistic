@@ -85,7 +85,7 @@ const pool = (USE_PG)
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
       ssl: process.env.DATABASE_URL?.includes("railway") ? { rejectUnauthorized: false } : false,
-      max: Number(process.env.PGPOOL_MAX || 5),
+      max: Number(process.env.PGPOOL_MAX || 3),
       idleTimeoutMillis: Number(process.env.PGPOOL_IDLE || 30000),
       connectionTimeoutMillis: Number(process.env.PGPOOL_CONN_TIMEOUT || 5000),
     })
@@ -137,7 +137,7 @@ async function pgSetDb(db) {
 /* ✅ SAFETY: In-memory cache + single-flight to reduce PG queries */
 let DB_CACHE = null;
 let DB_CACHE_AT = 0;
-const DB_CACHE_TTL_MS = Number(process.env.DB_CACHE_TTL_MS || 800); // small, safe
+const DB_CACHE_TTL_MS = Number(process.env.DB_CACHE_TTL_MS || 3000); // small, safe
 let DB_READ_INFLIGHT = null;
 
 let DB_WRITE_INFLIGHT = Promise.resolve();

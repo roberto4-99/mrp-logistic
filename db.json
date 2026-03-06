@@ -41,7 +41,7 @@
       "is_admin": false,
       "status": "active",
       "created_at": "2026-02-27T15:39:30.203Z",
-      "last_login_at": "2026-03-05T16:53:21.922Z",
+      "last_login_at": "2026-03-06T14:54:53.699Z",
       "referral_code": "U87608041-b3f4-4f25-aaea-8d4b2dc399aa",
       "tasks_enabled": true,
       "tasks_limit": null
@@ -1521,6 +1521,17 @@
       "points_delta": -500,
       "status": "pending",
       "created_at": "2026-03-05T17:02:20.591Z",
+      "processed_at": null
+    },
+    {
+      "id": "1772808924110-4866",
+      "user_id": "87608041-b3f4-4f25-aaea-8d4b2dc399aa",
+      "type": "withdraw",
+      "amount_usd": 20,
+      "rate_usd_to_points": 10,
+      "points_delta": -200,
+      "status": "pending",
+      "created_at": "2026-03-06T14:55:24.110Z",
       "processed_at": null
     }
   ],
