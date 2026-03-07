@@ -17,9 +17,13 @@
       --r24:24px; --r18:18px; --r16:16px;
     }
 
-    *{box-sizing:border-box}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    *:focus{outline:none !important}
+    html,body{height:100%}
+
     body{
-      margin:0; color:var(--txt);
+      margin:0;
+      color:var(--txt);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(59,130,246,.22), transparent 60%),
@@ -27,15 +31,15 @@
         radial-gradient(900px 500px at 50% 90%, rgba(34,197,94,.12), transparent 55%),
         linear-gradient(180deg, var(--bg1), var(--bg2));
       min-height:100vh;
-      padding:16px;
-      padding-bottom: 24px;
+      padding:14px;
+      padding-bottom:24px;
     }
 
     .wrap{max-width:820px;margin:0 auto}
 
     .toast{
-      position:fixed; left:16px; right:16px;
-      bottom: 18px;
+      position:fixed; left:14px; right:14px;
+      bottom:18px;
       max-width:820px; margin:auto;
       background: rgba(2,6,23,.92);
       border:1px solid var(--border);
@@ -46,32 +50,40 @@
       backdrop-filter: blur(14px);
       text-align:center;
       font-weight:950;
+      font-size:13px;
     }
     .toast.show{display:block}
 
     .topbar{
       display:flex; align-items:center; justify-content:space-between;
-      gap:10px; margin-top:10px;
-      padding:12px 12px;
+      gap:10px; margin-top:8px;
+      padding:12px;
       border-radius: var(--r24);
       background: rgba(255,255,255,.05);
       border:1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(12px);
       box-shadow: 0 14px 50px rgba(0,0,0,.22);
     }
+
     .back{
       display:inline-flex; align-items:center; gap:8px;
       padding:10px 12px; border-radius:999px;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
       color:#fff; text-decoration:none; font-weight:950;
+      white-space:nowrap;
     }
+
     .brand{
       display:flex; flex-direction:column; align-items:flex-end;
-      gap:3px; text-align:right;
+      gap:3px; text-align:right; min-width:0;
     }
     .brand b{font-size:13px}
-    .brand span{font-size:11px;color:var(--muted)}
+    .brand span{
+      font-size:11px;color:var(--muted);
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width:180px;
+    }
 
     .hero{
       margin-top:14px;
@@ -87,9 +99,10 @@
     .hero:before{
       content:"";
       position:absolute; inset:-80px;
-      background: radial-gradient(circle at 20% 30%, rgba(34,197,94,.22), transparent 55%),
-                  radial-gradient(circle at 80% 20%, rgba(59,130,246,.26), transparent 58%),
-                  radial-gradient(circle at 50% 80%, rgba(239,68,68,.14), transparent 60%);
+      background:
+        radial-gradient(circle at 20% 30%, rgba(34,197,94,.22), transparent 55%),
+        radial-gradient(circle at 80% 20%, rgba(59,130,246,.26), transparent 58%),
+        radial-gradient(circle at 50% 80%, rgba(239,68,68,.14), transparent 60%);
       filter: blur(10px);
       opacity:.9;
     }
@@ -102,6 +115,7 @@
       display:flex; gap:10px; flex-wrap:wrap;
       align-items:center; justify-content:space-between;
     }
+
     .pill{
       display:inline-flex; align-items:center; gap:8px;
       padding:10px 12px;
@@ -112,6 +126,7 @@
       font-size:12px;
       white-space:nowrap;
     }
+
     .dot{
       width:10px;height:10px;border-radius:999px;background:var(--amber);
       box-shadow: 0 0 0 4px rgba(245,158,11,.18);
@@ -126,7 +141,11 @@
       grid-template-columns: 1fr 1fr;
       gap:12px;
     }
-    @media(max-width:760px){ .grid{grid-template-columns:1fr} }
+    .single{
+      margin-top:12px;
+      display:grid;
+      gap:12px;
+    }
 
     .card{
       background: var(--card);
@@ -136,13 +155,20 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
     }
+
     .card h2{
       margin:0 0 8px 0;
       font-size:14px;
       font-weight:1000;
       display:flex; align-items:center; gap:8px;
+      line-height:1.5;
     }
-    .muted{color:var(--muted); font-size:12px; line-height:1.8;}
+
+    .muted{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.8;
+    }
 
     .list{
       margin:10px 0 0;
@@ -151,6 +177,7 @@
       display:grid;
       gap:8px;
     }
+
     .li{
       background: var(--card2);
       border:1px solid rgba(255,255,255,.10);
@@ -160,6 +187,7 @@
       gap:10px;
       align-items:flex-start;
     }
+
     .badge{
       flex:0 0 auto;
       width:30px; height:30px;
@@ -170,7 +198,9 @@
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.12);
       font-weight:1000;
+      font-size:12px;
     }
+
     .li b{display:block; font-size:12px}
     .li span{display:block; color:var(--muted); font-size:12px; margin-top:2px; line-height:1.7}
 
@@ -193,26 +223,29 @@
       color:var(--muted);
       font-weight:950;
     }
+
     .field{
       width:100%;
       margin-top:8px;
       border:none;
-      outline:none;
       border-radius: 16px;
-      padding:12px 12px;
+      padding:12px;
       background: rgba(0,0,0,.32);
       border:1px solid rgba(255,255,255,.14);
       color:#fff;
       font-size:14px;
       resize:vertical;
-      min-height:130px;
+      min-height:120px;
+      font-family:inherit;
     }
+
     .field::placeholder{color:rgba(255,255,255,.38)}
 
     .btnRow{
       margin-top:12px;
       display:flex; gap:10px; flex-wrap:wrap;
     }
+
     .btn{
       flex:1 1 180px;
       display:inline-flex;
@@ -230,7 +263,9 @@
       border:1px solid rgba(255,255,255,.14);
       transition:transform .12s ease, filter .2s ease;
       user-select:none;
+      min-height:46px;
     }
+
     .btn:hover{filter:brightness(1.06)}
     .btn:active{transform: translateY(1px) scale(.99)}
     .btn.primary{
@@ -238,7 +273,6 @@
       border-color: transparent;
       color:#020617;
     }
-    .btn svg{width:18px;height:18px}
     .btn[disabled]{opacity:.6;cursor:not-allowed}
 
     .history{
@@ -246,19 +280,23 @@
       display:grid;
       gap:8px;
     }
+
     .msg{
       background: rgba(0,0,0,.26);
       border:1px solid rgba(255,255,255,.10);
       border-radius:18px;
       padding:12px;
     }
+
     .msgTop{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
       margin-bottom:6px;
+      flex-wrap:wrap;
     }
+
     .msgStatus{
       font-size:11px;
       font-weight:1000;
@@ -269,14 +307,17 @@
       color:#fff;
       white-space:nowrap;
     }
+
     .msgStatus.read{
       background: rgba(34,197,94,.12);
       border-color: rgba(34,197,94,.24);
     }
+
     .msgDate{
       font-size:11px;
       color:var(--muted);
     }
+
     .msgText{
       font-size:13px;
       line-height:1.8;
@@ -284,6 +325,7 @@
       white-space:pre-wrap;
       word-break:break-word;
     }
+
     .empty{
       margin-top:10px;
       padding:14px;
@@ -294,28 +336,32 @@
       text-align:center;
       background: rgba(255,255,255,.03);
     }
+
+    @media (max-width:760px){
+      body{padding:12px}
+      .grid{grid-template-columns:1fr}
+      .topbar{padding:10px}
+      .hero,.card{padding:14px;border-radius:18px}
+      h1{font-size:16px}
+      .sub,.muted,.li span{font-size:11px}
+      .field{min-height:100px;font-size:13px}
+      .btn{flex:1 1 100%;font-size:14px}
+      .statusRow{align-items:stretch}
+      .pill{width:100%;justify-content:center}
+    }
+
+    @media (max-width:480px){
+      .back{padding:9px 10px;font-size:13px}
+      .brand b{font-size:12px}
+      .brand span{font-size:10px;max-width:130px}
+      .hero,.card{padding:12px}
+      .msg{padding:10px}
+      .msgText{font-size:12px}
+      .note{padding:12px}
+    }
   </style>
 </head>
-    <div class="card" style="margin-top:12px">
-      <h2>🕘 آخر الرسائل المرسلة</h2>
-      <div class="muted">هنا ستظهر آخر الرسائل التي أرسلتها إلى خدمة العملاء.</div>
 
-      <div id="history" class="history"></div>
-      <div id="historyEmpty" class="empty" style="display:none">لا توجد رسائل مرسلة بعد.</div>
-    </div>
-  </div>
-  <div class="card" style="margin-top:12px">
-  <h2>📩 راسل خدمة العملاء</h2>
-  <div class="muted">اكتب رسالتك هنا، وستصل مباشرة إلى خدمة العملاء .</div>
-
-  <div style="margin-top:10px">
-    <textarea id="supportText" class="field" placeholder="اكتب رسالتك هنا..." style="min-height:120px;resize:vertical"></textarea>
-  </div>
-
-  <div class="btnRow" style="margin-top:12px">
-    <button class="btn primary" onclick="sendSupportMessage()">إرسال الرسالة</button>
-  </div>
-</div>
 <body>
   <div class="toast" id="toast"></div>
 
@@ -332,7 +378,7 @@
       <div class="in">
         <h1>مرحبا بك في مركز الدعم</h1>
         <div class="sub">
-          يمكنك الآن إرسال رسالتك مباشرة إلى <b>خدمة العملاء</b> من داخل المنصة، وسيتم استقبالها من طرف خدمة العملاء   .
+          يمكنك الآن إرسال رسالتك مباشرة إلى <b>خدمة العملاء</b> من داخل المنصة، وسيتم استقبالها من طرف خدمة العملاء.
           <br>
           <b>ساعات العمل:</b> من <b>11:00</b> صباحاً إلى <b>18:00</b> مساءً بتوقيت <b>GMT</b>.
         </div>
@@ -358,7 +404,7 @@
       <div class="card">
         <h2>✉️ أرسل رسالة إلى خدمة العملاء</h2>
         <div class="muted">
-          اكتب رسالتك هنا، وسيتم إرسالها مباشرة إلى خدمة العملاء .
+          اكتب رسالتك هنا، وسيتم إرسالها مباشرة إلى خدمة العملاء.
         </div>
 
         <label class="fieldLabel">نص الرسالة</label>
@@ -410,11 +456,24 @@ ID: 555577
       </div>
     </div>
 
+    <div class="single">
+      <div class="card">
+        <h2>🕘 آخر الرسائل المرسلة</h2>
+        <div class="muted">هنا ستظهر آخر الرسائل التي أرسلتها إلى خدمة العملاء.</div>
 
+        <div id="history" class="history"></div>
+        <div id="historyEmpty" class="empty" style="display:none">لا توجد رسائل مرسلة بعد.</div>
+      </div>
+    </div>
+  </div>
 
   <script>
     const api = window.api || async function(path, method="GET", body){
-      const opt = { method, headers: { "Content-Type":"application/json" } };
+      const opt = {
+        method,
+        headers: { "Content-Type":"application/json" },
+        credentials: "include"
+      };
       if(method !== "GET") opt.body = JSON.stringify(body || {});
       const res = await fetch(path, opt);
       const data = await res.json().catch(()=> ({}));
@@ -479,9 +538,9 @@ ID: 555577
       document.getElementById("supportText").value =
 `الاسم: ${name || "—"}
 ID: ${uid || "—"}
-نوع المشكلة: 
-المبلغ: 
-التفاصيل: `;
+نوع المشكلة:
+المبلغ:
+التفاصيل:`;
     }
 
     function formatDate(s){
@@ -491,10 +550,19 @@ ID: ${uid || "—"}
       return d.toLocaleString("fr-FR");
     }
 
+    function escapeHtml(s){
+      return String(s || "").replace(/[&<>"']/g, m => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[m]));
+    }
+
     function renderMessages(rows){
       const box = document.getElementById("history");
       const empty = document.getElementById("historyEmpty");
-
       box.innerHTML = "";
 
       if(!rows || !rows.length){
@@ -518,16 +586,6 @@ ID: ${uid || "—"}
         `;
         box.appendChild(div);
       });
-    }
-
-    function escapeHtml(s){
-      return String(s || "").replace(/[&<>"']/g, m => ({
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#39;"
-      }[m]));
     }
 
     async function loadMyMessages(){

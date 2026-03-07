@@ -1,228 +1,467 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>MRP Logistic | إنشاء حساب</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>MRP Logistic | إنشاء حساب</title>
 
-  <style>
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background:radial-gradient(1200px 600px at 10% 10%, #1e293b, #020617);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#fff;
-      padding:18px;
+<style>
+  :root{
+    --bg1:#0a0f1d;
+    --bg2:#131a2c;
+    --panel:rgba(255,255,255,.06);
+    --panel2:rgba(255,255,255,.04);
+    --line:rgba(255,255,255,.10);
+    --line2:rgba(255,255,255,.16);
+    --txt:#ffffff;
+    --muted:rgba(255,255,255,.68);
+    --muted2:rgba(255,255,255,.48);
+
+    --accent:#d6c6a5;
+    --accent2:#9fb3c8;
+
+    --btnBg:linear-gradient(135deg,#d8c7a8,#a8bfd1);
+    --shadow:0 28px 70px rgba(0,0,0,.45);
+    --shadow2:0 14px 30px rgba(0,0,0,.25);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  *:focus{outline:none !important}
+  html,body{height:100%}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    color:var(--txt);
+    background:
+      radial-gradient(900px 500px at 15% 10%, rgba(255,255,255,.04), transparent 60%),
+      radial-gradient(700px 400px at 85% 20%, rgba(255,255,255,.03), transparent 60%),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+      linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+    background-size:32px 32px;
+    opacity:.18;
+    mask-image:radial-gradient(circle at center, black 35%, transparent 85%);
+    pointer-events:none;
+  }
+
+  .toast{
+    position:fixed;
+    left:16px;
+    right:16px;
+    bottom:20px;
+    max-width:520px;
+    margin:auto;
+    background:rgba(7,11,23,.96);
+    border:1px solid var(--line2);
+    border-radius:16px;
+    padding:12px 14px;
+    display:none;
+    z-index:9999;
+    text-align:center;
+    box-shadow:var(--shadow2);
+    backdrop-filter:blur(14px);
+    font-size:13px;
+    font-weight:900;
+  }
+  .toast.show{display:block}
+
+  .shell{
+    width:100%;
+    max-width:1020px;
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:18px;
+    align-items:stretch;
+    position:relative;
+    z-index:1;
+  }
+
+  .left{
+    border-radius:30px;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border:1px solid var(--line);
+    backdrop-filter:blur(14px);
+    box-shadow:var(--shadow);
+    padding:34px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    min-height:690px;
+  }
+
+  .badge{
+    width:max-content;
+    padding:10px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.10);
+    color:#fff;
+    font-size:12px;
+    font-weight:1000;
+  }
+
+  .title{
+    margin:22px 0 10px;
+    font-size:46px;
+    line-height:1.05;
+    font-weight:1000;
+    letter-spacing:-.03em;
+    max-width:540px;
+  }
+
+  .sub{
+    color:var(--muted);
+    font-size:14px;
+    line-height:2;
+    max-width:520px;
+  }
+
+  .featureWrap{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:24px;
+  }
+
+  .feature{
+    min-height:120px;
+    border-radius:24px;
+    background:rgba(0,0,0,.16);
+    border:1px solid rgba(255,255,255,.08);
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+  }
+
+  .feature b{
+    font-size:18px;
+    font-weight:1000;
+    margin-bottom:6px;
+  }
+
+  .feature span{
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.8;
+  }
+
+  .right{
+    border-radius:30px;
+    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    border:1px solid var(--line);
+    backdrop-filter:blur(16px);
+    box-shadow:var(--shadow);
+    padding:24px;
+    min-height:690px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .panel{
+    width:100%;
+    max-width:360px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:22px;
+  }
+
+  .logo{
+    width:68px;
+    height:68px;
+    border-radius:22px;
+    overflow:hidden;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 16px 36px rgba(0,0,0,.22);
+    flex:0 0 auto;
+  }
+
+  .logo img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .brandTxt h1{
+    margin:0;
+    font-size:23px;
+    font-weight:1000;
+    line-height:1.1;
+  }
+
+  .brandTxt p{
+    margin:6px 0 0;
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .formCard{
+    border-radius:28px;
+    background:rgba(0,0,0,.16);
+    border:1px solid rgba(255,255,255,.08);
+    padding:20px;
+  }
+
+  .headMini b{
+    display:block;
+    font-size:22px;
+    font-weight:1000;
+    margin-bottom:6px;
+  }
+
+  .headMini span{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.8;
+  }
+
+  .refBanner{
+    display:none;
+    margin:14px 0 0;
+    padding:12px 14px;
+    border-radius:18px;
+    background:rgba(214,198,165,.10);
+    border:1px solid rgba(214,198,165,.18);
+    font-size:12px;
+    color:#fff;
+    line-height:1.7;
+  }
+
+  .refRow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+
+  .refBtn{
+    border:none;
+    cursor:pointer;
+    padding:9px 12px;
+    border-radius:14px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    color:#fff;
+    font-weight:1000;
+    white-space:nowrap;
+  }
+
+  .fieldWrap{margin-top:14px}
+
+  .fieldLabel{
+    display:block;
+    margin-bottom:8px;
+    font-size:12px;
+    font-weight:1000;
+    color:rgba(255,255,255,.88);
+  }
+
+  .input{
+    width:100%;
+    padding:15px 16px;
+    border-radius:18px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.05);
+    color:#fff;
+    font-size:14px;
+    transition:.2s ease;
+  }
+
+  .input::placeholder{color:rgba(255,255,255,.34)}
+
+  .input:focus{
+    border-color:rgba(214,198,165,.45);
+    box-shadow:0 0 0 4px rgba(214,198,165,.10);
+    background:rgba(255,255,255,.07);
+  }
+
+  .hint{
+    margin-top:8px;
+    font-size:11px;
+    color:var(--muted2);
+    line-height:1.7;
+  }
+
+  .btn{
+    width:100%;
+    min-height:54px;
+    border:none;
+    border-radius:18px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:1000;
+    margin-top:14px;
+    transition:.2s ease;
+  }
+
+  .btn.primary{
+    background:var(--btnBg);
+    color:#111827;
+    box-shadow:0 14px 34px rgba(0,0,0,.22);
+  }
+
+  .btn.primary:hover{filter:brightness(1.03)}
+
+  .btn.secondary{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.14);
+    color:#fff;
+  }
+
+  .bottomTxt{
+    margin-top:14px;
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .bottomTxt a{
+    color:#e8d8bc;
+    text-decoration:none;
+    font-weight:1000;
+  }
+
+  @media (max-width:980px){
+    .shell{
+      max-width:560px;
+      grid-template-columns:1fr;
     }
-
-    .toast{
-      position:fixed;
-      bottom:24px;
-      left:50%;
-      transform:translateX(-50%);
-      background:#020617;
-      border:1px solid rgba(255,255,255,.15);
-      padding:12px 18px;
-      border-radius:999px;
-      display:none;
-      z-index:9999;
-      max-width:min(520px, calc(100% - 40px));
-      text-align:center;
-    }
-    .toast.show{display:block}
-
-    .card{
-      width:100%;
-      max-width:420px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:26px;
+    .left{
+      min-height:auto;
       padding:22px;
-      box-shadow:0 30px 80px rgba(0,0,0,.6);
-      backdrop-filter:blur(14px);
     }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
+    .title{
+      font-size:30px;
     }
+    .right{
+      min-height:auto;
+      padding:20px;
+    }
+  }
 
+  @media (max-width:640px){
+    body{padding:14px}
+    .left{display:none}
+    .shell{max-width:100%}
+    .right{
+      padding:16px;
+      border-radius:24px;
+      min-height:auto;
+    }
     .logo{
-      width:52px;height:52px;
+      width:58px;
+      height:58px;
       border-radius:18px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.14);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-      box-shadow:0 14px 35px rgba(0,0,0,.35);
-      flex:0 0 auto;
     }
-    .logo img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .brand h1{
-      margin:0;
-      font-size:18px;
-      font-weight:900;
-    }
-    .brand span{
-      font-size:12px;
-      opacity:.8;
-    }
-
-    /* ✅ referral banner */
-    .refBanner{
-      display:none;
-      margin: 0 0 14px 0;
-      padding: 12px 12px;
-      border-radius: 18px;
-      background: rgba(167,139,250,.12);
-      border: 1px solid rgba(167,139,250,.28);
-      box-shadow: 0 14px 35px rgba(0,0,0,.25);
+    .brandTxt h1{font-size:20px}
+    .formCard{
+      padding:16px;
+      border-radius:22px;
     }
     .refRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
+      flex-direction:column;
+      align-items:stretch;
     }
-    .refTxt{
-      font-size:12px;
-      opacity:.95;
-      line-height:1.5;
-    }
-    .refTxt b{font-weight:900}
-    .refBtn{
-      border:none;
-      cursor:pointer;
-      padding:10px 12px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.18);
-      color:#fff;
-      font-weight:900;
-      white-space:nowrap;
-    }
-    .refBtn:active{transform:translateY(1px)}
-
-    label{
-      font-size:13px;
-      opacity:.9;
-    }
-
-    .input{
-      width:100%;
-      margin-top:6px;
-      margin-bottom:14px;
-      padding:13px 14px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.15);
-      background:rgba(0,0,0,.4);
-      color:#fff;
-      outline:none;
-      font-size:14px;
-    }
-    .input:focus{
-      border-color: rgba(147,197,253,.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,.12);
-    }
-
-    .hint{
-      margin-top:-10px;
-      margin-bottom:14px;
-      font-size:12px;
-      opacity:.75;
-      line-height:1.4;
-    }
-
-    .btn{
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:999px;
-      font-weight:900;
-      cursor:pointer;
-      background:linear-gradient(135deg,#22c55e,#3b82f6);
-      color:#020617;
-      margin-top:6px;
-    }
-    .btn:active{transform:translateY(1px)}
-
-    .btn.secondary{
-      background:transparent;
-      border:1px solid rgba(255,255,255,.25);
-      color:#fff;
-      margin-top:10px;
-    }
-
-    .rowLink{
-      margin-top:12px;
-      font-size:12px;
-      opacity:.9;
-      text-align:center;
-    }
-    .rowLink a{
-      color:#93c5fd;
-      text-decoration:none;
-      font-weight:900;
-    }
-    .rowLink a:hover{text-decoration:underline}
-  </style>
+  }
+</style>
 </head>
 <body>
 
 <div class="toast" id="toast"></div>
 
-<div class="card">
-  <div class="brand">
-    <div class="logo">
-          <img
-            src="https://i.ibb.co/SwTt7rZj/Screenshot-20260304-043805.png"
-            alt="MRP Logo"
-      />
-    </div>
+<div class="shell">
+  <section class="left">
     <div>
-      <h1>MRP Logistic</h1>
-      <span>إنشاء حساب جديد</span>
+      <div class="badge">إنشاء حساب جديد</div>
+      <h2 class="title">بداية هادئة، أنيقة، ومصممة باحتراف.</h2>
+      <div class="sub">صفحة تسجيل راقية ومريحة بصريًا، مع ترتيب واضح وواجهة مناسبة للهاتف والكمبيوتر.</div>
     </div>
-  </div>
 
-  <!-- ✅ Referral banner -->
-  <div class="refBanner" id="refBanner">
-    <div class="refRow">
-      <div class="refTxt" id="refText">...</div>
-      <button class="refBtn" type="button" onclick="clearRef()">إزالة</button>
+    <div class="featureWrap">
+      <div class="feature">
+        <b>واضح</b>
+        <span>تنظيم بسيط بدون عناصر مزعجة.</span>
+      </div>
+      <div class="feature">
+        <b>احترافي</b>
+        <span>هوية فخمة وألوان هادئة ومتناسقة.</span>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <label>الاسم الكامل</label>
-  <input class="input" id="name" placeholder="مثال: محمد أحمد"/>
+  <section class="right">
+    <div class="panel">
+      <div class="brand">
+        <div class="logo">
+          <img src="https://i.ibb.co/SwTt7rZj/Screenshot-20260304-043805.png" alt="MRP Logo"/>
+        </div>
+        <div class="brandTxt">
+          <h1>MRP Logistic</h1>
+          <p>إنشاء حساب جديد</p>
+        </div>
+      </div>
 
-  <label>البريد أو الهاتف</label>
-  <input class="input" id="key" placeholder="example@email.com أو 06xxxxxx"/>
-  <div class="hint">يمكنك التسجيل بالبريد أو رقم الهاتف (واحد منهم يكفي).</div>
+      <div class="formCard">
+        <div class="headMini">
+          <b>ابدأ حسابك الآن</b>
+          <span>أدخل بياناتك الأساسية فقط.</span>
+        </div>
 
-  <label>كلمة المرور</label>
-  <input class="input" id="pw" type="password" placeholder="6 أحرف أو أكثر"/>
+        <div class="refBanner" id="refBanner">
+          <div class="refRow">
+            <div id="refText">...</div>
+            <button class="refBtn" type="button" onclick="clearRef()">إزالة</button>
+          </div>
+        </div>
 
-  <button class="btn" onclick="doRegister()">إنشاء الحساب</button>
-  <button class="btn secondary" onclick="location.href='/login'">رجوع للدخول</button>
+        <div class="fieldWrap">
+          <label class="fieldLabel">الاسم الكامل</label>
+          <input class="input" id="name" placeholder="مثال: محمد أحمد"/>
+        </div>
 
-  <div class="rowLink">
-    لديك حساب؟ <a href="/login">تسجيل الدخول</a>
-  </div>
+        <div class="fieldWrap">
+          <label class="fieldLabel">البريد أو الهاتف</label>
+          <input class="input" id="key" placeholder="example@email.com أو 06xxxxxx"/>
+          <div class="hint">يمكنك التسجيل بالبريد أو الهاتف، واحد منهما يكفي.</div>
+        </div>
+
+        <div class="fieldWrap">
+          <label class="fieldLabel">كلمة المرور</label>
+          <input class="input" id="pw" type="password" placeholder="6 أحرف أو أكثر"/>
+        </div>
+
+        <button class="btn primary" onclick="doRegister()">إنشاء الحساب</button>
+        <button class="btn secondary" onclick="location.href='/login'">رجوع للدخول</button>
+
+        <div class="bottomTxt">
+          لديك حساب؟ <a href="/login">تسجيل الدخول</a>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>
@@ -238,11 +477,9 @@
     return /^[0-9+\s()-]{6,}$/.test(s) && /[0-9]/.test(s) && !s.includes("@");
   }
 
-  // ✅ Read ref from URL and keep it (localStorage) so user doesn't lose it if refresh
   function getRefFromUrl(){
     const u = new URL(location.href);
-    const ref = (u.searchParams.get("ref") || "").trim();
-    return ref;
+    return (u.searchParams.get("ref") || "").trim();
   }
 
   function setStoredRef(ref){
@@ -261,13 +498,12 @@
       box.style.display = "none";
       return;
     }
-    txt.innerHTML = `تم فتح التسجيل عبر دعوة: <b>${ref}</b><br>🎁 كاين بونيس عند التسجيل والإيداع`;
+    txt.innerHTML = `تم فتح التسجيل عبر دعوة: <b>${ref}</b>`;
     box.style.display = "block";
   }
 
   function clearRef(){
     setStoredRef("");
-    // remove param from URL (clean)
     const u = new URL(location.href);
     u.searchParams.delete("ref");
     history.replaceState({}, "", u.toString());
@@ -275,7 +511,6 @@
     toast("تم حذف الدعوة");
   }
 
-  // init ref
   (function initRef(){
     const ref = getRefFromUrl();
     if(ref) setStoredRef(ref);
@@ -292,17 +527,16 @@
         toast("عافاك عمر البيانات");
         return;
       }
+
       if(password.trim().length < 6){
         toast("كلمة المرور خاصها تكون 6 أحرف على الأقل");
         return;
       }
 
-      // السيرفر كيتسنى email و phone
       let email = null, phone = null;
       if(isPhone(key)) phone = key;
       else email = key;
 
-      // ✅ referral code
       const ref_code = getStoredRef() || null;
 
       const r = await fetch("/api/register",{
@@ -317,11 +551,9 @@
         return;
       }
 
-      // clear referral after successful signup
       setStoredRef("");
-
       toast("تم إنشاء الحساب ✅");
-      setTimeout(()=>location.href="/login", 900);
+      setTimeout(()=>location.href="/login",900);
 
     }catch(e){
       toast("وقع خطأ، حاول مرة أخرى");
