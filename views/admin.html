@@ -839,7 +839,32 @@
             <b>👤 المستخدمون</b>
             <span>GET /api/admin/users</span>
           </div>
+<div class="block" style="margin-bottom:12px">
 
+  <div class="btitle">
+    <b>📢 إرسال رسالة لجميع المستخدمين</b>
+    <span>Broadcast Message</span>
+  </div>
+
+  <div class="field">
+    <label>نص الرسالة</label>
+
+    <textarea
+      id="broadcastText"
+      class="miniInput"
+      style="min-height:110px;resize:vertical"
+      placeholder="اكتب الرسالة التي ستصل لجميع المستخدمين...">
+    </textarea>
+
+  </div>
+
+  <div class="rowBtns" style="margin-top:12px">
+    <button class="btn primary" onclick="sendBroadcastMessage()">
+      📨 إرسال للجميع
+    </button>
+  </div>
+
+</div>
           <div class="rowBtns" style="margin-bottom:10px">
             <button class="btn" onclick="loadUsers()">🔄 تحديث</button>
           </div>
@@ -1710,6 +1735,23 @@ async function sendAdminMessage(userId){
   }
 }
     initAll().catch(e=>toast(e.message || "وقع خطأ"));
+async function sendBroadcastMessage(){
+  try{
+    const text = (document.getElementById("broadcastText").value || "").trim();
+
+    if(!text){
+      toast("اكتب الرسالة أولاً");
+      return;
+    }
+
+    const r = await api("/api/admin/messages/send-all", "POST", { text });
+
+    document.getElementById("broadcastText").value = "";
+    toast(r.message || "تم إرسال الرسالة للجميع ✅");
+  }catch(e){
+    toast(e.message || "وقع خطأ في الإرسال");
+  }
+}
   </script>
 </body>
 </html>

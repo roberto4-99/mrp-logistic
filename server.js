@@ -1356,6 +1356,39 @@ app.post("/api/admin/support/reply", requireAuth, requireAdmin, wrap(async (req,
 }));
 
 /* ---------------- Admin -> User Messages ---------------- */
+
+// إرسال رسالة لجميع المستخدمين
+app.post("/api/admin/messages/send-all", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const text = String(req.body.text || "").trim();
+
+  if (!text) {
+    return res.status(400).json({ ok: false, message: "الرسالة فارغة" });
+  }
+
+  db.admin_messages = db.admin_messages || [];
+
+  const users = (db.users || []).filter(u => !u.is_admin);
+
+  for (const u of users) {
+    db.admin_messages.push({
+      id: String(Date.now()) + "-" + u.id + "-" + Math.floor(Math.random() * 9999),
+      user_id: u.id,
+      text,
+      created_at: nowISO(),
+      is_read: false,
+    });
+  }
+
+  await writeDb(db);
+
+  res.json({
+    ok: true,
+    message: `تم إرسال الرسالة لجميع المستخدمين (${users.length})`,
+  });
+}));
+
+// إرسال رسالة لمستخدم واحد
 app.post("/api/admin/messages/send", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
   const user_id = Number(req.body.user_id);
@@ -1365,12 +1398,13 @@ app.post("/api/admin/messages/send", requireAuth, requireAdmin, wrap(async (req,
     return res.status(400).json({ ok: false, message: "المستخدم أو الرسالة ناقصة." });
   }
 
-  const u = (db.users || []).find((x) => x.id === user_id && !x.is_admin);
+  const u = (db.users || []).find(x => x.id === user_id && !x.is_admin);
   if (!u) {
     return res.status(404).json({ ok: false, message: "المستخدم غير موجود." });
   }
 
   db.admin_messages = db.admin_messages || [];
+
   db.admin_messages.push({
     id: String(Date.now()) + "-" + Math.floor(Math.random() * 9999),
     user_id,
@@ -1380,21 +1414,25 @@ app.post("/api/admin/messages/send", requireAuth, requireAdmin, wrap(async (req,
   });
 
   await writeDb(db);
-  res.json({ ok: true, message: "تم إرسال الرسالة" });
+
+  res.json({
+    ok: true,
+    message: "تم إرسال الرسالة",
+  });
 }));
 
+// جلب رسائل المستخدم الحالي
 app.get("/api/messages/my", requireAuth, wrap(async (req, res) => {
   const db = req._db;
   db.admin_messages = db.admin_messages || [];
 
   const rows = db.admin_messages
-    .filter((x) => x.user_id === req.user.id)
+    .filter(x => x.user_id === req.user.id)
     .slice()
     .reverse();
 
   res.json({ ok: true, rows });
 }));
-
 /* ---------------- ADMIN: User task config ---------------- */
 app.get("/api/admin/users/:id/task-config", requireAuth, requireAdmin, wrap(async (req, res) => {
   const db = req._db;
