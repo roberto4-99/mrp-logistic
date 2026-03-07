@@ -490,8 +490,13 @@
     .hide{display:none !important}
   </style>
 </head>
-
 <body>
+
+<div class="card" style="margin-top:12px">
+  <h2>📩 رسائل الإدارة</h2>
+  <div id="adminMessages" class="muted" style="min-height:60px"></div>
+</div>
+</div>
   <div class="toast" id="toast"></div>
 
   <div class="wrap">
@@ -959,6 +964,45 @@
 
     load();
   </script>
+<script>
 
+async function loadAdminMessages(){
+  try{
+    const r = await fetch("/api/messages/my",{ credentials:"include" });
+    const j = await r.json();
+
+    const box = document.getElementById("adminMessages");
+    const rows = j.rows || [];
+
+    if(!rows.length){
+      box.innerHTML = "لا توجد رسائل حاليا.";
+      return;
+    }
+
+    const x = rows[0]; // فقط آخر رسالة
+
+    box.innerHTML = `
+      <div style="padding:10px">
+        <div style="font-weight:900;margin-bottom:6px">رسالة من الإدارة</div>
+        <div style="line-height:1.8;word-break:break-word">${x.text}</div>
+      </div>
+    `;
+
+  }catch(e){
+    document.getElementById("adminMessages").innerHTML = "وقع خطأ في تحميل الرسائل.";
+  }
+}
+
+loadAdminMessages();
+
+</script>
+<a href="/support" class="supportFab" aria-label="Support">
+  <svg viewBox="0 0 24 24" fill="none">
+    <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8z"
+          stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M8 10h8M8 14h6"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</a>
 </body>
 </html>

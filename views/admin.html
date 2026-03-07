@@ -7,166 +7,249 @@
 
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#101a2c;
-      --card2:#0f1a2a;
-      --line:rgba(255,255,255,.10);
-      --txt:#fff;
+      --bg:#061512;
+      --bg2:#0a1f1a;
+      --card:rgba(10,30,25,.86);
+      --card2:rgba(255,255,255,.04);
+      --card3:rgba(0,0,0,.20);
+      --line:rgba(255,255,255,.08);
+      --line2:rgba(255,255,255,.14);
+      --txt:#f3fffb;
       --muted:rgba(255,255,255,.70);
-      --muted2:rgba(255,255,255,.55);
-      --blue:#3b82f6;
-      --purple:#8b5cf6;
-      --green:#22c55e;
-      --red:#ef4444;
+      --muted2:rgba(255,255,255,.52);
+      --mint:#34d399;
+      --emerald:#10b981;
+      --cyan:#22d3ee;
+      --teal:#14b8a6;
       --amber:#f59e0b;
+      --red:#ef4444;
       --shadow:0 18px 60px rgba(0,0,0,.35);
-      --r:18px;
-      --r2:14px;
+      --shadow2:0 10px 28px rgba(0,0,0,.25);
+      --r:22px;
+      --r2:16px;
+      --r3:12px;
     }
 
     *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background:
-        radial-gradient(900px 500px at 10% 10%, rgba(59,130,246,.18), transparent 60%),
-        radial-gradient(900px 500px at 90% 15%, rgba(139,92,246,.14), transparent 60%),
-        linear-gradient(180deg,#0b1220,#070b14);
       color:var(--txt);
       min-height:100vh;
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(52,211,153,.13), transparent 60%),
+        radial-gradient(900px 500px at 90% 12%, rgba(34,211,238,.10), transparent 60%),
+        radial-gradient(900px 500px at 50% 100%, rgba(20,184,166,.08), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: radial-gradient(circle at center, rgba(0,0,0,.5), transparent 85%);
+      opacity:.32;
     }
 
-    /* Topbar */
     .topbar{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(12px);
-      background: rgba(7,11,20,.55);
+      position:sticky;
+      top:0;
+      z-index:60;
+      backdrop-filter: blur(16px);
+      background: rgba(6,21,18,.72);
       border-bottom:1px solid var(--line);
     }
     .topinner{
-      max-width:1200px;
+      max-width:1280px;
       margin:auto;
-      padding:12px 14px;
+      padding:14px 16px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
+      gap:12px;
     }
+
     .brand{
-      display:flex; align-items:center; gap:10px; min-width:0;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
     }
     .logo{
-      width:42px; height:42px; border-radius:14px;
-      display:flex; align-items:center; justify-content:center;
-      background: linear-gradient(135deg,var(--purple),var(--blue));
-      color:#0b1220; font-weight:1000;
-      box-shadow: var(--shadow);
+      width:46px;
+      height:46px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(135deg,var(--mint),var(--cyan));
+      color:#06201b;
+      font-weight:1000;
+      font-size:18px;
+      box-shadow: var(--shadow2);
       flex:0 0 auto;
     }
     .btxt{min-width:0}
     .btxt b{
-      display:block; font-size:14px; font-weight:1000;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      display:block;
+      font-size:15px;
+      font-weight:1000;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .btxt span{
-      display:block; font-size:12px; color:var(--muted);
-      margin-top:2px;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      display:block;
+      margin-top:3px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
-    .actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
     .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:9px 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 13px;
       border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
+      border:1px solid var(--line2);
+      background: rgba(255,255,255,.05);
       font-weight:900;
       font-size:12px;
       white-space:nowrap;
+      box-shadow: var(--shadow2);
     }
     .btn{
-      border:none; cursor:pointer;
-      padding:9px 12px;
+      border:none;
+      cursor:pointer;
+      padding:10px 13px;
       border-radius:999px;
       font-weight:1000;
-      background: rgba(255,255,255,.08);
-      border:1px solid var(--line);
+      background: rgba(255,255,255,.07);
+      border:1px solid var(--line2);
       color:#fff;
-      transition: transform .12s ease, filter .2s ease;
+      transition: transform .12s ease, filter .2s ease, background .2s ease;
       white-space:nowrap;
+      box-shadow: var(--shadow2);
     }
-    .btn:hover{filter:brightness(1.05)}
-    .btn:active{transform: translateY(1px)}
+    .btn:hover{filter:brightness(1.06)}
+    .btn:active{transform: translateY(1px) scale(.99)}
     .btn.primary{
-      background: linear-gradient(135deg,var(--purple),var(--blue));
+      background: linear-gradient(135deg,var(--mint),var(--cyan));
       border-color: transparent;
-      color:#0b1220;
+      color:#04211c;
     }
     .btn.danger{
       background: rgba(239,68,68,.14);
-      border-color: rgba(239,68,68,.30);
+      border-color: rgba(239,68,68,.28);
     }
 
-    /* Layout */
     .wrap{
-      max-width:1200px;
+      max-width:1280px;
       margin:auto;
-      padding:14px;
+      padding:16px;
       display:grid;
-      grid-template-columns: 280px 1fr;
-      gap:12px;
+      grid-template-columns: 300px 1fr;
+      gap:14px;
     }
-    @media(max-width:980px){
+    @media(max-width:1020px){
       .wrap{grid-template-columns:1fr}
     }
 
     .card{
-      background: rgba(16,26,44,.72);
+      background: var(--card);
       border:1px solid var(--line);
       border-radius: var(--r);
       box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
     }
 
-    /* Sidebar */
-    .side{padding:12px}
-    .tabs{display:grid; gap:8px}
+    .side{
+      padding:14px;
+      position:sticky;
+      top:84px;
+      align-self:start;
+    }
+    @media(max-width:1020px){
+      .side{position:static}
+    }
+
+    .tabs{display:grid; gap:9px}
     .tab{
-      display:flex; align-items:center; justify-content:space-between;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
       gap:10px;
       width:100%;
-      padding:12px;
+      padding:13px;
       border-radius: var(--r2);
       border:1px solid var(--line);
-      background: rgba(255,255,255,.05);
+      background: rgba(255,255,255,.04);
       color:#fff;
       cursor:pointer;
       font-weight:1000;
       text-align:right;
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+    }
+    .tab:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.14);
     }
     .tab.active{
-      background: linear-gradient(135deg,var(--purple),var(--blue));
+      background: linear-gradient(135deg,var(--mint),var(--cyan));
       border-color: transparent;
-      color:#0b1220;
+      color:#04211c;
+      box-shadow: var(--shadow2);
     }
     .tab .left{
-      display:flex; align-items:center; gap:10px; min-width:0;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
     }
     .ico{
-      width:36px;height:36px;border-radius:14px;
-      display:flex;align-items:center;justify-content:center;
+      width:38px;
+      height:38px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       border:1px solid var(--line);
-      background: rgba(0,0,0,.25);
+      background: rgba(0,0,0,.24);
       flex:0 0 auto;
+      font-size:16px;
     }
-    .tab.active .ico{background: rgba(11,18,32,.18); border-color: rgba(11,18,32,.10)}
+    .tab.active .ico{
+      background: rgba(4,33,28,.14);
+      border-color: rgba(4,33,28,.10);
+    }
     .tab .txt{min-width:0}
-    .tab .txt b{display:block}
+    .tab .txt b{display:block;font-size:13px}
     .tab .txt span{
       display:block;
       font-size:12px;
-      opacity:.86;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      max-width:160px;
+      opacity:.88;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:170px;
+      margin-top:2px;
     }
     .count{
       padding:7px 10px;
@@ -179,118 +262,199 @@
     }
 
     .search{
-      margin-top:10px;
-      padding:10px;
+      margin-top:12px;
+      padding:12px;
       border-radius: var(--r);
       border:1px solid var(--line);
-      background: rgba(0,0,0,.22);
+      background: rgba(0,0,0,.20);
     }
-    .search label{font-size:12px;color:var(--muted);font-weight:1000}
+    .search label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:1000;
+      display:block;
+      margin-bottom:8px;
+    }
     .search input{
       width:100%;
-      margin-top:8px;
-      padding:11px 12px;
+      padding:12px 13px;
       border-radius: 14px;
-      border:1px solid var(--line);
+      border:1px solid var(--line2);
       background: rgba(255,255,255,.06);
       color:#fff;
       outline:none;
       font-size:13px;
     }
+    .search input::placeholder{color:rgba(255,255,255,.35)}
+
     .links{
-      margin-top:10px;
-      display:grid; gap:8px;
+      margin-top:12px;
+      display:grid;
+      gap:8px;
     }
     .alink{
       text-decoration:none;
-      display:flex; align-items:center; justify-content:center;
-      padding:11px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 13px;
       border-radius: 14px;
       border:1px solid var(--line);
       background: rgba(255,255,255,.05);
       color:#fff;
       font-weight:1000;
+      transition: transform .12s ease, filter .2s ease;
     }
-    .alink.danger{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.30)}
+    .alink:hover{filter:brightness(1.05)}
+    .alink:active{transform:translateY(1px)}
+    .alink.danger{
+      background: rgba(239,68,68,.14);
+      border-color: rgba(239,68,68,.28);
+    }
 
-    /* Main */
-    .main{padding:12px}
+    .main{padding:14px}
     .head{
-      display:flex; align-items:flex-start; justify-content:space-between;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
       gap:12px;
-      padding:12px;
+      padding:14px;
       border-radius: var(--r);
       border:1px solid var(--line);
-      background: rgba(0,0,0,.22);
+      background: rgba(0,0,0,.20);
     }
-    .head h1{margin:0;font-size:16px;font-weight:1000}
-    .head p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.7}
-    .head .right{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+    .head h1{
+      margin:0;
+      font-size:18px;
+      font-weight:1000;
+    }
+    .head p{
+      margin:7px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.8;
+      max-width:650px;
+    }
+    .head .right{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
-    .section{display:none; margin-top:12px}
+    .stats{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:12px;
+    }
+    @media(max-width:900px){
+      .stats{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:560px){
+      .stats{grid-template-columns:1fr}
+    }
+    .stat{
+      padding:14px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--shadow2);
+    }
+    .stat b{
+      display:block;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .stat .n{
+      font-size:26px;
+      font-weight:1000;
+      line-height:1;
+    }
+
+    .section{display:none; margin-top:14px}
     .section.active{display:block}
 
-    /* Blocks */
     .block{
-      padding:12px;
+      padding:14px;
       border-radius: var(--r);
       border:1px solid var(--line);
       background: rgba(255,255,255,.04);
     }
-    .block + .block{margin-top:12px}
+    .block + .block{margin-top:14px}
+
     .btitle{
-      display:flex; align-items:center; justify-content:space-between;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
       gap:10px;
-      margin-bottom:10px;
+      margin-bottom:12px;
     }
-    .btitle b{font-size:14px;font-weight:1000}
+    .btitle b{font-size:15px;font-weight:1000}
     .btitle span{font-size:12px;color:var(--muted)}
+
     .grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
-      gap:10px;
+      gap:12px;
     }
     @media(max-width:760px){ .grid{grid-template-columns:1fr} }
-    .field label{font-size:12px;color:var(--muted);font-weight:900}
+
+    .field label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      display:block;
+      margin-bottom:7px;
+    }
     .field input{
       width:100%;
-      margin-top:7px;
-      padding:11px 12px;
+      padding:12px 13px;
       border-radius: 14px;
-      border:1px solid var(--line);
+      border:1px solid var(--line2);
       background: rgba(0,0,0,.22);
       color:#fff;
       outline:none;
       font-size:13px;
     }
+    .field input::placeholder{color:rgba(255,255,255,.35)}
 
-    /* Tables */
     .tableWrap{
       border-radius: var(--r);
       border:1px solid var(--line);
       overflow:auto;
-      background: rgba(0,0,0,.18);
+      background: rgba(0,0,0,.16);
     }
-    table{width:100%; border-collapse:collapse; min-width:980px}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1080px;
+    }
     th,td{
-      padding:11px 12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
+      padding:12px 13px;
+      border-bottom:1px solid rgba(255,255,255,.07);
       text-align:right;
       font-size:13px;
       vertical-align:top;
     }
     thead th{
-      position:sticky; top:0; z-index:2;
-      background: rgba(7,11,20,.92);
-      backdrop-filter: blur(8px);
+      position:sticky;
+      top:0;
+      z-index:2;
+      background: rgba(7,18,16,.95);
+      backdrop-filter: blur(10px);
       font-weight:1000;
     }
-    tbody tr:hover{background: rgba(255,255,255,.04)}
+    tbody tr:hover{background: rgba(255,255,255,.035)}
+
     .muted{color:var(--muted);font-size:12px}
     .rowBtns{display:flex; gap:8px; flex-wrap:wrap}
 
     .tag{
-      display:inline-flex; align-items:center; justify-content:center;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
       padding:6px 10px;
       border-radius:999px;
       border:1px solid var(--line);
@@ -299,66 +463,107 @@
       font-size:12px;
       white-space:nowrap;
     }
-    .tag.ok{background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.30)}
-    .tag.bad{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.30)}
-    .tag.warn{background: rgba(245,158,11,.14); border-color: rgba(245,158,11,.30)}
+    .tag.ok{background: rgba(16,185,129,.14); border-color: rgba(16,185,129,.28)}
+    .tag.bad{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.28)}
+    .tag.warn{background: rgba(245,158,11,.14); border-color: rgba(245,158,11,.28)}
 
-    /* Switch */
-    .sw{display:inline-flex; align-items:center; gap:10px; user-select:none; white-space:nowrap}
+    .sw{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+      white-space:nowrap;
+      flex-wrap:wrap;
+    }
     .switch{
-      width:52px;height:28px;border-radius:999px;
-      border:1px solid var(--line);
+      width:54px;
+      height:29px;
+      border-radius:999px;
+      border:1px solid var(--line2);
       background: rgba(255,255,255,.10);
-      position:relative; cursor:pointer;
+      position:relative;
+      cursor:pointer;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
     }
     .knob{
-      width:22px;height:22px;border-radius:999px;
-      background: rgba(255,255,255,.92);
-      position:absolute; top:2px; right:2px;
+      width:23px;
+      height:23px;
+      border-radius:999px;
+      background: rgba(255,255,255,.95);
+      position:absolute;
+      top:2px;
+      right:2px;
       transition: transform .18s ease;
     }
-    .switch.on{background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.28)}
-    .switch.on .knob{transform: translateX(-24px)}
+    .switch.on{
+      background: rgba(16,185,129,.18);
+      border-color: rgba(16,185,129,.28);
+    }
+    .switch.on .knob{transform: translateX(-25px)}
+
     .miniInput{
       width:100%;
-      padding:10px 10px;
+      padding:10px 11px;
       border-radius: 12px;
-      border:1px solid var(--line);
+      border:1px solid var(--line2);
       background: rgba(0,0,0,.22);
       color:#fff;
       outline:none;
       font-size:13px;
     }
 
-    /* mini buttons (tasks limit) */
     .dtMini{display:flex;gap:6px;flex-wrap:wrap}
     .miniBtn{
-      border:1px solid var(--line);
+      border:1px solid var(--line2);
       background: rgba(255,255,255,.06);
       color:#fff;
-      padding:6px 9px;
+      padding:7px 10px;
       border-radius:999px;
       cursor:pointer;
       font-weight:1000;
       font-size:12px;
       line-height:1;
+      transition:filter .2s ease, transform .12s ease;
     }
     .miniBtn:hover{filter:brightness(1.08)}
+    .miniBtn:active{transform:translateY(1px)}
     .miniBtn.ok{
-      background: rgba(34,197,94,.16);
-      border-color: rgba(34,197,94,.30);
+      background: rgba(16,185,129,.16);
+      border-color: rgba(16,185,129,.28);
     }
 
-    /* Toast */
+    .supportMsg{
+      max-width:340px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.8;
+    }
+
+    .taskBox{
+      display:none;
+      margin-top:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(0,0,0,.18);
+    }
+    .taskCfgItem{
+      margin-bottom:10px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(255,255,255,.04);
+    }
+
     .toast{
       position:fixed;
       bottom:18px;
       left:50%;
       transform: translateX(-50%);
-      padding:11px 14px;
+      padding:12px 15px;
       border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(7,11,20,.92);
+      border:1px solid var(--line2);
+      background: rgba(7,11,20,.94);
       box-shadow: var(--shadow);
       display:none;
       z-index:9999;
@@ -366,7 +571,7 @@
       text-align:center;
       font-weight:1000;
       font-size:13px;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
     }
     .toast.show{display:block}
   </style>
@@ -393,7 +598,6 @@
   </div>
 
   <div class="wrap">
-    <!-- Sidebar -->
     <aside class="card side">
       <div class="tabs">
         <button class="tab active" id="tab_settings" onclick="openTab('settings')">
@@ -401,18 +605,18 @@
             <div class="ico">⚙️</div>
             <div class="txt">
               <b>الإعدادات</b>
-              <span>تحويل + حد أدنى + تواصل</span>
+              <span>تحويل + حدود + تواصل</span>
             </div>
           </div>
-          <div class="count">Config</div>
+          <div class="count">CFG</div>
         </button>
 
         <button class="tab" id="tab_requests" onclick="openTab('requests')">
           <div class="left">
             <div class="ico">⏳</div>
             <div class="txt">
-              <b>طلبات Pending</b>
-              <span>موافقة/رفض بسرعة</span>
+              <b>الطلبات</b>
+              <span>إيداع / سحب</span>
             </div>
           </div>
           <div class="count" id="rqCount">0</div>
@@ -423,7 +627,7 @@
             <div class="ico">✅</div>
             <div class="txt">
               <b>المهام</b>
-              <span>إضافة/تعديل/فتح/غلق</span>
+              <span>إضافة / تعديل / غلق</span>
             </div>
           </div>
           <div class="count" id="taskCount">—</div>
@@ -434,16 +638,27 @@
             <div class="ico">👤</div>
             <div class="txt">
               <b>المستخدمون</b>
-              <span>نقاط + كلمة سر + مهام</span>
+              <span>نقاط + كلمات سر + تخصيص</span>
             </div>
           </div>
           <div class="count" id="userCount">—</div>
         </button>
+
+        <button class="tab" id="tab_support" onclick="openTab('support')">
+          <div class="left">
+            <div class="ico">💬</div>
+            <div class="txt">
+              <b>رسائل الدعم</b>
+              <span>الرسائل الواردة من المستخدمين</span>
+            </div>
+          </div>
+          <div class="count" id="supportCount">0</div>
+        </button>
       </div>
 
       <div class="search">
-        <label>بحث سريع (المستخدمون/المهام)</label>
-        <input id="globalSearch" placeholder="اسم/ID/إيميل/عنوان..." oninput="applySearch()"/>
+        <label>بحث سريع</label>
+        <input id="globalSearch" placeholder="اسم / ID / بريد / عنوان..." oninput="applySearch()"/>
       </div>
 
       <div class="links">
@@ -455,7 +670,6 @@
       </div>
     </aside>
 
-    <!-- Main -->
     <main class="card main">
       <div class="head">
         <div>
@@ -468,6 +682,25 @@
         </div>
       </div>
 
+      <div class="stats">
+        <div class="stat">
+          <b>طلبات معلقة</b>
+          <div class="n" id="statRequests">0</div>
+        </div>
+        <div class="stat">
+          <b>عدد المهام</b>
+          <div class="n" id="statTasks">0</div>
+        </div>
+        <div class="stat">
+          <b>عدد المستخدمين</b>
+          <div class="n" id="statUsers">0</div>
+        </div>
+        <div class="stat">
+          <b>رسائل الدعم</b>
+          <div class="n" id="statSupport">0</div>
+        </div>
+      </div>
+
       <!-- SETTINGS -->
       <section class="section active" id="sec_settings">
         <div class="block">
@@ -475,6 +708,7 @@
             <b>⚙️ إعدادات المنصة</b>
             <span>GET/POST /api/admin/settings</span>
           </div>
+
           <div class="grid">
             <div class="field">
               <label>USD → Points</label>
@@ -506,9 +740,6 @@
             <button class="btn" onclick="loadSettings()">🔄 تحديث</button>
             <button class="btn primary" onclick="saveSettings()">💾 حفظ</button>
           </div>
-          <div class="muted" style="margin-top:10px;line-height:1.7">
-            نصيحة: خليه مطابق للقانون ديالك (مثال 10 نقاط = 1$).
-          </div>
         </div>
       </section>
 
@@ -516,7 +747,7 @@
       <section class="section" id="sec_requests">
         <div class="block">
           <div class="btitle">
-            <b>⏳ طلبات الإيداع/السحب (Pending)</b>
+            <b>⏳ طلبات الإيداع/السحب</b>
             <span>GET /api/admin/requests</span>
           </div>
 
@@ -528,14 +759,15 @@
             <table>
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>المستخدم</th>
-                  <th>النوع</th>
-                  <th>$</th>
-                  <th>النقاط</th>
-                  <th>الحالة</th>
-                  <th>إجراء</th>
-                </tr>
+  <th>#</th>
+  <th>المستخدم</th>
+  <th>التواصل</th>
+  <th>الرسالة</th>
+  <th>التاريخ</th>
+  <th>الحالة</th>
+  <th>الرد</th>
+  <th>إرسال</th>
+</tr>
               </thead>
               <tbody id="rq"></tbody>
             </table>
@@ -620,7 +852,7 @@
                   <th>الاسم</th>
                   <th>تواصل</th>
                   <th>نقاط</th>
-                  <th>المهام + العدد</th>
+                  <th>المهام + العدد + تخصيص</th>
                   <th>كلمة سر جديدة</th>
                   <th>إجراءات</th>
                 </tr>
@@ -653,8 +885,35 @@
               <button class="btn primary" style="width:100%" onclick="createUser()">إنشاء</button>
             </div>
           </div>
-          <div class="muted" style="margin-top:10px;line-height:1.7">
-            إذا السيرفر ما فيهش endpoint ديال create (نادر دابا عندك كيبان)، غادي يعطيك رسالة بلا ما يطيّح الصفحة.
+        </div>
+      </section>
+
+      <!-- SUPPORT -->
+      <section class="section" id="sec_support">
+        <div class="block">
+          <div class="btitle">
+            <b>💬 رسائل الدعم</b>
+            <span>GET /api/admin/support</span>
+          </div>
+
+          <div class="rowBtns" style="margin-bottom:10px">
+            <button class="btn" onclick="loadSupportMessages()">🔄 تحديث</button>
+          </div>
+
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>المستخدم</th>
+                  <th>التواصل</th>
+                  <th>الرسالة</th>
+                  <th>التاريخ</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody id="supportRows"></tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -662,7 +921,6 @@
   </div>
 
   <script>
-    // ---------- tiny helpers ----------
     function toast(msg){
       const t = document.getElementById("toast");
       if(!t) return;
@@ -670,22 +928,36 @@
       t.classList.add("show");
       setTimeout(()=>t.classList.remove("show"), 2600);
     }
+
     function setSync(txt){
       const p = document.getElementById("syncPill");
       if(p) p.textContent = txt;
     }
+
     function escapeHtml(s){
       return String(s ?? "").replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
       }[m]));
     }
-    function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+
+    function escapeAttr(s){
+      return escapeHtml(s).replace(/"/g,"&quot;");
+    }
+
     function formatUsd(n){
       const x = Number(n);
       if(!Number.isFinite(x)) return "-";
       return "$" + x.toFixed(2);
     }
-    function typeLabel(t){ return String(t)==="deposit" ? "إيداع" : "سحب"; }
+
+    function typeLabel(t){
+      return String(t)==="deposit" ? "إيداع" : "سحب";
+    }
+
     function statusTag(s){
       const v = String(s||"").toLowerCase();
       if(v.includes("approved")) return '<span class="tag ok">Approved</span>';
@@ -693,30 +965,43 @@
       return '<span class="tag warn">Pending</span>';
     }
 
-// ---------- API wrapper ----------
-window.api = window.api || (async function api(url, method="GET", body){
-  const opt = {
-    method,
-    headers: { "Content-Type":"application/json" },
-    credentials: "include" // ✅ مهم: يرسل cookie ديال session
-  };
+    function supportStatusTag(s){
+      const v = String(s||"new").toLowerCase();
+      if(v === "read") return '<span class="tag ok">مقروءة</span>';
+      return '<span class="tag warn">جديدة</span>';
+    }
 
-  if(method !== "GET" && method !== "HEAD"){
-    opt.body = JSON.stringify(body || {});
-  }
+    function formatDate(s){
+      if(!s) return "-";
+      const d = new Date(s);
+      if(Number.isNaN(d.getTime())) return s;
+      return d.toLocaleString("fr-FR");
+    }
 
-  const r = await fetch(url, opt);
-  const data = await r.json().catch(()=> ({}));
+    window.api = window.api || (async function api(url, method="GET", body){
+      const opt = {
+        method,
+        headers: { "Content-Type":"application/json" },
+        credentials: "include"
+      };
+      if(method !== "GET" && method !== "HEAD"){
+        opt.body = JSON.stringify(body || {});
+      }
+      const r = await fetch(url, opt);
+      const data = await r.json().catch(()=> ({}));
+      if(!r.ok || data?.ok === false){
+        throw new Error(data?.message || ("HTTP " + r.status));
+      }
+      return data;
+    });
 
-  if(!r.ok || data?.ok === false){
-    throw new Error(data?.message || ("HTTP " + r.status));
-  }
-  return data;
-});
+    function setStat(id, value){
+      const el = document.getElementById(id);
+      if(el) el.textContent = value;
+    }
 
-    // ---------- Tabs ----------
     function openTab(key){
-      const keys=["settings","requests","tasks","users"];
+      const keys=["settings","requests","tasks","users","support"];
       for(const k of keys){
         document.getElementById("tab_"+k)?.classList.remove("active");
         document.getElementById("sec_"+k)?.classList.remove("active");
@@ -725,32 +1010,36 @@ window.api = window.api || (async function api(url, method="GET", body){
       document.getElementById("sec_"+key)?.classList.add("active");
 
       const map = {
-        settings:{t:"الإعدادات", d:"تحكم في التحويل + الحد الأدنى + وسائل التواصل."},
-        requests:{t:"طلبات Pending", d:"موافقة أو رفض الطلبات بسرعة."},
-        tasks:{t:"المهام", d:"تعديل/إضافة/فتح/غلق."},
-        users:{t:"المستخدمون", d:"نقاط + كلمة السر + تشغيل/إيقاف المهام + تحديد عدد المهام."},
+        settings:{t:"الإعدادات", d:"تحكم في التحويل + الحدود + وسائل التواصل."},
+        requests:{t:"الطلبات", d:"موافقة أو رفض الطلبات المعلقة بسرعة."},
+        tasks:{t:"المهام", d:"إضافة / تعديل / فتح / غلق المهام العامة."},
+        users:{t:"المستخدمون", d:"نقاط + كلمات السر + تشغيل المهام + تخصيص المهام لكل مستخدم."},
+        support:{t:"رسائل الدعم", d:"الرسائل الواردة من صفحة الدعم داخل المنصة."}
       };
+
       document.getElementById("mainTitle").textContent = map[key].t;
       document.getElementById("mainDesc").textContent  = map[key].d;
       document.getElementById("tbTitle").textContent   = map[key].t;
       document.getElementById("tbSub").textContent     = map[key].d;
     }
+
     function currentTab(){
-      const btns=["settings","requests","tasks","users"];
+      const btns=["settings","requests","tasks","users","support"];
       for(const k of btns){
         if(document.getElementById("tab_"+k)?.classList.contains("active")) return k;
       }
       return "settings";
     }
+
     async function refreshCurrent(){
       const t = currentTab();
       if(t==="settings") return loadSettings();
       if(t==="requests") return loadRequests();
       if(t==="tasks") return loadTasks();
       if(t==="users") return loadUsers();
+      if(t==="support") return loadSupportMessages();
     }
 
-    // ---------- SETTINGS ----------
     async function loadSettings(){
       try{
         setSync("🔄 تحميل...");
@@ -786,13 +1075,13 @@ window.api = window.api || (async function api(url, method="GET", body){
       }
     }
 
-    // ---------- REQUESTS ----------
     async function loadRequests(){
       try{
         setSync("🔄 تحميل الطلبات...");
         const reqs = await api("/api/admin/requests");
         const rows = reqs.rows || [];
         document.getElementById("rqCount").textContent = rows.length;
+        setStat("statRequests", rows.length);
 
         const rq = document.getElementById("rq");
         rq.innerHTML = "";
@@ -820,7 +1109,7 @@ window.api = window.api || (async function api(url, method="GET", body){
         }
 
         if(!rows.length){
-          rq.innerHTML = `<tr><td colspan="7" class="muted" style="padding:14px">لا توجد طلبات Pending.</td></tr>`;
+          rq.innerHTML = `<tr><td colspan="7" class="muted" style="padding:14px">لا توجد طلبات معلقة.</td></tr>`;
         }
 
         setSync("🟢 جاهز");
@@ -837,6 +1126,7 @@ window.api = window.api || (async function api(url, method="GET", body){
         loadRequests();
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
+
     async function reject(id){
       try{
         await api(`/api/admin/requests/${id}/reject`,"POST",{});
@@ -845,7 +1135,6 @@ window.api = window.api || (async function api(url, method="GET", body){
       }catch(e){ toast(e.message || "وقع خطأ"); }
     }
 
-    // ---------- TASKS ----------
     let CACHE_TASKS = [];
 
     async function loadTasks(){
@@ -854,6 +1143,7 @@ window.api = window.api || (async function api(url, method="GET", body){
         const r = await api("/api/admin/tasks");
         CACHE_TASKS = r.rows || [];
         document.getElementById("taskCount").textContent = CACHE_TASKS.length;
+        setStat("statTasks", CACHE_TASKS.length);
 
         const tb = document.getElementById("tasks");
         tb.innerHTML = "";
@@ -868,7 +1158,7 @@ window.api = window.api || (async function api(url, method="GET", body){
               <td><input class="miniInput" type="number" min="1" id="t_wait_${t.id}" value="${escapeAttr(t.wait_seconds)}"/></td>
               <td>
                 <div class="sw">
-                  <div class="switch ${on ? "on":""}" id="sw_${t.id}" onclick="toggleTaskSwitch(${t.id})" title="فتح/غلق">
+                  <div class="switch ${on ? "on":""}" id="sw_${t.id}" onclick="toggleTaskSwitch(${t.id})">
                     <div class="knob"></div>
                   </div>
                   <small class="muted" id="swlbl_${t.id}">${on ? "مفتوحة" : "مغلقة"}</small>
@@ -880,7 +1170,6 @@ window.api = window.api || (async function api(url, method="GET", body){
                   <button class="btn" onclick="saveTask(${t.id})">💾 حفظ</button>
                   <button class="btn danger" onclick="deleteTask(${t.id})">🗑️ حذف</button>
                 </div>
-                <div class="muted" style="margin-top:6px">الحذف اختياري حسب السيرفر</div>
               </td>
             </tr>
           `);
@@ -899,10 +1188,7 @@ window.api = window.api || (async function api(url, method="GET", body){
       const hid = document.getElementById("t_active_"+id);
       const lbl = document.getElementById("swlbl_"+id);
       if(!sw || !hid) return;
-
-      const isOn = sw.classList.contains("on");
-      const next = !isOn;
-
+      const next = !sw.classList.contains("on");
       sw.classList.toggle("on", next);
       hid.value = next ? "true" : "false";
       if(lbl) lbl.textContent = next ? "مفتوحة" : "مغلقة";
@@ -918,7 +1204,9 @@ window.api = window.api || (async function api(url, method="GET", body){
         });
         toast("تم تحديث المهمة ✅");
         await loadTasks();
-      }catch(e){ toast(e.message || "وقع خطأ"); }
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+      }
     }
 
     async function openAllTasks(){
@@ -930,8 +1218,11 @@ window.api = window.api || (async function api(url, method="GET", body){
         }
         toast("تم فتح الكل ✅");
         await loadTasks();
-      }catch(e){ toast(e.message || "وقع خطأ"); }
-      finally{ setSync("🟢 جاهز"); }
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+      }finally{
+        setSync("🟢 جاهز");
+      }
     }
 
     async function closeAllTasks(){
@@ -943,8 +1234,11 @@ window.api = window.api || (async function api(url, method="GET", body){
         }
         toast("تم غلق الكل ✅");
         await loadTasks();
-      }catch(e){ toast(e.message || "وقع خطأ"); }
-      finally{ setSync("🟢 جاهز"); }
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+      }finally{
+        setSync("🟢 جاهز");
+      }
     }
 
     async function createTask(){
@@ -957,7 +1251,9 @@ window.api = window.api || (async function api(url, method="GET", body){
         toast("تمت إضافة مهمة ✅");
         document.getElementById("new_title").value = "";
         await loadTasks();
-      }catch(e){ toast(e.message || "وقع خطأ"); }
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+      }
     }
 
     async function deleteTask(id){
@@ -972,7 +1268,6 @@ window.api = window.api || (async function api(url, method="GET", body){
       }
     }
 
-    // ---------- USERS ----------
     let CACHE_USERS = [];
 
     function setUserSwitchUI(userId, enabled){
@@ -1004,7 +1299,6 @@ window.api = window.api || (async function api(url, method="GET", body){
       }
     }
 
-    // ----- Tasks Limit UI -----
     function getLocalLimit(u){
       const v = u?.tasks_limit;
       if(v === null || v === undefined || v === "") return null;
@@ -1057,7 +1351,6 @@ window.api = window.api || (async function api(url, method="GET", body){
 
       try{
         const r = await api(`/api/admin/users/${userId}/tasks-limit`, "POST", { limit });
-
         const serverLimit =
           (r && ("tasks_limit" in r))
             ? (r.tasks_limit === null ? null : Number(r.tasks_limit))
@@ -1070,7 +1363,6 @@ window.api = window.api || (async function api(url, method="GET", body){
         const old = (prevAttr === "null" || prevAttr === null) ? null : Number(prevAttr);
         setLbl(Number.isFinite(old) ? old : null);
         renderLimitIcons(userId, Number.isFinite(old) ? old : null);
-
         const msg = String(e?.message || "");
         toast(msg.includes("404") ? "الميزة غير مدعومة فالسيرفر الحالي" : (msg || "وقع خطأ"));
       }
@@ -1082,6 +1374,7 @@ window.api = window.api || (async function api(url, method="GET", body){
         const users = await api("/api/admin/users");
         CACHE_USERS = users.rows || [];
         document.getElementById("userCount").textContent = CACHE_USERS.length;
+        setStat("statUsers", CACHE_USERS.length);
 
         const us = document.getElementById("us");
         us.innerHTML = "";
@@ -1089,8 +1382,6 @@ window.api = window.api || (async function api(url, method="GET", body){
         for(const u of CACHE_USERS){
           const contact = u.email || u.phone || "-";
           const enabled = (u.tasks_enabled !== false);
-
-          // إذا السيرفر ما كيرجعش tasks_limit نخليها بلا حد
           const lim = ("tasks_limit" in u) ? getLocalLimit(u) : null;
           const limText = (lim === null) ? "بلا حد" : `${lim}/5`;
 
@@ -1100,7 +1391,9 @@ window.api = window.api || (async function api(url, method="GET", body){
               <td>${escapeHtml(u.full_name || "-")}</td>
               <td class="muted">${escapeHtml(contact)}</td>
 
-              <td><input class="miniInput" style="max-width:140px" id="p_${u.id}" value="${escapeAttr(u.points_balance)}"/></td>
+              <td>
+                <input class="miniInput" style="max-width:140px" id="p_${u.id}" value="${escapeAttr(u.points_balance)}"/>
+              </td>
 
               <td>
                 <div class="sw">
@@ -1119,18 +1412,37 @@ window.api = window.api || (async function api(url, method="GET", body){
                   </div>
                   <div class="dtMini" id="limit_${u.id}" style="margin-top:8px"></div>
                 </div>
-              </td>
 
-              <td><input class="miniInput" style="max-width:180px" id="pw_${u.id}" type="password" placeholder="كلمة سر جديدة"/></td>
+                <div style="margin-top:10px">
+                  <button class="btn" onclick="toggleUserTaskBox('${u.id}')">🛠️ تخصيص المهام</button>
+                </div>
 
-              <td>
-                <div class="rowBtns">
-                  <button class="btn" onclick="setPoints('${u.id}')">💠 نقاط</button>
-                  <button class="btn primary" onclick="setPassword('${u.id}')">🔒 كلمة السر</button>
-                  <button class="btn" onclick="resetTasks('${u.id}')">♻️ Reset مهام</button>
-                  <button class="btn danger" onclick="deleteUser('${u.id}')">🗑️ حذف</button>
+                <div class="taskBox" id="taskbox_${u.id}">
+                  <div class="muted" style="margin-bottom:8px">تخصيص المهام لهذا المستخدم فقط</div>
+                  <div id="taskcfg_${u.id}">جاري التحميل...</div>
                 </div>
               </td>
+
+              <td>
+                <input class="miniInput" style="max-width:180px" id="pw_${u.id}" type="password" placeholder="كلمة سر جديدة"/>
+              </td>
+
+<td>
+  <div class="rowBtns">
+    <button class="btn" onclick="setPoints('${u.id}')">💠 نقاط</button>
+    <button class="btn primary" onclick="setPassword('${u.id}')">🔒 كلمة السر</button>
+    <button class="btn" onclick="resetTasks('${u.id}')">♻️ Reset مهام</button>
+    <button class="btn danger" onclick="deleteUser('${u.id}')">🗑️ حذف</button>
+  </div>
+
+  <div style="margin-top:10px">
+    <input class="miniInput" id="msg_${u.id}" placeholder="اكتب رسالة لهذا المستخدم">
+  </div>
+
+  <div class="rowBtns" style="margin-top:8px">
+    <button class="btn primary" onclick="sendAdminMessage('${u.id}')">📨 إرسال رسالة</button>
+  </div>
+</td>
             </tr>
           `);
 
@@ -1141,6 +1453,87 @@ window.api = window.api || (async function api(url, method="GET", body){
         setSync("🟢 جاهز");
       }catch(e){
         setSync("🔴 خطأ");
+        toast(e.message || "وقع خطأ");
+      }
+    }
+
+    async function toggleUserTaskBox(userId){
+      const box = document.getElementById(`taskbox_${userId}`);
+      if(!box) return;
+      const isHidden = box.style.display === "none" || !box.style.display;
+      box.style.display = isHidden ? "block" : "none";
+      if(isHidden){
+        await loadUserTaskConfig(userId);
+      }
+    }
+
+    async function loadUserTaskConfig(userId){
+      const wrap = document.getElementById(`taskcfg_${userId}`);
+      if(!wrap) return;
+
+      wrap.innerHTML = "جاري التحميل...";
+
+      try{
+        const r = await api(`/api/admin/users/${userId}/task-config`);
+        const rows = r.rows || [];
+
+        wrap.innerHTML = rows.map(t => `
+          <div class="taskCfgItem">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+              <b>${escapeHtml(t.title)} <span class="muted">#${t.order_index}</span></b>
+              <label class="sw">
+                <div class="switch ${t.is_active ? "on" : ""}" id="cfg_sw_${userId}_${t.task_id}" onclick="toggleCfgSwitch('${userId}','${t.task_id}')">
+                  <div class="knob"></div>
+                </div>
+                <small class="muted" id="cfg_lbl_${userId}_${t.task_id}">${t.is_active ? "مفتوحة" : "مغلقة"}</small>
+                <input type="hidden" id="cfg_active_${userId}_${t.task_id}" value="${t.is_active ? "true" : "false"}">
+              </label>
+            </div>
+
+            <div class="grid" style="margin-top:10px;grid-template-columns:1fr 1fr">
+              <div class="field">
+                <label>الربح</label>
+                <input id="cfg_reward_${userId}_${t.task_id}" type="number" min="0" value="${escapeAttr(t.reward_points)}">
+              </div>
+              <div class="field">
+                <label>الثواني</label>
+                <input id="cfg_wait_${userId}_${t.task_id}" type="number" min="1" value="${escapeAttr(t.wait_seconds)}">
+              </div>
+            </div>
+
+            <div class="rowBtns" style="margin-top:10px">
+              <button class="btn primary" onclick="saveUserTaskConfig('${userId}','${t.task_id}')">💾 حفظ هذه المهمة</button>
+            </div>
+          </div>
+        `).join("");
+      }catch(e){
+        wrap.innerHTML = `<div class="muted">وقع خطأ: ${escapeHtml(e.message || "غير معروف")}</div>`;
+      }
+    }
+
+    function toggleCfgSwitch(userId, taskId){
+      const sw = document.getElementById(`cfg_sw_${userId}_${taskId}`);
+      const lbl = document.getElementById(`cfg_lbl_${userId}_${taskId}`);
+      const hid = document.getElementById(`cfg_active_${userId}_${taskId}`);
+      if(!sw || !lbl || !hid) return;
+
+      const next = !sw.classList.contains("on");
+      sw.classList.toggle("on", next);
+      hid.value = next ? "true" : "false";
+      lbl.textContent = next ? "مفتوحة" : "مغلقة";
+    }
+
+    async function saveUserTaskConfig(userId, taskId){
+      try{
+        await api(`/api/admin/users/${userId}/task-config/${taskId}`, "POST", {
+          is_active: document.getElementById(`cfg_active_${userId}_${taskId}`).value === "true",
+          reward_points: document.getElementById(`cfg_reward_${userId}_${taskId}`).value,
+          wait_seconds: document.getElementById(`cfg_wait_${userId}_${taskId}`).value
+        });
+
+        toast("تم حفظ تخصيص المهمة ✅");
+        await loadUserTaskConfig(userId);
+      }catch(e){
         toast(e.message || "وقع خطأ");
       }
     }
@@ -1209,27 +1602,113 @@ window.api = window.api || (async function api(url, method="GET", body){
       }
     }
 
-    // ---------- SEARCH ----------
+    async function loadSupportMessages(){
+      try{
+        setSync("🔄 تحميل رسائل الدعم...");
+        const r = await api("/api/admin/support");
+        const rows = r.rows || [];
+
+        document.getElementById("supportCount").textContent = rows.length;
+        setStat("statSupport", rows.length);
+
+        const tb = document.getElementById("supportRows");
+        tb.innerHTML = "";
+
+        for(const x of rows){
+          tb.insertAdjacentHTML("beforeend", `
+            <tr data-row="support" data-search="${escapeHtml((x.full_name||"")+" "+(x.email||"")+" "+(x.phone||"")+" "+(x.text||""))}">
+              <td>${escapeHtml(x.id)}</td>
+              <td>
+                <b>${escapeHtml(x.full_name || "-")}</b>
+                <div class="muted">ID: ${escapeHtml(x.user_id || "-")}</div>
+              </td>
+              <td class="muted">${escapeHtml(x.email || x.phone || "-")}</td>
+              <td><div class="supportMsg">${escapeHtml(x.text || "")}</div></td>
+              <td class="muted">${formatDate(x.created_at)}</td>
+<td>${supportStatusTag(x.status || "new")}</td>
+<td>
+  <input class="miniInput" id="reply_${x.id}" placeholder="اكتب الرد هنا">
+</td>
+<td>
+  <button class="btn primary" onclick="sendReply('${x.id}')">إرسال</button>
+</td>
+            </tr>
+          `);
+        }
+
+        if(!rows.length){
+          tb.innerHTML = `<tr><td colspan="6" class="muted" style="padding:14px">لا توجد رسائل دعم حالياً.</td></tr>`;
+        }
+
+        applySearch();
+        setSync("🟢 جاهز");
+      }catch(e){
+        setSync("🔴 خطأ");
+        toast(e.message || "وقع خطأ");
+      }
+    }
+
     function applySearch(){
       const q = (document.getElementById("globalSearch")?.value || "").trim().toLowerCase();
       const rows = document.querySelectorAll('tr[data-search]');
       for(const r of rows){
-        const hay = (r.getAttribute("data-search")||"").toLowerCase();
+        const hay = (r.getAttribute("data-search") || "").toLowerCase();
         r.style.display = (!q || hay.includes(q)) ? "" : "none";
       }
     }
 
-    // ---------- Init ----------
     async function initAll(){
       openTab("settings");
       try{ await loadSettings(); }catch(_){}
       try{ await loadRequests(); }catch(_){}
       try{ await loadTasks(); }catch(_){}
       try{ await loadUsers(); }catch(_){}
+      try{ await loadSupportMessages(); }catch(_){}
       toast("تم تحديث كلشي ✅");
     }
+async function sendReply(id){
+  try{
+    const input = document.getElementById("reply_" + id);
+    const reply = input.value.trim();
 
-    // start
+    if(!reply){
+      toast("اكتب الرد أولا");
+      return;
+    }
+
+    await api("/api/admin/support/reply","POST",{
+      id:id,
+      reply:reply
+    });
+
+    toast("تم إرسال الرد ✅");
+    loadSupportMessages();
+
+  }catch(e){
+    toast(e.message || "وقع خطأ");
+  }
+}
+async function sendAdminMessage(userId){
+  try{
+    const text = document.getElementById("msg_" + userId).value.trim();
+
+    if(!text){
+      toast("اكتب الرسالة أولا");
+      return;
+    }
+
+    await api("/api/admin/messages/send","POST",{
+      user_id: userId,
+      text: text
+    });
+
+    document.getElementById("msg_" + userId).value="";
+    toast("تم إرسال الرسالة للمستخدم ✅");
+
+  }catch(e){
+    toast(e.message || "وقع خطأ");
+  }
+}
     initAll().catch(e=>toast(e.message || "وقع خطأ"));
   </script>
 </body>

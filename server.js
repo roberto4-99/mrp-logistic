@@ -65,9 +65,11 @@ function defaultDb() {
       { id: 4, title: "مهمة 4", order_index: 4, reward_points: 15, wait_seconds: 10, is_active: true },
       { id: 5, title: "مهمة 5", order_index: 5, reward_points: 15, wait_seconds: 10, is_active: true }
     ],
-    user_tasks: [],
-    task_runs: [],
-    referrals: []
+user_tasks: [],
+task_runs: [],
+referrals: [],
+support_messages: [],
+admin_messages: [],
   };
 }
 
@@ -249,8 +251,28 @@ function getTasksLimitForUser(db, userId){
 }
 
 /* ✅ NEW: return active tasks respecting user limit */
+function getUserTaskOverride(db, userId, taskId){
+  db.user_task_overrides = db.user_task_overrides || [];
+  return db.user_task_overrides.find(x => x.user_id === userId && x.task_id === taskId) || null;
+}
+
+function getEffectiveTasksForUser(db, userId){
+  const baseTasks = (db.tasks || []).sort((a,b)=>a.order_index-b.order_index);
+
+  return baseTasks.map(t => {
+    const ov = getUserTaskOverride(db, userId, t.id);
+    return {
+      ...t,
+      is_active: ov?.is_active !== undefined ? !!ov.is_active : !!t.is_active,
+      reward_points: ov?.reward_points !== undefined ? Number(ov.reward_points) : Number(t.reward_points),
+      wait_seconds: ov?.wait_seconds !== undefined ? Number(ov.wait_seconds) : Number(t.wait_seconds)
+    };
+  }).filter(t => t.is_active);
+}
+
+/* ✅ NEW: return active tasks respecting user limit */
 function getActiveTasksForUser(db, userId){
-  const all = (db.tasks || []).filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
+  const all = getEffectiveTasksForUser(db, userId).sort((a,b)=>a.order_index-b.order_index);
   const lim = getTasksLimitForUser(db, userId);
   if (lim === null) return all;
   return all.slice(0, lim);
@@ -260,7 +282,7 @@ function ensureUserTasks(db, userId) {
   db.tasks = db.tasks || [];
   db.user_tasks = db.user_tasks || [];
 
-  const active = db.tasks.filter(t => t.is_active).sort((a,b)=>a.order_index-b.order_index);
+  const active = getEffectiveTasksForUser(db, userId).sort((a,b)=>a.order_index-b.order_index);
 
   for (const t of active) {
     const found = db.user_tasks.find(x => x.user_id === userId && x.task_id === t.id);
@@ -362,6 +384,8 @@ async function init() {
   db.user_tasks = db.user_tasks || [];
   db.task_runs = db.task_runs || [];
   db.referrals = db.referrals || [];
+  db.support_messages = db.support_messages || [];
+  db.support_messages = db.support_messages || [];
 
   ensureAdmin(db);
 
@@ -1164,7 +1188,225 @@ app.post("/api/admin/users/:id/delete", requireAuth, requireAdmin, wrap(async (r
 
   res.json({ ok:true });
 }));
+/* ---------------- Support Messages ---------------- */
 
+// إرسال رسالة إلى خدمة العملاء
+app.post("/api/support/send", requireAuth, wrap(async (req, res) => {
+  const db = req._db;
+  const text = String(req.body.text || "").trim();
+
+  if (!text) {
+    return res.status(400).json({ ok: false, message: "الرسالة فارغة." });
+  }
+
+  db.support_messages = db.support_messages || [];
+
+  db.support_messages.push({
+    id: String(Date.now()) + "-" + Math.floor(Math.random() * 99999),
+    user_id: req.user.id,
+    text,
+    created_at: nowISO(),
+    status: "new"
+  });
+
+  await writeDb(db);
+
+  res.json({ ok: true, message: "تم إرسال الرسالة إلى خدمة العملاء." });
+}));
+
+// جلب رسائل الدعم للأدمن
+app.get("/api/admin/support", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+
+  db.support_messages = db.support_messages || [];
+
+  const rows = db.support_messages
+    .slice(-200)
+    .reverse()
+    .map(x => {
+      const u = db.users.find(uu => uu.id === x.user_id);
+      return {
+        ...x,
+        full_name: u?.full_name,
+        email: u?.email,
+        phone: u?.phone
+      };
+    });
+
+  res.json({ ok: true, rows });
+}));
+/* ---------------- ADMIN: User task config ---------------- */
+
+// جلب إعدادات المهام لمستخدم
+app.get("/api/admin/users/:id/task-config", requireAuth, requireAdmin, wrap(async (req,res)=>{
+  const db = req._db;
+  const userId = Number(req.params.id);
+
+  const u = db.users.find(x=>x.id===userId && !x.is_admin);
+  if(!u) return res.status(404).json({ok:false,message:"المستخدم غير موجود"});
+
+  db.user_task_overrides = db.user_task_overrides || [];
+
+  const rows = (db.tasks||[]).sort((a,b)=>a.order_index-b.order_index).map(t=>{
+    const ov = db.user_task_overrides.find(x=>x.user_id===userId && x.task_id===t.id);
+
+    return {
+      task_id: t.id,
+      title: t.title,
+      order_index: t.order_index,
+      is_active: ov?.is_active !== undefined ? !!ov.is_active : !!t.is_active,
+      reward_points: ov?.reward_points !== undefined ? Number(ov.reward_points) : Number(t.reward_points),
+      wait_seconds: ov?.wait_seconds !== undefined ? Number(ov.wait_seconds) : Number(t.wait_seconds)
+    };
+  });
+
+  res.json({ok:true,rows});
+}));
+
+
+// حفظ إعدادات مهمة لمستخدم
+app.post("/api/admin/users/:id/task-config/:taskId", requireAuth, requireAdmin, wrap(async (req,res)=>{
+  const db = req._db;
+  const userId = Number(req.params.id);
+  const taskId = Number(req.params.taskId);
+
+  const reward_points = Number(req.body.reward_points);
+  const wait_seconds = Number(req.body.wait_seconds);
+  const is_active = !!req.body.is_active;
+
+  db.user_task_overrides = db.user_task_overrides || [];
+
+  let ov = db.user_task_overrides.find(x=>x.user_id===userId && x.task_id===taskId);
+
+  if(!ov){
+    ov = { user_id:userId, task_id:taskId };
+    db.user_task_overrides.push(ov);
+  }
+
+  ov.reward_points = Math.floor(reward_points);
+  ov.wait_seconds = Math.floor(wait_seconds);
+  ov.is_active = is_active;
+
+  await writeDb(db);
+
+  res.json({ok:true});
+}));
+app.post("/api/admin/support/reply", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const { id, reply } = req.body;
+
+  db.support_messages = db.support_messages || [];
+
+  const msg = db.support_messages.find(x => x.id === id);
+  if (!msg) {
+    return res.status(404).json({ ok: false, message: "الرسالة غير موجودة" });
+  }
+
+  msg.reply = String(reply || "").trim();
+  msg.status = "read";
+  msg.replied_at = nowISO();
+
+  await writeDb(db);
+  res.json({ ok: true, message: "تم إرسال الرد" });
+}));
+app.post("/api/support/send", requireAuth, wrap(async (req, res) => {
+  const db = req._db;
+  const text = String(req.body.text || "").trim();
+
+  if (!text) {
+    return res.status(400).json({ ok: false, message: "الرسالة فارغة" });
+  }
+
+  db.support_messages = db.support_messages || [];
+
+  db.support_messages.push({
+    id: String(Date.now()) + "-" + Math.floor(Math.random() * 9999),
+    user_id: req.user.id,
+    text,
+    status: "new",
+    reply: "",
+    created_at: nowISO(),
+    replied_at: null
+  });
+
+  await writeDb(db);
+  res.json({ ok: true, message: "تم إرسال الرسالة" });
+}));
+app.get("/api/admin/support", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+
+  db.support_messages = db.support_messages || [];
+
+  const rows = db.support_messages
+    .slice()
+    .reverse()
+    .map(m => {
+      const u = (db.users || []).find(x => x.id === m.user_id);
+
+      return {
+        id: m.id,
+        user_id: m.user_id,
+        full_name: u?.full_name || "-",
+        email: u?.email || "",
+        phone: u?.phone || "",
+        text: m.text || "",
+        created_at: m.created_at,
+        status: m.status || "new",
+        reply: m.reply || ""
+      };
+    });
+
+  res.json({ ok: true, rows });
+}));
+app.post("/api/admin/messages/send", requireAuth, requireAdmin, wrap(async (req, res) => {
+  const db = req._db;
+  const user_id = Number(req.body.user_id);
+  const text = String(req.body.text || "").trim();
+
+  if (!user_id || !text) {
+    return res.status(400).json({ ok: false, message: "المستخدم أو الرسالة ناقصة." });
+  }
+
+  const u = (db.users || []).find(x => x.id === user_id && !x.is_admin);
+  if (!u) {
+    return res.status(404).json({ ok: false, message: "المستخدم غير موجود." });
+  }
+
+  db.admin_messages = db.admin_messages || [];
+
+  db.admin_messages.push({
+    id: String(Date.now()) + "-" + Math.floor(Math.random() * 9999),
+    user_id,
+    text,
+    created_at: nowISO(),
+    is_read: false
+  });
+
+  await writeDb(db);
+  res.json({ ok: true, message: "تم إرسال الرسالة" });
+}));
+app.get("/api/messages/my", requireAuth, wrap(async (req, res) => {
+  const db = req._db;
+  db.admin_messages = db.admin_messages || [];
+
+  const rows = db.admin_messages
+    .filter(x => x.user_id === req.user.id)
+    .slice()
+    .reverse();
+
+  res.json({ ok: true, rows });
+}));
+app.get("/api/messages/my", requireAuth, wrap(async (req, res) => {
+  const db = req._db;
+  db.admin_messages = db.admin_messages || [];
+
+  const rows = db.admin_messages
+    .filter(x => x.user_id === req.user.id)
+    .slice()
+    .reverse();
+
+  res.json({ ok: true, rows });
+}));
 /* ---------------- Debug ---------------- */
 app.get("/test", (req, res) => res.send("SERVER UPDATED ✅"));
 

@@ -26,70 +26,25 @@
       "is_admin": true,
       "status": "active",
       "created_at": "2026-02-27T15:33:49.221Z",
-      "last_login_at": "2026-03-05T16:53:13.352Z",
+      "last_login_at": "2026-03-07T15:53:22.965Z",
       "referral_code": "Ud728daa5-d822-42cd-b4f6-67abeb6b0fe2",
       "tasks_enabled": true,
       "tasks_limit": null
     },
     {
-      "id": "87608041-b3f4-4f25-aaea-8d4b2dc399aa",
-      "full_name": "MOHAMED ASHOUBA",
-      "email": "Mohamedashouba@gmail.com",
-      "phone": "0652452212",
-      "password_hash": "$2a$10$KCCy9m/HqvpzBSj39V3wz.lMZf49Re9jNdWvpQYbO.HTk5OTs541C",
-      "points_balance": 50065,
+      "id": 555560,
+      "full_name": "Produi",
+      "email": "test1",
+      "phone": null,
+      "password_hash": "$2a$10$I8i0aEJyc4xEzv1kr8ptQusu7uat7YCJEc9Tz.mqyEVDJV9FlaTtC",
+      "points_balance": 0,
       "is_admin": false,
       "status": "active",
-      "created_at": "2026-02-27T15:39:30.203Z",
-      "last_login_at": "2026-03-06T14:54:53.699Z",
-      "referral_code": "U87608041-b3f4-4f25-aaea-8d4b2dc399aa",
+      "created_at": "2026-03-07T14:57:37.056Z",
+      "last_login_at": "2026-03-07T15:53:48.935Z",
+      "referral_code": "U555560",
       "tasks_enabled": true,
       "tasks_limit": null
-    },
-    {
-      "id": "14222512-10e7-4b22-ae6a-e04b74c6e287",
-      "full_name": "somo",
-      "email": "Mohameda@gmail.com",
-      "phone": null,
-      "password_hash": "$2a$10$/LsnqKvqKtQAp06190nKUOpxxubkh5.oa8eBNhpNvOwieZ4j3ma5K",
-      "points_balance": 0,
-      "is_admin": false,
-      "status": "active",
-      "created_at": "2026-02-27T17:09:31.485Z",
-      "last_login_at": "2026-03-04T03:50:43.516Z",
-      "referral_code": "U14222512-10e7-4b22-ae6a-e04b74c6e287",
-      "tasks_enabled": true,
-      "tasks_limit": null
-    },
-    {
-      "id": 555557,
-      "full_name": "med55",
-      "email": "med55@gmail.com",
-      "phone": null,
-      "password_hash": "$2a$10$t4k/00hG4izX3kN8ImKkverdu1R3p4Z/S1izR7PnUw7s7I65V0DmG",
-      "points_balance": 0,
-      "is_admin": false,
-      "status": "active",
-      "created_at": "2026-03-03T22:45:14.199Z",
-      "last_login_at": null,
-      "referral_code": "U555557",
-      "tasks_enabled": false,
-      "tasks_limit": 3
-    },
-    {
-      "id": 555559,
-      "full_name": "simo",
-      "email": "simo@gmail.com",
-      "phone": null,
-      "password_hash": "$2a$10$wgbREIXcoOhADg98jAGO2eObx9M/dAxnldV3BugQ/PBh6puo7X8uS",
-      "points_balance": 0,
-      "is_admin": false,
-      "status": "active",
-      "created_at": "2026-03-04T04:22:11.436Z",
-      "last_login_at": "2026-03-04T04:43:55.916Z",
-      "referral_code": "U555559",
-      "tasks_enabled": true,
-      "tasks_limit": 3
     }
   ],
   "wallet_transactions": [
@@ -1497,9 +1452,9 @@
       "amount_usd": 10,
       "rate_usd_to_points": 10,
       "points_delta": 100,
-      "status": "pending",
+      "status": "rejected",
       "created_at": "2026-03-05T16:16:33.920Z",
-      "processed_at": null
+      "processed_at": "2026-03-07T14:31:12.576Z"
     },
     {
       "id": "1772729570184-4383",
@@ -1519,9 +1474,9 @@
       "amount_usd": 50,
       "rate_usd_to_points": 10,
       "points_delta": -500,
-      "status": "pending",
+      "status": "rejected",
       "created_at": "2026-03-05T17:02:20.591Z",
-      "processed_at": null
+      "processed_at": "2026-03-07T14:31:12.073Z"
     },
     {
       "id": "1772808924110-4866",
@@ -1530,9 +1485,9 @@
       "amount_usd": 20,
       "rate_usd_to_points": 10,
       "points_delta": -200,
-      "status": "pending",
+      "status": "rejected",
       "created_at": "2026-03-06T14:55:24.110Z",
-      "processed_at": null
+      "processed_at": "2026-03-07T14:31:11.481Z"
     }
   ],
   "tasks": [
@@ -1802,6 +1757,51 @@
       "started_at": null,
       "completed_at": null,
       "earned_points": 0
+    },
+    {
+      "id": "555560-1",
+      "user_id": 555560,
+      "task_id": 1,
+      "status": "available",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
+    },
+    {
+      "id": "555560-2",
+      "user_id": 555560,
+      "task_id": 2,
+      "status": "locked",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
+    },
+    {
+      "id": "555560-3",
+      "user_id": 555560,
+      "task_id": 3,
+      "status": "locked",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
+    },
+    {
+      "id": "555560-4",
+      "user_id": 555560,
+      "task_id": 4,
+      "status": "locked",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
+    },
+    {
+      "id": "555560-5",
+      "user_id": 555560,
+      "task_id": 5,
+      "status": "locked",
+      "started_at": null,
+      "completed_at": null,
+      "earned_points": 0
     }
   ],
   "task_runs": [
@@ -1967,7 +1967,54 @@
     }
   ],
   "meta": {
-    "next_user_id": 555560
+    "next_user_id": 555561
   },
-  "referrals": []
+  "referrals": [],
+  "support_messages": [
+    {
+      "id": "1772892863082-54587",
+      "user_id": "d728daa5-d822-42cd-b4f6-67abeb6b0fe2",
+      "text": "kkkkkkkkkkk",
+      "created_at": "2026-03-07T14:14:23.082Z",
+      "status": "new"
+    },
+    {
+      "id": "1772895475462-13431",
+      "user_id": 555560,
+      "text": "dtjtdttdutvggtf",
+      "created_at": "2026-03-07T14:57:55.463Z",
+      "status": "new"
+    },
+    {
+      "id": "1772896724159-18735",
+      "user_id": 555560,
+      "text": "yfkyuutvgf",
+      "created_at": "2026-03-07T15:18:44.159Z",
+      "status": "new"
+    }
+  ],
+  "user_task_overrides": [],
+  "admin_messages": [
+    {
+      "id": "1772898418769-7594",
+      "user_id": 555560,
+      "text": "yyyyy",
+      "created_at": "2026-03-07T15:46:58.769Z",
+      "is_read": false
+    },
+    {
+      "id": "1772898466404-3162",
+      "user_id": 555560,
+      "text": "hglv[, hghd]hu h,gh",
+      "created_at": "2026-03-07T15:47:46.404Z",
+      "is_read": false
+    },
+    {
+      "id": "1772898814176-5593",
+      "user_id": 555560,
+      "text": "000000000000000000",
+      "created_at": "2026-03-07T15:53:34.176Z",
+      "is_read": false
+    }
+  ]
 }
