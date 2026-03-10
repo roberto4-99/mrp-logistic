@@ -7,24 +7,23 @@
 
   <style>
     :root{
-      --bg:#061512;
-      --bg2:#0a1f1a;
-      --card:rgba(10,30,25,.86);
-      --card2:rgba(255,255,255,.04);
-      --card3:rgba(0,0,0,.20);
-      --line:rgba(255,255,255,.08);
-      --line2:rgba(255,255,255,.14);
-      --txt:#f3fffb;
-      --muted:rgba(255,255,255,.70);
-      --muted2:rgba(255,255,255,.52);
-      --mint:#34d399;
-      --emerald:#10b981;
-      --cyan:#22d3ee;
-      --teal:#14b8a6;
+      --bg:#f4f7fb;
+      --bg2:#eef3f9;
+      --card:#ffffff;
+      --card2:#f8fbff;
+      --card3:#f1f5fb;
+      --line:#dbe5f0;
+      --line2:#c9d7e6;
+      --txt:#16324a;
+      --muted:#5f7690;
+      --muted2:#7f93aa;
+      --primary:#5b8def;
+      --primary2:#7aa6f8;
+      --green:#22c55e;
       --amber:#f59e0b;
       --red:#ef4444;
-      --shadow:0 18px 60px rgba(0,0,0,.35);
-      --shadow2:0 10px 28px rgba(0,0,0,.25);
+      --shadow:0 18px 50px rgba(37, 66, 117, .08);
+      --shadow2:0 10px 25px rgba(37, 66, 117, .06);
       --r:22px;
       --r2:16px;
       --r3:12px;
@@ -38,33 +37,34 @@
       color:var(--txt);
       min-height:100vh;
       background:
-        radial-gradient(900px 500px at 10% 10%, rgba(52,211,153,.13), transparent 60%),
-        radial-gradient(900px 500px at 90% 12%, rgba(34,211,238,.10), transparent 60%),
-        radial-gradient(900px 500px at 50% 100%, rgba(20,184,166,.08), transparent 60%),
+        radial-gradient(900px 500px at 10% 10%, rgba(91,141,239,.10), transparent 60%),
+        radial-gradient(900px 500px at 90% 12%, rgba(122,166,248,.08), transparent 60%),
         linear-gradient(180deg,var(--bg),var(--bg2));
       overflow-x:hidden;
     }
+
     body::before{
       content:"";
       position:fixed;
       inset:0;
       pointer-events:none;
       background:
-        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
-      background-size: 24px 24px;
-      mask-image: radial-gradient(circle at center, rgba(0,0,0,.5), transparent 85%);
-      opacity:.32;
+        linear-gradient(rgba(91,141,239,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(91,141,239,.035) 1px, transparent 1px);
+      background-size:24px 24px;
+      mask-image: radial-gradient(circle at center, rgba(0,0,0,.45), transparent 85%);
+      opacity:.22;
     }
 
     .topbar{
       position:sticky;
       top:0;
       z-index:60;
-      backdrop-filter: blur(16px);
-      background: rgba(6,21,18,.72);
+      backdrop-filter: blur(14px);
+      background: rgba(244,247,251,.88);
       border-bottom:1px solid var(--line);
     }
+
     .topinner{
       max-width:1280px;
       margin:auto;
@@ -81,6 +81,7 @@
       gap:12px;
       min-width:0;
     }
+
     .logo{
       width:46px;
       height:46px;
@@ -88,13 +89,14 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      background: linear-gradient(135deg,var(--mint),var(--cyan));
-      color:#06201b;
+      background: linear-gradient(135deg,var(--primary),var(--primary2));
+      color:#fff;
       font-weight:1000;
       font-size:18px;
       box-shadow: var(--shadow2);
       flex:0 0 auto;
     }
+
     .btxt{min-width:0}
     .btxt b{
       display:block;
@@ -121,6 +123,7 @@
       justify-content:flex-end;
       align-items:center;
     }
+
     .pill{
       display:inline-flex;
       align-items:center;
@@ -128,35 +131,38 @@
       padding:10px 13px;
       border-radius:999px;
       border:1px solid var(--line2);
-      background: rgba(255,255,255,.05);
+      background: #fff;
       font-weight:900;
       font-size:12px;
       white-space:nowrap;
       box-shadow: var(--shadow2);
+      color:var(--txt);
     }
+
     .btn{
       border:none;
       cursor:pointer;
       padding:10px 13px;
       border-radius:999px;
       font-weight:1000;
-      background: rgba(255,255,255,.07);
+      background: #fff;
       border:1px solid var(--line2);
-      color:#fff;
+      color:var(--txt);
       transition: transform .12s ease, filter .2s ease, background .2s ease;
       white-space:nowrap;
       box-shadow: var(--shadow2);
     }
-    .btn:hover{filter:brightness(1.06)}
+    .btn:hover{filter:brightness(1.02)}
     .btn:active{transform: translateY(1px) scale(.99)}
     .btn.primary{
-      background: linear-gradient(135deg,var(--mint),var(--cyan));
+      background: linear-gradient(135deg,var(--primary),var(--primary2));
       border-color: transparent;
-      color:#04211c;
+      color:#fff;
     }
     .btn.danger{
-      background: rgba(239,68,68,.14);
-      border-color: rgba(239,68,68,.28);
+      background: rgba(239,68,68,.10);
+      border-color: rgba(239,68,68,.20);
+      color:#b42318;
     }
 
     .wrap{
@@ -176,7 +182,6 @@
       border:1px solid var(--line);
       border-radius: var(--r);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
     }
 
     .side{
@@ -199,8 +204,8 @@
       padding:13px;
       border-radius: var(--r2);
       border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color:#fff;
+      background: var(--card2);
+      color:var(--txt);
       cursor:pointer;
       font-weight:1000;
       text-align:right;
@@ -208,21 +213,23 @@
     }
     .tab:hover{
       transform: translateY(-1px);
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.14);
+      background: #fff;
+      border-color: var(--line2);
     }
     .tab.active{
-      background: linear-gradient(135deg,var(--mint),var(--cyan));
+      background: linear-gradient(135deg,var(--primary),var(--primary2));
       border-color: transparent;
-      color:#04211c;
+      color:#fff;
       box-shadow: var(--shadow2);
     }
+
     .tab .left{
       display:flex;
       align-items:center;
       gap:10px;
       min-width:0;
     }
+
     .ico{
       width:38px;
       height:38px;
@@ -231,34 +238,42 @@
       align-items:center;
       justify-content:center;
       border:1px solid var(--line);
-      background: rgba(0,0,0,.24);
+      background: rgba(91,141,239,.08);
       flex:0 0 auto;
       font-size:16px;
     }
     .tab.active .ico{
-      background: rgba(4,33,28,.14);
-      border-color: rgba(4,33,28,.10);
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.18);
     }
+
     .tab .txt{min-width:0}
     .tab .txt b{display:block;font-size:13px}
     .tab .txt span{
       display:block;
       font-size:12px;
-      opacity:.88;
+      opacity:.92;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
       max-width:170px;
       margin-top:2px;
     }
+
     .count{
       padding:7px 10px;
       border-radius:999px;
       border:1px solid var(--line);
-      background: rgba(0,0,0,.25);
+      background: #fff;
       font-size:12px;
       font-weight:1000;
       white-space:nowrap;
+      color:var(--txt);
+    }
+    .tab.active .count{
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.20);
+      color:#fff;
     }
 
     .search{
@@ -266,7 +281,7 @@
       padding:12px;
       border-radius: var(--r);
       border:1px solid var(--line);
-      background: rgba(0,0,0,.20);
+      background: var(--card2);
     }
     .search label{
       font-size:12px;
@@ -280,12 +295,12 @@
       padding:12px 13px;
       border-radius: 14px;
       border:1px solid var(--line2);
-      background: rgba(255,255,255,.06);
-      color:#fff;
+      background: #fff;
+      color:var(--txt);
       outline:none;
       font-size:13px;
     }
-    .search input::placeholder{color:rgba(255,255,255,.35)}
+    .search input::placeholder{color:#9bb0c5}
 
     .links{
       margin-top:12px;
@@ -300,16 +315,17 @@
       padding:12px 13px;
       border-radius: 14px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.05);
-      color:#fff;
+      background: var(--card2);
+      color:var(--txt);
       font-weight:1000;
       transition: transform .12s ease, filter .2s ease;
     }
-    .alink:hover{filter:brightness(1.05)}
+    .alink:hover{filter:brightness(1.01)}
     .alink:active{transform:translateY(1px)}
     .alink.danger{
-      background: rgba(239,68,68,.14);
-      border-color: rgba(239,68,68,.28);
+      background: rgba(239,68,68,.08);
+      border-color: rgba(239,68,68,.16);
+      color:#b42318;
     }
 
     .main{padding:14px}
@@ -321,7 +337,7 @@
       padding:14px;
       border-radius: var(--r);
       border:1px solid var(--line);
-      background: rgba(0,0,0,.20);
+      background: var(--card2);
     }
     .head h1{
       margin:0;
@@ -354,11 +370,12 @@
     @media(max-width:560px){
       .stats{grid-template-columns:1fr}
     }
+
     .stat{
       padding:14px;
       border-radius:18px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
+      background: #fff;
       box-shadow: var(--shadow2);
     }
     .stat b{
@@ -380,7 +397,7 @@
       padding:14px;
       border-radius: var(--r);
       border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
+      background: var(--card2);
     }
     .block + .block{margin-top:14px}
 
@@ -408,45 +425,56 @@
       display:block;
       margin-bottom:7px;
     }
-    .field input{
+
+    .field input,
+    .miniInput,
+    textarea.miniInput{
       width:100%;
       padding:12px 13px;
       border-radius: 14px;
       border:1px solid var(--line2);
-      background: rgba(0,0,0,.22);
-      color:#fff;
+      background: #fff;
+      color:var(--txt);
       outline:none;
       font-size:13px;
+      font-family:inherit;
     }
-    .field input::placeholder{color:rgba(255,255,255,.35)}
+
+    .field input::placeholder,
+    .miniInput::placeholder{color:#9bb0c5}
 
     .tableWrap{
       border-radius: var(--r);
       border:1px solid var(--line);
       overflow:auto;
-      background: rgba(0,0,0,.16);
+      background: #fff;
     }
+
     table{
       width:100%;
       border-collapse:collapse;
-      min-width:1080px;
+      min-width:1100px;
     }
+
     th,td{
       padding:12px 13px;
-      border-bottom:1px solid rgba(255,255,255,.07);
+      border-bottom:1px solid #edf2f7;
       text-align:right;
       font-size:13px;
       vertical-align:top;
+      color:var(--txt);
     }
+
     thead th{
       position:sticky;
       top:0;
       z-index:2;
-      background: rgba(7,18,16,.95);
-      backdrop-filter: blur(10px);
+      background: #f8fbff;
       font-weight:1000;
+      color:#35506d;
     }
-    tbody tr:hover{background: rgba(255,255,255,.035)}
+
+    tbody tr:hover{background: #fafcff}
 
     .muted{color:var(--muted);font-size:12px}
     .rowBtns{display:flex; gap:8px; flex-wrap:wrap}
@@ -458,14 +486,26 @@
       padding:6px 10px;
       border-radius:999px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.06);
+      background: #fff;
       font-weight:1000;
       font-size:12px;
       white-space:nowrap;
     }
-    .tag.ok{background: rgba(16,185,129,.14); border-color: rgba(16,185,129,.28)}
-    .tag.bad{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.28)}
-    .tag.warn{background: rgba(245,158,11,.14); border-color: rgba(245,158,11,.28)}
+    .tag.ok{
+      background: rgba(34,197,94,.10);
+      border-color: rgba(34,197,94,.18);
+      color:#15803d;
+    }
+    .tag.bad{
+      background: rgba(239,68,68,.10);
+      border-color: rgba(239,68,68,.18);
+      color:#b42318;
+    }
+    .tag.warn{
+      background: rgba(245,158,11,.10);
+      border-color: rgba(245,158,11,.18);
+      color:#b45309;
+    }
 
     .sw{
       display:inline-flex;
@@ -475,48 +515,39 @@
       white-space:nowrap;
       flex-wrap:wrap;
     }
+
     .switch{
       width:54px;
       height:29px;
       border-radius:999px;
       border:1px solid var(--line2);
-      background: rgba(255,255,255,.10);
+      background: #eaf0f7;
       position:relative;
       cursor:pointer;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.2);
     }
     .knob{
       width:23px;
       height:23px;
       border-radius:999px;
-      background: rgba(255,255,255,.95);
+      background: #fff;
       position:absolute;
       top:2px;
       right:2px;
       transition: transform .18s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,.12);
     }
     .switch.on{
-      background: rgba(16,185,129,.18);
-      border-color: rgba(16,185,129,.28);
+      background: rgba(34,197,94,.22);
+      border-color: rgba(34,197,94,.28);
     }
     .switch.on .knob{transform: translateX(-25px)}
-
-    .miniInput{
-      width:100%;
-      padding:10px 11px;
-      border-radius: 12px;
-      border:1px solid var(--line2);
-      background: rgba(0,0,0,.22);
-      color:#fff;
-      outline:none;
-      font-size:13px;
-    }
 
     .dtMini{display:flex;gap:6px;flex-wrap:wrap}
     .miniBtn{
       border:1px solid var(--line2);
-      background: rgba(255,255,255,.06);
-      color:#fff;
+      background: #fff;
+      color:var(--txt);
       padding:7px 10px;
       border-radius:999px;
       cursor:pointer;
@@ -525,11 +556,12 @@
       line-height:1;
       transition:filter .2s ease, transform .12s ease;
     }
-    .miniBtn:hover{filter:brightness(1.08)}
+    .miniBtn:hover{filter:brightness(1.02)}
     .miniBtn:active{transform:translateY(1px)}
     .miniBtn.ok{
-      background: rgba(16,185,129,.16);
-      border-color: rgba(16,185,129,.28);
+      background: rgba(34,197,94,.10);
+      border-color: rgba(34,197,94,.18);
+      color:#15803d;
     }
 
     .supportMsg{
@@ -545,14 +577,22 @@
       padding:10px;
       border:1px solid var(--line);
       border-radius:14px;
-      background:rgba(0,0,0,.18);
+      background:#fff;
     }
+
     .taskCfgItem{
       margin-bottom:10px;
       padding:10px;
       border:1px solid var(--line);
       border-radius:12px;
-      background:rgba(255,255,255,.04);
+      background:#f9fbff;
+    }
+
+    .cellWrap{
+      max-width:220px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.7;
     }
 
     .toast{
@@ -563,7 +603,7 @@
       padding:12px 15px;
       border-radius:999px;
       border:1px solid var(--line2);
-      background: rgba(7,11,20,.94);
+      background: rgba(255,255,255,.96);
       box-shadow: var(--shadow);
       display:none;
       z-index:9999;
@@ -571,6 +611,7 @@
       text-align:center;
       font-weight:1000;
       font-size:13px;
+      color:var(--txt);
       backdrop-filter: blur(12px);
     }
     .toast.show{display:block}
@@ -759,15 +800,18 @@
             <table>
               <thead>
                 <tr>
-  <th>#</th>
-  <th>المستخدم</th>
-  <th>التواصل</th>
-  <th>الرسالة</th>
-  <th>التاريخ</th>
-  <th>الحالة</th>
-  <th>الرد</th>
-  <th>إرسال</th>
-</tr>
+                  <th>#</th>
+                  <th>المستخدم</th>
+                  <th>النوع</th>
+                  <th>المبلغ</th>
+                  <th>النقاط</th>
+                  <th>الطريقة</th>
+                  <th>الشبكة</th>
+                  <th>اسم المرسل</th>
+                  <th>التاريخ</th>
+                  <th>الحالة</th>
+                  <th>إجراءات</th>
+                </tr>
               </thead>
               <tbody id="rq"></tbody>
             </table>
@@ -812,8 +856,8 @@
             <span>POST /api/admin/tasks/create</span>
           </div>
 
-          <div class="grid" style="grid-template-columns: 2fr 1fr 1fr 1fr">
-            <div class="field" style="grid-column:1/2">
+          <div class="grid" style="grid-template-columns:2fr 1fr 1fr 1fr">
+            <div class="field">
               <label>عنوان المهمة</label>
               <input id="new_title" placeholder="عنوان مهمة جديدة">
             </div>
@@ -839,32 +883,27 @@
             <b>👤 المستخدمون</b>
             <span>GET /api/admin/users</span>
           </div>
-<div class="block" style="margin-bottom:12px">
 
-  <div class="btitle">
-    <b>📢 إرسال رسالة لجميع المستخدمين</b>
-    <span>Broadcast Message</span>
-  </div>
+          <div class="block" style="margin-bottom:12px">
+            <div class="btitle">
+              <b>📢 إرسال رسالة لجميع المستخدمين</b>
+              <span>Broadcast Message</span>
+            </div>
 
-  <div class="field">
-    <label>نص الرسالة</label>
+            <div class="field">
+              <label>نص الرسالة</label>
+              <textarea
+                id="broadcastText"
+                class="miniInput"
+                style="min-height:110px;resize:vertical"
+                placeholder="اكتب الرسالة التي ستصل لجميع المستخدمين..."></textarea>
+            </div>
 
-    <textarea
-      id="broadcastText"
-      class="miniInput"
-      style="min-height:110px;resize:vertical"
-      placeholder="اكتب الرسالة التي ستصل لجميع المستخدمين...">
-    </textarea>
+            <div class="rowBtns" style="margin-top:12px">
+              <button class="btn primary" onclick="sendBroadcastMessage()">📨 إرسال للجميع</button>
+            </div>
+          </div>
 
-  </div>
-
-  <div class="rowBtns" style="margin-top:12px">
-    <button class="btn primary" onclick="sendBroadcastMessage()">
-      📨 إرسال للجميع
-    </button>
-  </div>
-
-</div>
           <div class="rowBtns" style="margin-bottom:10px">
             <button class="btn" onclick="loadUsers()">🔄 تحديث</button>
           </div>
@@ -893,7 +932,7 @@
             <span>POST /api/admin/users/create</span>
           </div>
 
-          <div class="grid" style="grid-template-columns: 2fr 2fr 2fr 1fr">
+          <div class="grid" style="grid-template-columns:2fr 2fr 2fr 1fr">
             <div class="field">
               <label>الاسم</label>
               <input id="cu_name" placeholder="Full name">
@@ -935,6 +974,8 @@
                   <th>الرسالة</th>
                   <th>التاريخ</th>
                   <th>الحالة</th>
+                  <th>الرد</th>
+                  <th>إرسال</th>
                 </tr>
               </thead>
               <tbody id="supportRows"></tbody>
@@ -1113,7 +1154,7 @@
 
         for(const r of rows){
           rq.insertAdjacentHTML("beforeend", `
-            <tr data-row="rq">
+            <tr data-search="${escapeHtml((r.full_name||"")+" "+(r.email||"")+" "+(r.phone||"")+" "+(r.method||"")+" "+(r.network||"")+" "+(r.sender_name||"")+" "+(r.id||""))}">
               <td>${escapeHtml(r.id)}</td>
               <td>
                 <b>${escapeHtml(r.full_name || "-")}</b>
@@ -1122,6 +1163,10 @@
               <td><span class="tag">${typeLabel(r.type)}</span></td>
               <td>${formatUsd(r.amount_usd)}</td>
               <td><b>${escapeHtml(r.points_delta)}</b></td>
+              <td>${escapeHtml(r.method || "-")}</td>
+              <td>${escapeHtml(r.network || "-")}</td>
+              <td>${escapeHtml(r.sender_name || "-")}</td>
+              <td class="muted">${formatDate(r.created_at)}</td>
               <td>${statusTag(r.status || "pending")}</td>
               <td>
                 <div class="rowBtns">
@@ -1134,9 +1179,10 @@
         }
 
         if(!rows.length){
-          rq.innerHTML = `<tr><td colspan="7" class="muted" style="padding:14px">لا توجد طلبات معلقة.</td></tr>`;
+          rq.innerHTML = `<tr><td colspan="11" class="muted" style="padding:14px">لا توجد طلبات معلقة.</td></tr>`;
         }
 
+        applySearch();
         setSync("🟢 جاهز");
       }catch(e){
         setSync("🔴 خطأ");
@@ -1176,7 +1222,7 @@
         for(const t of CACHE_TASKS){
           const on = !!t.is_active;
           tb.insertAdjacentHTML("beforeend", `
-            <tr data-row="task" data-search="${escapeHtml((t.title||"")+" "+t.id+" "+t.order_index)}">
+            <tr data-search="${escapeHtml((t.title||"")+" "+t.id+" "+t.order_index)}">
               <td><b>${escapeHtml(t.order_index)}</b><div class="muted">id: ${escapeHtml(t.id)}</div></td>
               <td><input class="miniInput" id="t_title_${t.id}" value="${escapeAttr(t.title)}"/></td>
               <td><input class="miniInput" type="number" min="0" id="t_reward_${t.id}" value="${escapeAttr(t.reward_points)}"/></td>
@@ -1411,7 +1457,7 @@
           const limText = (lim === null) ? "بلا حد" : `${lim}/5`;
 
           us.insertAdjacentHTML("beforeend", `
-            <tr data-row="user" data-search="${escapeHtml((u.full_name||"")+" "+(u.id||"")+" "+contact)}">
+            <tr data-search="${escapeHtml((u.full_name||"")+" "+(u.id||"")+" "+contact)}">
               <td><b>${escapeHtml(u.id)}</b></td>
               <td>${escapeHtml(u.full_name || "-")}</td>
               <td class="muted">${escapeHtml(contact)}</td>
@@ -1452,22 +1498,22 @@
                 <input class="miniInput" style="max-width:180px" id="pw_${u.id}" type="password" placeholder="كلمة سر جديدة"/>
               </td>
 
-<td>
-  <div class="rowBtns">
-    <button class="btn" onclick="setPoints('${u.id}')">💠 نقاط</button>
-    <button class="btn primary" onclick="setPassword('${u.id}')">🔒 كلمة السر</button>
-    <button class="btn" onclick="resetTasks('${u.id}')">♻️ Reset مهام</button>
-    <button class="btn danger" onclick="deleteUser('${u.id}')">🗑️ حذف</button>
-  </div>
+              <td>
+                <div class="rowBtns">
+                  <button class="btn" onclick="setPoints('${u.id}')">💠 نقاط</button>
+                  <button class="btn primary" onclick="setPassword('${u.id}')">🔒 كلمة السر</button>
+                  <button class="btn" onclick="resetTasks('${u.id}')">♻️ Reset مهام</button>
+                  <button class="btn danger" onclick="deleteUser('${u.id}')">🗑️ حذف</button>
+                </div>
 
-  <div style="margin-top:10px">
-    <input class="miniInput" id="msg_${u.id}" placeholder="اكتب رسالة لهذا المستخدم">
-  </div>
+                <div style="margin-top:10px">
+                  <input class="miniInput" id="msg_${u.id}" placeholder="اكتب رسالة لهذا المستخدم">
+                </div>
 
-  <div class="rowBtns" style="margin-top:8px">
-    <button class="btn primary" onclick="sendAdminMessage('${u.id}')">📨 إرسال رسالة</button>
-  </div>
-</td>
+                <div class="rowBtns" style="margin-top:8px">
+                  <button class="btn primary" onclick="sendAdminMessage('${u.id}')">📨 إرسال رسالة</button>
+                </div>
+              </td>
             </tr>
           `);
 
@@ -1641,7 +1687,7 @@
 
         for(const x of rows){
           tb.insertAdjacentHTML("beforeend", `
-            <tr data-row="support" data-search="${escapeHtml((x.full_name||"")+" "+(x.email||"")+" "+(x.phone||"")+" "+(x.text||""))}">
+            <tr data-search="${escapeHtml((x.full_name||"")+" "+(x.email||"")+" "+(x.phone||"")+" "+(x.text||""))}">
               <td>${escapeHtml(x.id)}</td>
               <td>
                 <b>${escapeHtml(x.full_name || "-")}</b>
@@ -1650,19 +1696,19 @@
               <td class="muted">${escapeHtml(x.email || x.phone || "-")}</td>
               <td><div class="supportMsg">${escapeHtml(x.text || "")}</div></td>
               <td class="muted">${formatDate(x.created_at)}</td>
-<td>${supportStatusTag(x.status || "new")}</td>
-<td>
-  <input class="miniInput" id="reply_${x.id}" placeholder="اكتب الرد هنا">
-</td>
-<td>
-  <button class="btn primary" onclick="sendReply('${x.id}')">إرسال</button>
-</td>
+              <td>${supportStatusTag(x.status || "new")}</td>
+              <td>
+                <input class="miniInput" id="reply_${x.id}" placeholder="اكتب الرد هنا">
+              </td>
+              <td>
+                <button class="btn primary" onclick="sendReply('${x.id}')">إرسال</button>
+              </td>
             </tr>
           `);
         }
 
         if(!rows.length){
-          tb.innerHTML = `<tr><td colspan="6" class="muted" style="padding:14px">لا توجد رسائل دعم حالياً.</td></tr>`;
+          tb.innerHTML = `<tr><td colspan="8" class="muted" style="padding:14px">لا توجد رسائل دعم حالياً.</td></tr>`;
         }
 
         applySearch();
@@ -1691,67 +1737,71 @@
       try{ await loadSupportMessages(); }catch(_){}
       toast("تم تحديث كلشي ✅");
     }
-async function sendReply(id){
-  try{
-    const input = document.getElementById("reply_" + id);
-    const reply = input.value.trim();
 
-    if(!reply){
-      toast("اكتب الرد أولا");
-      return;
+    async function sendReply(id){
+      try{
+        const input = document.getElementById("reply_" + id);
+        const reply = input.value.trim();
+
+        if(!reply){
+          toast("اكتب الرد أولا");
+          return;
+        }
+
+        await api("/api/admin/support/reply","POST",{
+          id:id,
+          reply:reply
+        });
+
+        toast("تم إرسال الرد ✅");
+        loadSupportMessages();
+
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+      }
     }
 
-    await api("/api/admin/support/reply","POST",{
-      id:id,
-      reply:reply
-    });
+    async function sendAdminMessage(userId){
+      try{
+        const text = document.getElementById("msg_" + userId).value.trim();
 
-    toast("تم إرسال الرد ✅");
-    loadSupportMessages();
+        if(!text){
+          toast("اكتب الرسالة أولا");
+          return;
+        }
 
-  }catch(e){
-    toast(e.message || "وقع خطأ");
-  }
-}
-async function sendAdminMessage(userId){
-  try{
-    const text = document.getElementById("msg_" + userId).value.trim();
+        await api("/api/admin/messages/send","POST",{
+          user_id: userId,
+          text: text
+        });
 
-    if(!text){
-      toast("اكتب الرسالة أولا");
-      return;
+        document.getElementById("msg_" + userId).value="";
+        toast("تم إرسال الرسالة للمستخدم ✅");
+
+      }catch(e){
+        toast(e.message || "وقع خطأ");
+      }
     }
 
-    await api("/api/admin/messages/send","POST",{
-      user_id: userId,
-      text: text
-    });
+    async function sendBroadcastMessage(){
+      try{
+        const text = (document.getElementById("broadcastText").value || "").trim();
 
-    document.getElementById("msg_" + userId).value="";
-    toast("تم إرسال الرسالة للمستخدم ✅");
+        if(!text){
+          toast("اكتب الرسالة أولاً");
+          return;
+        }
 
-  }catch(e){
-    toast(e.message || "وقع خطأ");
-  }
-}
+        const r = await api("/api/admin/messages/send-all", "POST", { text });
+
+        document.getElementById("broadcastText").value = "";
+        toast(r.message || "تم إرسال الرسالة للجميع ✅");
+      }catch(e){
+        toast(e.message || "وقع خطأ في الإرسال");
+      }
+    }
+
     initAll().catch(e=>toast(e.message || "وقع خطأ"));
-async function sendBroadcastMessage(){
-  try{
-    const text = (document.getElementById("broadcastText").value || "").trim();
-
-    if(!text){
-      toast("اكتب الرسالة أولاً");
-      return;
-    }
-
-    const r = await api("/api/admin/messages/send-all", "POST", { text });
-
-    document.getElementById("broadcastText").value = "";
-    toast(r.message || "تم إرسال الرسالة للجميع ✅");
-  }catch(e){
-    toast(e.message || "وقع خطأ في الإرسال");
-  }
-}
   </script>
 </body>
 </html>

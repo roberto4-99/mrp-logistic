@@ -42,7 +42,7 @@ function defaultDb() {
       min_withdraw_usd: 10,
       manager_contact: {
         title: "تواصل مع المدير لإتمام العملية",
-        whatsapp: "+212619692685",
+        whatsapp: "+212695299454",
         telegram: "@Mrp_logistic",
       },
       referral: {
@@ -686,7 +686,7 @@ app.get("/api/me", requireAuth, wrap(async (req, res) => {
 /* ---------------- Wallet ---------------- */
 app.post("/api/wallet/request", requireAuth, wrap(async (req, res) => {
   const db = req._db;
-  const { type, amount_usd } = req.body;
+  const { type, amount_usd, method, network, sender_name } = req.body;
 
   if (!["deposit", "withdraw"].includes(type)) {
     return res.status(400).json({ ok: false, message: "نوع غير صحيح." });
@@ -714,22 +714,22 @@ app.post("/api/wallet/request", requireAuth, wrap(async (req, res) => {
 
   db.wallet_transactions = db.wallet_transactions || [];
   db.wallet_transactions.push({
-    id: String(Date.now()) + "-" + Math.floor(Math.random() * 9999),
-    user_id: req.user.id,
-    type,
-    amount_usd: usd,
-    rate_usd_to_points: Number(db.settings.usd_to_points ?? 10),
-    points_delta: type === "deposit" ? points : -points,
-    status: "pending",
-    created_at: nowISO(),
-    processed_at: null,
-  });
-
+  id: String(Date.now()) + "-" + Math.floor(Math.random() * 9999),
+  user_id: req.user.id,
+  type,
+  method: String(method || "").trim(),
+  network: String(network || "").trim(),
+  sender_name: String(sender_name || "").trim(),
+  amount_usd: usd,
+  rate_usd_to_points: Number(db.settings.usd_to_points ?? 10),
+  points_delta: type === "deposit" ? points : -points,
+  status: "pending",
+  created_at: nowISO(),
+  processed_at: null,
+});
   await writeDb(db);
-  res.json({ ok: true, message: "تم إرسال الطلب.", manager: db.settings.manager_contact });
-}));
-
-app.get("/api/wallet/my", requireAuth, (req, res) => {
+  res.json({ ok: true, message: "تم إرسال الطلب.", manager: db.settings.manager_contact });}));
+  app.get("/api/wallet/my", requireAuth, (req, res) => {
   const db = req._db;
   const rows = (db.wallet_transactions || [])
     .filter((x) => x.user_id === req.user.id)

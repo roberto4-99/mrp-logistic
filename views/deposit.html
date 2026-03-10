@@ -16,7 +16,6 @@
       --muted: rgba(255,255,255,.75);
       --muted2: rgba(255,255,255,.60);
       --good:#22c55e;
-      --bad:#ef4444;
       --blue:#3b82f6;
       --yellow:#f59e0b;
       --shadow: 0 18px 60px rgba(0,0,0,.35);
@@ -51,14 +50,14 @@
       pointer-events:none;
       z-index:0;
     }
-    .wrap, .toast, .nav{position:relative; z-index:1;}
 
-    .wrap{max-width:560px;margin:0 auto}
+    .wrap, .toast{position:relative; z-index:1;}
+    .wrap{max-width:620px;margin:0 auto}
 
     .toast{
       position:fixed; left:14px; right:14px;
       bottom: calc(96px + env(safe-area-inset-bottom));
-      max-width:560px; margin:auto;
+      max-width:620px; margin:auto;
       background: rgba(2,6,23,.92);
       border:1px solid var(--border);
       border-radius: 16px;
@@ -67,9 +66,10 @@
       display:none; z-index:9999;
       backdrop-filter: blur(14px);
       font-size:13px;
+      text-align:center;
+      font-weight:950;
     }
     .toast.show{display:block}
-    .toast b{font-weight:950}
 
     .topbar{
       display:flex; align-items:center; justify-content:space-between;
@@ -121,7 +121,7 @@
     }
     .heroTop{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
     h1{margin:0;font-size:15px;font-weight:1000;letter-spacing:.2px}
-    .sub{margin-top:6px; font-size:12px; color:var(--muted); line-height:1.6}
+    .sub{margin-top:6px; font-size:12px; color:var(--muted); line-height:1.7}
     .minPill{
       position:relative;
       padding:9px 10px;border-radius:999px;
@@ -166,14 +166,6 @@
       white-space:nowrap;
     }
 
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    @media(max-width:520px){ .grid2{grid-template-columns:1fr;} }
-
     label{
       display:block;
       margin-top:12px;
@@ -181,6 +173,14 @@
       color:var(--muted2);
       font-weight:950;
     }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media(max-width:520px){ .grid2{grid-template-columns:1fr;} }
 
     .fieldWrap{margin-top:8px; position:relative;}
     .field{
@@ -221,7 +221,7 @@
     .methods{
       margin-top:10px;
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap:10px;
     }
     @media(max-width:560px){ .methods{grid-template-columns:1fr;} }
@@ -239,13 +239,6 @@
       position:relative;
       overflow:hidden;
     }
-    .m::after{
-      content:"";
-      position:absolute; inset:-2px;
-      background: radial-gradient(340px 120px at 20% 0%, rgba(125,211,252,.10), transparent 60%);
-      opacity:.6;
-      pointer-events:none;
-    }
     .m:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); transform: translateY(-1px);}
     .m:active{transform: translateY(1px) scale(.99)}
     .m.active{
@@ -253,23 +246,17 @@
       border-color: rgba(59,130,246,.28);
       box-shadow: 0 10px 28px rgba(0,0,0,.18);
     }
+
     .mIco{
       width:42px;height:42px;border-radius:16px;
       display:flex;align-items:center;justify-content:center;
       background: rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
       flex:0 0 auto;
-      position:relative;
-      z-index:1;
+      font-size:18px;
     }
-    .m.active .mIco{
-      background: rgba(59,130,246,.18);
-      border-color: rgba(59,130,246,.30);
-    }
-    .mIco svg{width:20px;height:20px;opacity:.95}
-    .mTxt{min-width:0; position:relative; z-index:1;}
-    .mTxt b{display:block;font-size:13px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .mTxt span{display:block;margin-top:3px;font-size:11px;color: var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .mTxt b{display:block;font-size:13px;font-weight:1000}
+    .mTxt span{display:block;margin-top:3px;font-size:11px;color: var(--muted)}
 
     .nets{
       margin-top:10px;
@@ -297,16 +284,51 @@
       border-color: rgba(245,158,11,.28);
       color:#fff;
     }
-    .net .miniTag{
-      font-size:11px;
-      padding:5px 8px;
-      border-radius:999px;
-      background: rgba(0,0,0,.28);
-      border:1px solid rgba(255,255,255,.12);
-      opacity:.95;
-    }
 
     .hide{display:none !important;}
+
+    .infoBox{
+      margin-top:12px;
+      border-radius:20px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.10);
+      padding:12px;
+    }
+    .infoTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .infoTop b{
+      font-size:13px;
+      font-weight:1000;
+    }
+    .copyBtn{
+      border:none;
+      cursor:pointer;
+      padding:8px 12px;
+      border-radius:999px;
+      background: rgba(34,197,94,.16);
+      border:1px solid rgba(34,197,94,.28);
+      color:#fff;
+      font-size:12px;
+      font-weight:1000;
+    }
+    .copyBtn:active{transform: translateY(1px) scale(.99)}
+    .infoValue{
+      direction:ltr;
+      text-align:left;
+      word-break:break-all;
+      background: rgba(0,0,0,.24);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:12px;
+      font-size:13px;
+      line-height:1.8;
+      color:#fff;
+    }
 
     .btn{
       width:100%;
@@ -345,7 +367,7 @@
       <div class="heroTop">
         <div>
           <h1>إيداع رصيد</h1>
-          <div class="sub">املأ المعلومات ثم اضغط “إرسال الطلب” وسيتم فتح تيليجرام لإرسال رسالة جاهزة.</div>
+          <div class="sub">اختر طريقة الإيداع وسيظهر لك الـ ID أو العنوان الخاص بالإيداع مع زر نسخ، ثم أرسل الطلب من داخل المنصة.</div>
         </div>
         <div class="minPill" id="minLine">أقل إيداع: 5$ • أقصى: 5000$</div>
       </div>
@@ -354,60 +376,63 @@
     <div class="card">
       <div class="hintBar">
         <div>✅ الحد الأدنى <b>5$</b> — الحد الأقصى <b>5000$</b></div>
-        <div class="cap">اختياري: الطريقة/الشبكة</div>
+        <div class="cap">اختر الطريقة ثم انسخ البيانات</div>
       </div>
 
-      <label>طريقة الدفع (اختياري)</label>
+      <label>طريقة الإيداع</label>
       <div class="methods" id="methods">
-        <div class="m active" data-method="Binance">
-          <div class="mIco">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 2l4 4-4 4-4-4 4-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-              <path d="M12 10l4 4-4 4-4-4 4-4z" stroke="currentColor" stroke-width="2" opacity=".85" stroke-linejoin="round"/>
-            </svg>
-          </div>
+        <div class="m active" data-method="binance">
+          <div class="mIco">🟡</div>
           <div class="mTxt">
-            <b>Binance</b>
-            <span>Pay / Transfer</span>
+            <b>Binance ID</b>
+            <span>تحويل داخلي</span>
           </div>
         </div>
 
-        <div class="m" data-method="USDT">
-          <div class="mIco">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 2v20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M5 6h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M7 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M8 14h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+        <div class="m" data-method="bybit">
+          <div class="mIco">🟠</div>
+          <div class="mTxt">
+            <b>Bybit UID</b>
+            <span>تحويل داخلي</span>
           </div>
+        </div>
+
+        <div class="m" data-method="okx">
+          <div class="mIco">⚫</div>
+          <div class="mTxt">
+            <b>OKX UID</b>
+            <span>تحويل داخلي</span>
+          </div>
+        </div>
+
+        <div class="m" data-method="usdt">
+          <div class="mIco">💵</div>
           <div class="mTxt">
             <b>USDT</b>
-            <span>Crypto Transfer</span>
+            <span>TRC20 / ERC20 / BEP20 / Aptos</span>
           </div>
         </div>
 
-        <div class="m" data-method="Transfer">
-          <div class="mIco">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M4 8h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <path d="M8 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
+        <div class="m" data-method="bnb">
+          <div class="mIco">🪙</div>
           <div class="mTxt">
-            <b>Transfer</b>
-            <span>Wise / Bank</span>
+            <b>BNB</b>
+            <span>BNB / BEP20</span>
           </div>
         </div>
       </div>
 
       <div id="netSection" class="hide">
-        <label>شبكة USDT (اختياري — يظهر فقط عند اختيار USDT)</label>
-        <div class="nets" id="nets">
-          <div class="net" data-net="TRC20">TRC20 <span class="miniTag">USDT</span></div>
-          <div class="net" data-net="ERC20">ERC20 <span class="miniTag">USDT</span></div>
+        <label>اختر الشبكة</label>
+        <div class="nets" id="nets"></div>
+      </div>
+
+      <div class="infoBox" id="infoBox">
+        <div class="infoTop">
+          <b id="infoTitle">Binance ID</b>
+          <button type="button" class="copyBtn" onclick="copyInfo()">نسخ</button>
         </div>
+        <div class="infoValue" id="infoValue">890395087</div>
       </div>
 
       <div class="grid2">
@@ -420,7 +445,7 @@
         </div>
 
         <div>
-          <label>اسم المرسل (صاحب التحويل)</label>
+          <label>اسم المرسل</label>
           <div class="fieldWrap">
             <input class="field" id="senderName" placeholder="مثال: Mohammed A."/>
           </div>
@@ -430,17 +455,52 @@
       <button class="btn" onclick="submitDeposit()">إرسال طلب الإيداع</button>
 
       <div class="mini">
-        ✅ بعد الإرسال سيتم فتح تيليجرام وإرسال رسالة جاهزة لـ <b>@Mrp_deposit</b>.<br/>
-        🔒 تذكير: الشبكة اختيارية وتظهر فقط عند اختيار USDT.
+        ✅ انسخ الـ ID أو العنوان الصحيح حسب الطريقة المختارة ثم قم بالإيداع، وبعدها أرسل الطلب.<br/>
+        🔒 سيتم أيضًا فتح تيليجرام لإرسال رسالة جاهزة بعد تسجيل الطلب.
       </div>
     </div>
   </div>
 
 <script>
-  // ✅ Settings fixed
   const MIN_DEP = 5;
   const MAX_DEP = 5000;
-  const TG_USERNAME = "Mrp_deposit"; // @Mrp_deposit
+  const TG_USERNAME = "Mrp_deposit";
+
+  const DEPOSIT_DATA = {
+    binance: {
+      type: "single",
+      title: "Binance ID",
+      value: "890395087"
+    },
+    bybit: {
+      type: "single",
+      title: "Bybit UID",
+      value: "176062200"
+    },
+    okx: {
+      type: "single",
+      title: "OKX UID",
+      value: "634436040455185157"
+    },
+    usdt: {
+      type: "network",
+      title: "USDT",
+      networks: {
+        TRC20: "TAmSx84TeFXwprhgfTj2Xbg9ZfKSSpJjmr",
+        ERC20: "0x72a0db460d9e2f2a39958cce2d0c24598cd67871",
+        BEP20: "0x248ec9e8b6c07dfbd81a4146834897cbd7358d4d",
+        Aptos: "0xc06e4b9a6eec1b53c0b18f99f30ec959004f61346f880a989216e7de7287d4ae"
+      }
+    },
+    bnb: {
+      type: "network",
+      title: "BNB",
+      networks: {
+        BNB: "0x248ec9e8b6c07dfbd81a4146834897cbd7358d4d",
+        BEP20: "0x248ec9e8b6c07dfbd81a4146834897cbd7358d4d"
+      }
+    }
+  };
 
   function toast(msg){
     const t=document.getElementById("toast");
@@ -454,11 +514,11 @@
     return Number.isFinite(n) ? n : NaN;
   }
 
-  // ✅ api() موجودة هنا باش مايبقاش "api not found"
   async function api(url, method="GET", data=null){
     const opts = {
       method,
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
+      credentials: "include"
     };
     if(data) opts.body = JSON.stringify(data);
 
@@ -467,41 +527,69 @@
 
     try{ json = await res.json(); }catch(e){}
 
-    if(!res.ok){
+    if(!res.ok || (json && json.ok === false)){
       const msg = (json && (json.message || json.error)) ? (json.message || json.error) : "Server error";
       throw new Error(msg);
     }
     return json || {};
   }
 
-  // ✅ UI state
   let selectedMethod = "binance";
   let selectedNet = "";
 
   const methodsBox = document.getElementById("methods");
   const netsBox = document.getElementById("nets");
   const netSection = document.getElementById("netSection");
+  const infoTitle = document.getElementById("infoTitle");
+  const infoValue = document.getElementById("infoValue");
 
-  function isUSDT(){
-    return String(selectedMethod).toLowerCase() === "usdt";
-  }
+  document.getElementById("minLine").textContent = `أقل إيداع: ${MIN_DEP}$ • أقصى: ${MAX_DEP}$`;
 
-  function methodLabel(key){
-    key = String(key||"").toLowerCase();
-    if(key === "binance") return "Binance";
-    if(key === "usdt") return "USDT";
-    if(key === "transfer") return "Transfer";
-    return key || "غير محددة";
-  }
+  function renderMethod(){
+    const cfg = DEPOSIT_DATA[selectedMethod];
+    if(!cfg) return;
 
-  function setMethod(key){
-    selectedMethod = String(key||"").toLowerCase();
-    if(isUSDT()){
-      netSection.classList.remove("hide");
-    }else{
+    if(cfg.type === "single"){
       netSection.classList.add("hide");
       selectedNet = "";
-      netsBox?.querySelectorAll(".net")?.forEach(x=>x.classList.remove("active"));
+      infoTitle.textContent = cfg.title;
+      infoValue.textContent = cfg.value;
+    }else{
+      netSection.classList.remove("hide");
+      renderNetworks(cfg.networks || {});
+      const firstNet = Object.keys(cfg.networks || {})[0] || "";
+      selectedNet = firstNet;
+      renderNetworkValue();
+    }
+  }
+
+  function renderNetworks(networks){
+    netsBox.innerHTML = "";
+    Object.keys(networks || {}).forEach((net, idx) => {
+      const div = document.createElement("div");
+      div.className = "net" + (idx === 0 ? " active" : "");
+      div.setAttribute("data-net", net);
+      div.textContent = net;
+      netsBox.appendChild(div);
+    });
+  }
+
+  function renderNetworkValue(){
+    const cfg = DEPOSIT_DATA[selectedMethod];
+    if(!cfg || cfg.type !== "network") return;
+    const val = cfg.networks[selectedNet] || "";
+    infoTitle.textContent = `${cfg.title} - ${selectedNet}`;
+    infoValue.textContent = val;
+  }
+
+  async function copyInfo(){
+    const txt = infoValue.textContent || "";
+    if(!txt) return toast("لا يوجد شيء للنسخ");
+    try{
+      await navigator.clipboard.writeText(txt);
+      toast("تم النسخ ✅");
+    }catch(e){
+      toast("تعذر النسخ");
     }
   }
 
@@ -510,54 +598,55 @@
     if(!item) return;
     methodsBox.querySelectorAll(".m").forEach(x=>x.classList.remove("active"));
     item.classList.add("active");
-    setMethod(item.getAttribute("data-method"));
+    selectedMethod = item.getAttribute("data-method") || "binance";
+    renderMethod();
   });
 
-  netsBox?.addEventListener("click",(e)=>{
+  netsBox.addEventListener("click",(e)=>{
     const item = e.target.closest(".net");
     if(!item) return;
     netsBox.querySelectorAll(".net").forEach(x=>x.classList.remove("active"));
     item.classList.add("active");
     selectedNet = item.getAttribute("data-net") || "";
+    renderNetworkValue();
   });
 
-  document.getElementById("minLine").textContent = `أقل إيداع: ${MIN_DEP}$ • أقصى: ${MAX_DEP}$`;
-  setMethod(selectedMethod);
+  renderMethod();
 
-  // ✅ دالة الإرسال كاملة
   async function submitDeposit(){
     const amount = moneyNum(document.getElementById("amount").value);
     const sender = (document.getElementById("senderName").value || "").trim();
+    const methodName = DEPOSIT_DATA[selectedMethod]?.title || selectedMethod;
+    const networkValue = DEPOSIT_DATA[selectedMethod]?.type === "network" ? (selectedNet || "") : "";
 
-    if(!Number.isFinite(amount) || amount<=0) return toast("دخل مبلغ صحيح");
+    if(!Number.isFinite(amount) || amount <= 0) return toast("أدخل مبلغًا صحيحًا");
     if(amount < MIN_DEP) return toast(`أقل إيداع هو <b>${MIN_DEP}$</b>`);
     if(amount > MAX_DEP) return toast(`أقصى إيداع هو <b>${MAX_DEP}$</b>`);
-    if(sender.length < 2) return toast("دخل اسم المرسل (حرفين على الأقل)");
+    if(sender.length < 2) return toast("أدخل اسم المرسل");
 
-    // 1) Send to admin (server) ✅
     try{
       await api("/api/wallet/request","POST",{
-        type:"deposit",
-        amount_usd: amount
+        type: "deposit",
+        amount_usd: amount,
+        method: methodName,
+        network: networkValue,
+        sender_name: sender
       });
     }catch(e){
       return toast(e?.message || "وقع خطأ أثناء إرسال الطلب للسيرفر");
     }
 
-    // 2) Telegram message ✅
-    const methodTxt = methodLabel(selectedMethod);
     let msg =
 `طلب إيداع جديد ✅
 المبلغ: ${amount}$
 اسم المرسل: ${sender}
-طريقة الدفع: ${methodTxt}`;
+الطريقة: ${methodName}`;
 
-    if(isUSDT()){
-      msg += `\nشبكة USDT: ${selectedNet || "غير محددة"}`;
+    if(DEPOSIT_DATA[selectedMethod]?.type === "network"){
+      msg += `\nالشبكة: ${selectedNet || "غير محددة"}`;
     }
 
-    toast("تم إرسال الطلب للأدمن ✅ غادي نفتح تيليجرام…");
-
+    toast("تم إرسال الطلب ✅ جاري فتح تيليجرام...");
     const url = "https://t.me/" + TG_USERNAME + "?text=" + encodeURIComponent(msg);
     setTimeout(()=>{ window.location.href = url; }, 450);
   }

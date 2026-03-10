@@ -6,7 +6,7 @@
     "min_withdraw_usd": 10,
     "manager_contact": {
       "title": "تواصل مع المدير لإتمام العملية",
-      "whatsapp": "+212619692685",
+      "whatsapp": "+212695299454",
       "telegram": "99"
     },
     "referral": {
@@ -26,7 +26,7 @@
       "is_admin": true,
       "status": "active",
       "created_at": "2026-02-27T15:33:49.221Z",
-      "last_login_at": "2026-03-07T19:14:33.284Z",
+      "last_login_at": "2026-03-10T13:28:30.505Z",
       "referral_code": "Ud728daa5-d822-42cd-b4f6-67abeb6b0fe2",
       "tasks_enabled": true,
       "tasks_limit": null
@@ -37,11 +37,11 @@
       "email": "test1",
       "phone": null,
       "password_hash": "$2a$10$I8i0aEJyc4xEzv1kr8ptQusu7uat7YCJEc9Tz.mqyEVDJV9FlaTtC",
-      "points_balance": 0,
+      "points_balance": 7000,
       "is_admin": false,
       "status": "active",
       "created_at": "2026-03-07T14:57:37.056Z",
-      "last_login_at": "2026-03-07T18:25:57.309Z",
+      "last_login_at": "2026-03-10T13:32:55.073Z",
       "referral_code": "U555560",
       "tasks_enabled": true,
       "tasks_limit": null
@@ -1488,6 +1488,45 @@
       "status": "rejected",
       "created_at": "2026-03-06T14:55:24.110Z",
       "processed_at": "2026-03-07T14:31:11.481Z"
+    },
+    {
+      "id": "1773148101338-150",
+      "user_id": 555560,
+      "type": "withdraw",
+      "amount_usd": 500,
+      "rate_usd_to_points": 10,
+      "points_delta": -5000,
+      "status": "rejected",
+      "created_at": "2026-03-10T13:08:21.338Z",
+      "processed_at": "2026-03-10T13:30:11.278Z"
+    },
+    {
+      "id": "1773149590702-8692",
+      "user_id": 555560,
+      "type": "withdraw",
+      "method": "",
+      "network": "",
+      "sender_name": "",
+      "amount_usd": 50,
+      "rate_usd_to_points": 10,
+      "points_delta": -500,
+      "status": "pending",
+      "created_at": "2026-03-10T13:33:10.702Z",
+      "processed_at": null
+    },
+    {
+      "id": "1773149604856-6024",
+      "user_id": 555560,
+      "type": "deposit",
+      "method": "Binance ID",
+      "network": "",
+      "sender_name": "gjyj",
+      "amount_usd": 40,
+      "rate_usd_to_points": 10,
+      "points_delta": 400,
+      "status": "pending",
+      "created_at": "2026-03-10T13:33:24.856Z",
+      "processed_at": null
     }
   ],
   "tasks": [
@@ -1997,7 +2036,9 @@
       "user_id": 555560,
       "text": "lkytftrc5eweeghjnvvgtdgxeeetdxutyvytycrcdcjvteregtexrcg55edr",
       "created_at": "2026-03-07T16:36:11.423Z",
-      "status": "new"
+      "status": "read",
+      "reply": "fherhh",
+      "replied_at": "2026-03-10T13:15:37.564Z"
     },
     {
       "id": "1772903152472-30550",
